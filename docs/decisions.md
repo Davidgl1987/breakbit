@@ -189,3 +189,44 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - Pendiente para cuando haga falta: avisos efímeros (toasts) y estado del permiso de notificaciones
   (fases 7–8), `storage.persist()` (fase 15) y datos semilla en el DevPanel (cuando exista el cierre de
   día).
+
+## Onboarding (Fase 5)
+
+- **Rutas** `/onboarding/:step` (bienvenida, jornada, molestias, material, ritmo, resumen) a pantalla
+  completa, con dos guardas declarativas: sin onboarding, todas las rutas de la app llevan a la
+  bienvenida; con onboarding hecho, `/onboarding/*` lleva a Hoy. `/dev/kit` queda fuera de las guardas.
+- **Borrador**: lo elegido vive en `sessionStorage` (sobrevive a una recarga a mitad) y solo se guarda
+  en el store al pulsar `Empezar`, que también borra el borrador y pide `storage.persist()`.
+- **CTA fija**: `Siguiente` / `Empezar` se queda abajo (sticky, con safe area) en pasos largos; al
+  final de la página queda debajo del contenido, así que nunca tapa campos. Un campo enfocado cerca del
+  borde se desplaza por encima del botón.
+- **Jornada**: plantilla habitual, no horario rígido (sin interruptor de "horario variable"). Jornada,
+  descanso habitual y comida se editan igual, como Inicio / Fin. El dominio sigue guardando
+  `{ start, durationMin }`; la conversión está en el formulario (`timeRange.ts`) y un fin anterior al
+  inicio se informa por bloque ("El descanso debe terminar después de empezar"). Se mantienen las
+  validaciones de dominio (dentro de la jornada, sin solapes, sin turnos que cruzan medianoche) y al
+  menos un día laborable. Mientras haya errores, `Siguiente` está desactivado.
+- **Material**: sin opción "Ninguno". No marcar nada es `equipment: []`; los movimientos sin material y
+  caminar son la base y siempre están disponibles. Cada material describe lo que añade, sin lenguaje
+  de desbloqueo.
+- **Ritmo**: la descripción de Suave/Normal/Activo es secundaria; lo destacado es el cálculo con el
+  planificador real para la jornada elegida (pausas al día e interrupción aproximada, más la actividad
+  del día).
+- **Resumen**: jerarquía en vez de tarjetas iguales: jornada en tarjeta normal, molestias y material
+  como etiquetas sin tarjeta, ritmo destacado (`tinted`) y avisos como bloque informativo (`muted`).
+  Cada sección tiene `Editar`. El avatar solo aparece en la bienvenida (evolución completa) y, pequeño,
+  en el resumen.
+- **Avisos**: el permiso del navegador solo se pide al pulsar `Activar notificaciones`, nunca al entrar
+  en la pantalla. Si está bloqueado no se muestra ese botón (el navegador no volvería a preguntar): se
+  explica cómo activarlo en los ajustes del navegador y se puede empezar igualmente. Al volver a la
+  pestaña se relee el estado (sin preguntar). `notifications.enabled` se guarda según el permiso final.
+- **Copy**: cercano, corto y práctico; sin lenguaje médico ni de videojuego en la configuración. Los
+  nombres visibles son naturales ("Tiempo sentado" en vez de "Sedentarismo"); los identificadores
+  internos no cambian.
+- **Design system**: componentes genéricos nuevos `MultiChipGroup` (días), `InlineMessage` (pista o
+  error), `Tag` (etiqueta estática), `Avatar` (con placeholder por fase) y `EvolutionStrip`; `Wordmark`
+  pasa a `ui/components`. Todos están en `/dev/kit`. No hay variantes visuales propias del onboarding.
+- **Desarrollo en red local**: el servidor de Vite escucha en la red (`server.host`) para probar desde
+  el móvil. Por `http` a una IP el navegador no da un contexto seguro: las notificaciones no estarán
+  disponibles ahí (se verá el estado "no admite avisos"); por eso los ids de eventos usan
+  `crypto.getRandomValues` y no `randomUUID`.

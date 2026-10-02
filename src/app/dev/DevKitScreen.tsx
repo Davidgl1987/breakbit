@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { LOCALES, type Locale } from '@/i18n/translate';
+import { LOCALES, weekdayName, type Locale } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { useAppStore, type ThemePreference } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
@@ -7,6 +7,8 @@ import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Card } from '@/ui/components/Card/Card';
 import { Checkbox } from '@/ui/components/Checkbox/Checkbox';
 import { ChipGroup } from '@/ui/components/ChipGroup/ChipGroup';
+import { MultiChipGroup } from '@/ui/components/ChipGroup/MultiChipGroup';
+import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { MetricTile } from '@/ui/components/MetricTile/MetricTile';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
@@ -16,8 +18,11 @@ import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedPr
 import { Slider05 } from '@/ui/components/Slider05/Slider05';
 import { StatusBadge, type BadgeStatus } from '@/ui/components/StatusBadge/StatusBadge';
 import { Stepper } from '@/ui/components/Stepper/Stepper';
+import { Tag } from '@/ui/components/Tag/Tag';
 import { TimeField } from '@/ui/components/TimeField/TimeField';
 import { Toggle } from '@/ui/components/Toggle/Toggle';
+import { Avatar } from '@/ui/game/Avatar/Avatar';
+import { EvolutionStrip } from '@/ui/game/EvolutionStrip/EvolutionStrip';
 import type { ButtonVariant } from '@/ui/components/Button/buttonStyles';
 import { ICON_NAMES } from '@/ui/icons/iconNames';
 import { LineIcon, type LineIconName } from '@/ui/icons/LineIcon';
@@ -63,6 +68,7 @@ const LINE_ICONS: LineIconName[] = [
 ];
 const ICON_SIZES = ['16', '24', '32', '48'] as const;
 const THEMES: ThemePreference[] = ['light', 'dark', 'system'];
+const WEEKDAYS = ['1', '2', '3', '4', '5', '6', '7'] as const;
 
 /** Dev-only living style guide, to compare against docs/references. */
 export function DevKitScreen() {
@@ -86,6 +92,7 @@ export function DevKitScreen() {
   const [neck, setNeck] = useState(2);
   const [eyes, setEyes] = useState(4);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [workDays, setWorkDays] = useState<(typeof WEEKDAYS)[number][]>(['1', '2', '3', '4', '5']);
   const [iconSize, setIconSize] = useState<(typeof ICON_SIZES)[number]>('32');
 
   return (
@@ -208,6 +215,18 @@ export function DevKitScreen() {
             { value: '10m', label: `${t('common.minutes', { count: 10 })}+` },
           ]}
         />
+        <MultiChipGroup
+          label={t('onboarding.schedule.workDays')}
+          showLabel
+          fill
+          values={workDays}
+          onChange={setWorkDays}
+          options={WEEKDAYS.map((day) => ({
+            value: day,
+            label: weekdayName(locale, Number(day), 'narrow'),
+            ariaLabel: weekdayName(locale, Number(day), 'long'),
+          }))}
+        />
       </Section>
 
       <Section title={t('kit.sections.time')}>
@@ -325,6 +344,28 @@ export function DevKitScreen() {
             <StatusBadge key={status} status={status} />
           ))}
         </div>
+      </Section>
+
+      <Section title={t('kit.sections.messages')}>
+        <InlineMessage icon="info">{t('kit.sample.hint')}</InlineMessage>
+        <InlineMessage tone="danger">{t('schedule.issues.overlap')}</InlineMessage>
+      </Section>
+
+      <Section title={t('kit.sections.tags')}>
+        <div className={styles.row}>
+          <Tag icon="neck">{t('areas.neck')}</Tag>
+          <Tag icon="dumbbell">{t('equipment.dumbbells')}</Tag>
+          <Tag>{t('intensity.normal')}</Tag>
+        </div>
+      </Section>
+
+      <Section title={t('kit.sections.avatar')}>
+        <div className={styles.row}>
+          <Avatar phase={1} size="sm" />
+          <Avatar phase={3} size="md" />
+          <Avatar phase={5} pose="thumbs_up" size="lg" highlighted />
+        </div>
+        <EvolutionStrip />
       </Section>
 
       <Section title={t('kit.sections.lists')}>

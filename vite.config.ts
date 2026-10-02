@@ -12,6 +12,9 @@ export default defineConfig({
   css: {
     modules: { localsConvention: 'camelCaseOnly' },
   },
+  // Reachable from other devices on the local network (e.g. a phone) for manual testing.
+  server: { host: true },
+  preview: { host: true },
   test: {
     globals: true,
     // Date logic is tested against a fixed zone with DST (spring forward 29 Mar, back 25 Oct 2026).

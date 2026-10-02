@@ -74,6 +74,16 @@ export function formatNumber(locale: Locale, value: number): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
+/** Weekday name for an ISO weekday (1 = Monday). */
+export function weekdayName(
+  locale: Locale,
+  weekday: number,
+  width: 'narrow' | 'short' | 'long' = 'long',
+): string {
+  // 2026-10-05 is a Monday.
+  return new Intl.DateTimeFormat(locale, { weekday: width }).format(new Date(2026, 9, 4 + weekday));
+}
+
 export function formatTime(locale: Locale, date: Date): string {
   return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(date);
 }
