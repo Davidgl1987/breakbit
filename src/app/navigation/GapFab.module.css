@@ -1,0 +1,67 @@
+/* Zero-size anchor at the horizontal center of the bar's top edge. */
+.slot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.wave {
+  position: absolute;
+  overflow: visible;
+  filter: drop-shadow(0 -3px 6px rgb(60 50 20 / 6%));
+  pointer-events: none;
+}
+
+:root[data-theme='dark'] .wave {
+  filter: drop-shadow(0 -3px 8px rgb(0 0 0 / 30%));
+}
+
+.waveFill {
+  fill: var(--color-nav);
+}
+
+.waveStroke {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+
+.fab {
+  position: absolute;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--fab-height);
+  padding: 0 var(--space-6) 0 var(--space-5);
+  border: 2px solid var(--fab-ring);
+  border-radius: var(--radius-pill);
+  background: var(--fab-gradient);
+  box-shadow: var(--shadow-fab);
+  color: #fff;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-black);
+  text-decoration: none;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 15%);
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
+}
+
+.fab:hover {
+  filter: brightness(1.06);
+}
+
+.fab:active {
+  transform: translate(-50%, calc(-50% + 1px)) scale(0.99);
+}
+
+.active {
+  box-shadow:
+    var(--shadow-fab),
+    0 0 0 4px var(--color-primary-soft);
+}

@@ -1,0 +1,21 @@
+.prefRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.prefLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-black);
+}
+
+.upcoming {
+  display: grid;
+  gap: var(--space-2);
+  opacity: 0.75;
+}

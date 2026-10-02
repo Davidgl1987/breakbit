@@ -1,0 +1,17 @@
+.segments {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.segment {
+  flex: 1 1 0;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-track);
+  transition: background-color var(--duration-base) var(--ease-out);
+}
+
+.filled {
+  background: var(--color-primary);
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6f1e4" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/png" href="/icons/32/gap.png" />
+    <title>Breakbit</title>
+    <script>
+      // Apply the last resolved theme before first paint (ThemeController keeps it in sync).
+      try {
+        var theme = localStorage.getItem('breakbit:theme');
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = theme;
+      } catch (error) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

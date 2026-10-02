@@ -1,0 +1,26 @@
+.column {
+  width: min(100%, var(--app-max-width));
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--color-bg);
+}
+
+@media (min-width: 768px) {
+  .column {
+    box-shadow:
+      0 0 0 1px var(--color-border),
+      var(--shadow-md);
+  }
+}
+
+.main {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  padding: 0 var(--gutter) var(--space-8);
+}
+
+/* Leave room for the fixed bottom nav and the raised FAB above it. */
+.withNav {
+  padding-bottom: calc(var(--nav-footprint) + var(--space-6));
+}

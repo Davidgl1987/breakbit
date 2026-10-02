@@ -1,0 +1,77 @@
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  z-index: 20;
+  width: min(100%, var(--app-max-width));
+  /* Room for the part of the FAB below the bar edge (it is lifted by the wave fillet)
+     plus clear separation from the tabs. */
+  padding: calc(var(--fab-height) / 2 - var(--fab-wave-fillet) + var(--fab-tab-gap)) var(--space-2)
+    calc(var(--space-2) + var(--safe-bottom));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-nav);
+  /* Hairline outline + soft shadow; the FAB fillets continue the same outline. */
+  box-shadow:
+    0 -1px 0 var(--color-border-strong),
+    var(--shadow-nav);
+  transform: translateX(-50%);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--tab-height);
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.indicator {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  transition: background-color var(--duration-base) var(--ease-out);
+}
+
+.tab:not(.active) .indicator img {
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+
+:root[data-theme='dark'] .tab:not(.active) .indicator img {
+  filter: grayscale(1) brightness(1.6);
+  opacity: 0.8;
+}
+
+.tab:hover .indicator {
+  background: var(--color-surface-muted);
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.active {
+  color: var(--color-primary-pressed);
+}
+
+:root[data-theme='dark'] .active {
+  color: var(--color-primary);
+}
+
+.active .indicator,
+.active:hover .indicator {
+  background: var(--color-primary-soft);
+}

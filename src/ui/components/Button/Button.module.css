@@ -1,0 +1,124 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-5);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Sizes */
+.sm {
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-sm);
+}
+
+.lg {
+  min-height: 54px;
+  padding: 0 var(--space-6);
+  font-size: var(--text-lg);
+  border-radius: var(--radius-lg);
+}
+
+.pill {
+  border-radius: var(--radius-pill);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Primary */
+.primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.primary.pressed,
+.primary:active:not(:disabled) {
+  background: var(--color-primary-pressed);
+  border-color: var(--color-primary-pressed);
+  box-shadow: inset 0 2px 0 rgb(0 0 0 / 14%);
+}
+
+/* Secondary: outlined in the accent color */
+.secondary {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+}
+
+.secondary.pressed,
+.secondary:active:not(:disabled) {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-pressed);
+  box-shadow: inset 0 0 0 1px var(--color-primary-pressed);
+}
+
+/* Ghost: neutral, low emphasis */
+.ghost {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+}
+
+.ghost.pressed,
+.ghost:active:not(:disabled) {
+  background: var(--color-surface-muted);
+  border-color: var(--color-border-strong);
+}
+
+/* Destructive: soft by default, solid when active */
+.destructive {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger-soft-border);
+  color: var(--color-danger-text);
+}
+
+.destructive:hover:not(:disabled) {
+  border-color: var(--color-danger);
+}
+
+.destructive.pressed,
+.destructive:active:not(:disabled) {
+  background: var(--color-danger);
+  border-color: var(--color-danger-pressed);
+  color: var(--color-on-danger);
+}
