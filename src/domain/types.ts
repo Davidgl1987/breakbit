@@ -121,10 +121,13 @@ export interface MainActivity {
   equipment: EquipmentId[];
   durationMin: { min: number; max: number };
   completionMode: CompletionMode;
-  /** Can be done during a meeting marked "puedo moverme". */
-  meetingFriendly: boolean;
-  /** Needs a real break (going out, floor work…), not just a work slot. */
-  needsBreak: boolean;
+  /**
+   * Where it fits: 'break' (going out, floor work…), 'work' (any time at the desk),
+   * 'meeting' (a meeting marked "puedo moverme").
+   */
+  slots: ActivitySlot[];
+  /** Done while working (standing desk, walking meeting): it does not interrupt work. */
+  whileWorking: boolean;
   /** Optional guided routine for the activity. */
   routineId?: string;
 }
@@ -143,3 +146,60 @@ export interface Catalog {
 export type PauseType = 'micro' | 'reset' | 'active';
 
 export type ActivitySlot = 'work' | 'break' | 'meeting';
+
+// ---------- Plan ----------
+
+export type ActivityStatus =
+  'pending' | 'notification_sent' | 'postponed' | 'completed' | 'skipped' | 'missed';
+
+/** plan = generated for the day · gap = "Tengo un hueco" extra · recovery = end-of-day recovery. */
+export type ActivityOrigin = 'plan' | 'gap' | 'recovery';
+export type MissReason = 'window_expired' | 'no_room' | 'day_closed';
+export type SkipReason =
+  'focused' | 'meeting' | 'no_time' | 'not_in_mood' | 'dislike_exercise' | 'other';
+
+/** What the user does: one exercise (micro), 2–3 combined (reset), a routine, or the main activity. */
+export type ActivityContent =
+  | { kind: 'exercises'; exerciseIds: string[] }
+  | { kind: 'routine'; routineId: string }
+  | { kind: 'main'; activityId: string };
+
+export interface ScheduledActivity {
+  id: string;
+  kind: 'micro' | 'main';
+  origin: ActivityOrigin;
+  content: ActivityContent;
+  pauseType?: PauseType;
+  slot: ActivitySlot;
+  durationSec: number;
+  /** Original time from the plan; never changes. */
+  scheduledAt: Instant;
+  /** Current time after postpones and re-plans. */
+  currentScheduledAt: Instant;
+  status: ActivityStatus;
+  notificationSentAt?: Instant;
+  notificationOpenedAt?: Instant;
+  remindersSent: number;
+  /** Explicit postpones only; ignored time is derived from the window. */
+  postponeMinutes: number;
+  postponeCount: number;
+  startedAt?: Instant;
+  completedAt?: Instant;
+  elapsedSec?: number;
+  skipReason?: SkipReason;
+  missReason?: MissReason;
+  firstPrompt?: boolean;
+  completionMode?: CompletionMode;
+  accumulatedSec?: number;
+}
+
+export interface DayPlan {
+  date: DateKey;
+  schedule: DaySchedule;
+  meetings: Meeting[];
+  rerollCount: number;
+  /** Microbreaks the intensity asks for; the plan may hold fewer if the day has no room. */
+  targetMicroCount: number;
+  /** Sorted by original time. */
+  activities: ScheduledActivity[];
+}

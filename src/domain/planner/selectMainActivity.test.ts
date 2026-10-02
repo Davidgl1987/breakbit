@@ -28,6 +28,24 @@ describe('isMainActivityEligible', () => {
     );
   });
 
+  it('keeps the walking meeting for meetings only', () => {
+    expect(isMainActivityEligible(byId('walking_meeting'), { equipment: [], slot: 'work' })).toBe(
+      false,
+    );
+    expect(isMainActivityEligible(byId('walking_meeting'), { equipment: [], slot: 'break' })).toBe(
+      false,
+    );
+  });
+
+  it('respects the slot length', () => {
+    expect(
+      isMainActivityEligible(byId('walk_outside'), { equipment: [], slot: 'break', maxMin: 5 }),
+    ).toBe(false);
+    expect(
+      isMainActivityEligible(byId('walk_outside'), { equipment: [], slot: 'break', maxMin: 15 }),
+    ).toBe(true);
+  });
+
   it('only proposes meeting-friendly activities during meetings', () => {
     expect(
       isMainActivityEligible(byId('walking_meeting'), { equipment: [], slot: 'meeting' }),
@@ -43,6 +61,10 @@ describe('mainActivityDuration', () => {
     expect(mainActivityDuration(byId('walk_outside'), 20)).toBe(20);
     expect(mainActivityDuration(byId('walk_outside'), 5)).toBe(10);
     expect(mainActivityDuration(byId('mobility_routine'), 20)).toBe(5);
+  });
+
+  it('shortens it to fit the slot', () => {
+    expect(mainActivityDuration(byId('walk_outside'), 20, 15)).toBe(15);
   });
 });
 

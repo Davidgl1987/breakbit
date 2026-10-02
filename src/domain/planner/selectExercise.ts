@@ -21,8 +21,8 @@ export interface ExerciseFilter {
 
 export interface SelectionContext extends ExerciseFilter {
   discomfort: DiscomfortLevels;
-  /** Exercise of the previous pause: never repeated back to back (if avoidable). */
-  previousExerciseId?: string;
+  /** Exercises of the previous pause: never repeated back to back (if avoidable). */
+  previousExerciseIds?: readonly string[];
   /** Area of the previous pause: avoided unless it clearly dominates the sliders. */
   previousArea?: BodyArea;
   /** Recently used exercises get a lower weight to rotate the catalog. */
@@ -84,25 +84,30 @@ export function pickArea(
   return weightedPick(pool, (area) => weights[area], rng);
 }
 
-/** Chooses a body area by the sliders, then a varied exercise for it. */
+/**
+ * Chooses a body area by the sliders, then a varied exercise for it. Exercises of the
+ * previous pause are left out whenever anything else fits, so no area is chosen just to
+ * repeat one of them.
+ */
 export function pickExercise(
   exercises: readonly Exercise[],
   context: SelectionContext,
   rng: Rng,
 ): ExercisePick | undefined {
   const eligible = exercises.filter((exercise) => isExerciseEligible(exercise, context));
+  const avoid = new Set(context.previousExerciseIds ?? []);
+  const fresh = eligible.filter((exercise) => !avoid.has(exercise.id));
+  const pool = fresh.length > 0 ? fresh : eligible;
+
   const candidates = BODY_AREAS.filter((area) =>
-    eligible.some((exercise) => exercise.areas.includes(area)),
+    pool.some((exercise) => exercise.areas.includes(area)),
   );
   const area = pickArea(areaWeights(context.discomfort), candidates, rng, context.previousArea);
   if (!area) return undefined;
 
-  const inArea = eligible.filter((exercise) => exercise.areas.includes(area));
-  const fresh = inArea.filter((exercise) => exercise.id !== context.previousExerciseId);
-  const pool = fresh.length > 0 ? fresh : inArea;
   const recent = new Set(context.recentExerciseIds ?? []);
   const exercise = weightedPick(
-    pool,
+    pool.filter((item) => item.areas.includes(area)),
     (item) => (recent.has(item.id) ? SELECTION.recentExerciseWeight : 1),
     rng,
   );

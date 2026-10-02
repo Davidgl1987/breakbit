@@ -7,7 +7,26 @@
 /** Pause sizes by duration (seconds): micro 30–60 s, reset 90–120 s, active 2–3 min. */
 export const PAUSE_SIZE = {
   microMaxSec: 60,
+  resetMinSec: 90,
   resetMaxSec: 120,
+  activeMaxSec: 180,
+} as const;
+
+/** Daily plan generation and re-planning. */
+export const PLANNER = {
+  /** Planned times are rounded to this many minutes. */
+  roundToMin: 5,
+  /** No microbreak this long before the main activity starts… */
+  mainPreBufferMin: 20,
+  /** …or this long after it ends ("evitar una micropausa justo después"). */
+  mainPostBufferMin: 35,
+  /** A free stretch shorter than this gets no pause of its own. */
+  minWindowMin: 20,
+  /** Every Nth pause in work time is a combined reset (2–4 movements, 90–120 s). */
+  resetEvery: 3,
+  resetMaxExercises: 4,
+  /** With less effective time than this left, no microbreaks are planned. */
+  minEffectiveMin: 30,
 } as const;
 
 /** Weighted exercise selection driven by the discomfort sliders. */

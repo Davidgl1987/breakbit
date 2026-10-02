@@ -118,6 +118,11 @@ describe('content catalog', () => {
     }
   });
 
+  it('gives every main activity at least one slot', () => {
+    for (const activity of mainActivities)
+      expect(activity.slots.length, activity.id).toBeGreaterThan(0);
+  });
+
   it('links main-activity routines that exist', () => {
     const ids = new Set(routines.map((routine) => routine.id));
     for (const activity of mainActivities) {
