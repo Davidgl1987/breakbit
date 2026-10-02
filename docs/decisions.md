@@ -120,3 +120,41 @@ Los valores numéricos viven en `src/domain/config.ts`.
 - **Actividad principal**: filtra por material y contexto (en reunión solo las compatibles; en tiempo
   de trabajo, las que no requieren un descanso real). Favorece las que cubren la duración preferida;
   "Otra misión" excluye la actual. Pasear por la calle siempre está disponible.
+
+## Planificador (Fase 3)
+
+Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
+
+- **Número de pausas**: `round(horas efectivas × 0,5 / 0,75 / 1)`, mínimo 1; sin pausas si quedan
+  menos de 30 min. Si la app se abre tarde, se planifica solo lo que queda de jornada (con el número
+  proporcional a ese tiempo).
+- **Actividad principal**: se propone en el descanso más largo; si no hay, en una reunión marcada
+  "puedo moverme"; si no, en el centro del tramo libre de trabajo más largo. Cada actividad declara en
+  qué contextos encaja (`slots`: descanso, trabajo, reunión); p. ej. "Reunión caminando" solo en
+  reuniones. La duración se ajusta al hueco. La elección del usuario ("Cambiar actividad", "Otra
+  hora") se respeta tal cual.
+- **Reparto**: las pausas se reparten en los tramos libres (sin comida, reuniones ocupadas ni la zona
+  de la actividad principal: 20 min antes y 35 min después) en proporción a su duración, centradas
+  con medio hueco en los bordes y en marcas de 5 min. Los **descansos libres son posiciones
+  preferentes**: se fijan como pausa y el resto se reparte alrededor, siempre que la separación siga
+  siendo ≥ 35 min.
+- **Contenido por contexto**: en reunión, un ejercicio discreto; en descanso, una rutina dinámica
+  (2–3 min) no usada hoy y sin repetir ejercicios de la pausa anterior; en trabajo, un ejercicio
+  (≤ 60 s) y cada tercera pausa un **reset combinado de 2–4 movimientos (90–120 s)**. Nunca se repite
+  un ejercicio de la pausa anterior si hay alternativa.
+- **Reajuste (`rebalance`)**: solo mueve micropausas planificadas, pendientes y futuras; se calcula
+  desde las horas originales más el estado actual, así que es **idempotente**. Empuja hacia delante
+  (separación ≥ 35 min respecto al último movimiento, fuera de comida, reuniones y actividad
+  principal; la comida reinicia la separación); tras una pausa perdida, la siguiente puede adelantarse
+  hasta 10 min; tras una completada antes de tiempo, la siguiente se acerca para no superar 90 min; si
+  ya no cabe antes de `fin − 10 min`, queda `missed` (`no_room`), sin deuda.
+- **Interrupción estimada**: solo cuentan las pausas en tiempo de trabajo; las de descansos o
+  reuniones y las actividades principales hechas mientras trabajas (escritorio elevable, reunión
+  caminando) no interrumpen.
+- **Cambio de contexto en un reajuste**: si una pausa cae en otro contexto (descanso ↔ trabajo,
+  fuera de su reunión), se actualiza su `slot` real y se revalida su contenido; solo si deja de ser
+  válido (suelo fuera de un descanso, rutina o movimiento no discreto en una reunión, material que no
+  tienes) se elige contenido nuevo para ese contexto, con la misma variedad y de forma reproducible.
+  Si el contexto no cambia, el contenido no se toca. La interrupción se calcula con el `slot` real.
+- Al colocar pausas (al planificar y al reajustar) se reservan siempre 3 min, la pausa más larga, para
+  que cualquier contenido de reemplazo quepa sin mover la pausa.

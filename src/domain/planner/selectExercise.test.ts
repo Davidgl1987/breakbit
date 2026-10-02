@@ -121,7 +121,7 @@ describe('pickExercise', () => {
           discomfort,
           equipment,
           slot,
-          previousExerciseId: previous,
+          previousExerciseIds: previous ? [previous] : [],
         };
         const pick = pickExercise(CATALOG.exercises, context, createRng(seed));
         expect(pick).toBeDefined();
@@ -138,7 +138,7 @@ describe('pickExercise', () => {
           discomfort,
           equipment,
           slot,
-          previousExerciseId: previous,
+          previousExerciseIds: previous ? [previous] : [],
         };
         const pick = pickExercise(CATALOG.exercises, context, createRng(seed));
         expect(pick?.exercise.id).not.toBe(previous);
@@ -150,7 +150,7 @@ describe('pickExercise', () => {
     const only = makeExercise({ id: 'only', areas: ['eyes'] });
     const pick = pickExercise(
       [only],
-      { ...baseContext, previousExerciseId: 'only' },
+      { ...baseContext, previousExerciseIds: ['only'] },
       createRng('x'),
     );
     expect(pick?.exercise.id).toBe('only');

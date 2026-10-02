@@ -4,9 +4,11 @@ import { hasEquipment } from './selectExercise';
 
 export interface MainActivityContext {
   equipment: readonly EquipmentId[];
-  /** 'break' allows everything; 'work' excludes activities that need a real break. */
+  /** Where the activity would happen; it must be one of the activity's slots. */
   slot: ActivitySlot;
   preferredMin: number;
+  /** Length of the slot it must fit in. */
+  maxMin?: number;
   /** "Otra misión": the currently proposed activity is skipped when possible. */
   excludeId?: string;
 }
@@ -21,17 +23,21 @@ const PREFERRED_DURATION_WEIGHT = 3;
 
 export function isMainActivityEligible(
   activity: MainActivity,
-  context: Pick<MainActivityContext, 'equipment' | 'slot'>,
+  context: Pick<MainActivityContext, 'equipment' | 'slot' | 'maxMin'>,
 ): boolean {
   if (!hasEquipment(activity.equipment, context.equipment)) return false;
-  if (context.slot === 'meeting') return activity.meetingFriendly;
-  if (context.slot === 'work') return !activity.needsBreak;
-  return true;
+  if (context.maxMin !== undefined && activity.durationMin.min > context.maxMin) return false;
+  return activity.slots.includes(context.slot);
 }
 
-/** Duration for an activity: the preferred length, clamped to the activity's range. */
-export function mainActivityDuration(activity: MainActivity, preferredMin: number): number {
-  return Math.min(Math.max(preferredMin, activity.durationMin.min), activity.durationMin.max);
+/** Duration for an activity: the preferred length, clamped to its range and the slot. */
+export function mainActivityDuration(
+  activity: MainActivity,
+  preferredMin: number,
+  maxMin = Infinity,
+): number {
+  const upper = Math.min(activity.durationMin.max, maxMin);
+  return Math.min(Math.max(preferredMin, activity.durationMin.min), upper);
 }
 
 export function pickMainActivity(
@@ -42,15 +48,17 @@ export function pickMainActivity(
   const eligible = activities.filter((activity) => isMainActivityEligible(activity, context));
   const fresh = eligible.filter((activity) => activity.id !== context.excludeId);
   const pool = fresh.length > 0 ? fresh : eligible;
+  const maxMin = context.maxMin ?? Infinity;
   const activity = weightedPick(
     pool,
     ({ durationMin }) =>
-      context.preferredMin >= durationMin.min && context.preferredMin <= durationMin.max
+      context.preferredMin >= durationMin.min &&
+      context.preferredMin <= Math.min(durationMin.max, maxMin)
         ? PREFERRED_DURATION_WEIGHT
         : 1,
     rng,
   );
   return activity
-    ? { activity, durationMin: mainActivityDuration(activity, context.preferredMin) }
+    ? { activity, durationMin: mainActivityDuration(activity, context.preferredMin, maxMin) }
     : undefined;
 }
