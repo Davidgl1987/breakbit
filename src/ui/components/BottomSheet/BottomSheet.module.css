@@ -1,0 +1,64 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(10 20 15 / 45%);
+  animation: fade-in var(--duration-base) var(--ease-out);
+}
+
+.sheet {
+  display: grid;
+  gap: var(--space-3);
+  width: min(100%, var(--app-max-width));
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: var(--space-3) var(--gutter) calc(var(--space-6) + var(--safe-bottom));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  animation: slide-up var(--duration-base) var(--ease-out);
+}
+
+.sheet:focus {
+  outline: none;
+}
+
+.handle {
+  justify-self: center;
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border-strong);
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+}
+
+.body {
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}

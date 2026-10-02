@@ -1,0 +1,159 @@
+/*
+ * Breakbit design tokens.
+ * Light: sand/cream base + green accent. Dark: deep petrol green, same structure.
+ * Theme is applied with [data-theme] on <html>. The "system" preference is
+ * resolved to light/dark at runtime by ThemeController.
+ */
+:root {
+  /* Typography */
+  --font-display: 'Pixelify Sans', ui-monospace, monospace;
+  --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --weight-regular: 400;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 800;
+
+  /* Spacing (4px grid) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --gutter: 1rem;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* Layout */
+  --app-max-width: 520px;
+  --tap-min: 44px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --fab-height: 52px;
+  --tab-height: 54px;
+  /* The bar outline rises over the FAB like a wave (see app/navigation/wave.ts). */
+  --fab-wave-pad: 6px;
+  --fab-wave-fillet: 14px;
+  /* Clear gap between the FAB and the tab below it, to avoid accidental taps. */
+  --fab-tab-gap: var(--space-5);
+  /* Total vertical space taken by the bottom nav, including the wave over the FAB. */
+  --nav-footprint: calc(
+    var(--fab-height) + var(--fab-wave-pad) + var(--fab-tab-gap) + var(--tab-height) +
+      var(--space-2) + var(--safe-bottom)
+  );
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+
+  /* ---------- Light theme (default) ---------- */
+  color-scheme: light;
+  --color-bg: #f6f1e4;
+  --color-bg-pattern: #efe8d7;
+  --color-surface: #fffcf5;
+  --color-surface-muted: #f2ecdd;
+  --color-surface-sunken: #ebe3d1;
+  --color-border: #e5dcc8;
+  --color-border-strong: #d3c7ac;
+  --color-text: #1d2b26;
+  --color-text-muted: #56645d;
+  --color-text-subtle: #8a918a;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #2a8a59;
+  --color-primary-hover: #237a4e;
+  --color-primary-pressed: #1b6640;
+  --color-primary-soft: #dcefdf;
+  --color-primary-soft-border: #b7dcc1;
+  --color-on-primary: #ffffff;
+
+  /* Muted brick red, closer to the sand palette than a pure red. */
+  --color-danger: #b9574c;
+  --color-danger-pressed: #a24a40;
+  --color-danger-text: #a8483d;
+  --color-danger-soft: #f7e3dd;
+  --color-danger-soft-border: #ecc6bc;
+  --color-on-danger: #ffffff;
+
+  --color-warning: #c98a0e;
+  --color-warning-soft: #fbefcf;
+  --color-extra: #2f6aa8;
+  --color-extra-soft: #e2ecf7;
+  --color-pending: #78807a;
+  --color-pending-soft: #ece9e1;
+
+  --color-track: #e4dccb;
+  --color-control-track: #e6dcc6;
+  --color-nav: #fbf8ef;
+  --color-focus: #2a8a5966;
+
+  --fab-gradient: linear-gradient(180deg, #2fa171 0%, #1c8159 100%);
+  --fab-ring: #8fdcb6;
+  --shadow-sm: 0 1px 2px rgb(60 50 20 / 6%), 0 1px 1px rgb(60 50 20 / 4%);
+  --shadow-md: 0 4px 14px rgb(60 50 20 / 9%), 0 1px 3px rgb(60 50 20 / 6%);
+  --shadow-fab: 0 6px 18px rgb(28 129 89 / 35%), 0 2px 4px rgb(28 129 89 / 25%);
+  --shadow-nav: 0 -4px 18px rgb(60 50 20 / 8%);
+}
+
+/* ---------- Dark theme (ThemeController resolves "system" to light/dark) ---------- */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #0d211e;
+  --color-bg-pattern: #10261f;
+  --color-surface: #143029;
+  --color-surface-muted: #1a3a33;
+  --color-surface-sunken: #10261f;
+  --color-border: #224a40;
+  --color-border-strong: #2f5d51;
+  --color-text: #eaf4ee;
+  --color-text-muted: #a6bcb2;
+  --color-text-subtle: #7b948a;
+  --color-text-inverse: #0b1f1a;
+
+  --color-primary: #4cc985;
+  --color-primary-hover: #5dd393;
+  --color-primary-pressed: #3bb373;
+  --color-primary-soft: #1c4a3a;
+  --color-primary-soft-border: #2b6a52;
+  --color-on-primary: #08201a;
+
+  --color-danger: #e07b6d;
+  --color-danger-pressed: #c96a5d;
+  --color-danger-text: #ec8a7d;
+  --color-danger-soft: #43282a;
+  --color-danger-soft-border: #643a38;
+  --color-on-danger: #2a0f0c;
+
+  --color-warning: #e8b33e;
+  --color-warning-soft: #4a3b18;
+  --color-extra: #84b6ee;
+  --color-extra-soft: #1d3552;
+  --color-pending: #9fb0a8;
+  --color-pending-soft: #233c35;
+
+  --color-track: #23443b;
+  --color-control-track: #1f4239;
+  --color-nav: #143029;
+  --color-focus: #4cc98566;
+
+  --fab-gradient: linear-gradient(180deg, #33b07b 0%, #1d8b60 100%);
+  --fab-ring: #5fe0a4;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 35%), 0 1px 3px rgb(0 0 0 / 30%);
+  --shadow-fab: 0 6px 20px rgb(29 139 96 / 45%), 0 2px 4px rgb(0 0 0 / 40%);
+  --shadow-nav: 0 -4px 18px rgb(0 0 0 / 35%);
+}

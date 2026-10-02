@@ -1,0 +1,22 @@
+.track {
+  overflow: hidden;
+  width: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-track);
+}
+
+.md {
+  height: 10px;
+}
+
+.sm {
+  height: 6px;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  transition: width var(--duration-base) var(--ease-out);
+}

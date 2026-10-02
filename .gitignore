@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+*.tsbuildinfo
+.DS_Store
+*.local
+.vite
+# Local preview server config for Claude Code
+.claude/launch.json

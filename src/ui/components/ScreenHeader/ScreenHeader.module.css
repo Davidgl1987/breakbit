@@ -1,0 +1,45 @@
+.header {
+  padding-top: var(--space-4);
+}
+
+.page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.pageTexts {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.pageTitle {
+  font-size: var(--text-3xl);
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: var(--tap-min) 1fr var(--tap-min);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.barTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-black);
+  text-align: center;
+}
+
+.side {
+  display: flex;
+}
+
+.sideEnd {
+  justify-content: flex-end;
+}

@@ -1,0 +1,28 @@
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.standard {
+  padding: var(--space-4);
+}
+
+.compact {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.tinted {
+  padding: var(--space-4);
+  border-color: var(--color-primary-soft-border);
+  background: var(--color-primary-soft);
+  box-shadow: none;
+}
+
+.muted {
+  padding: var(--space-4);
+  background: var(--color-surface-muted);
+  box-shadow: none;
+}
