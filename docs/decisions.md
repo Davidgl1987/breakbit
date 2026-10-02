@@ -158,3 +158,34 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   Si el contexto no cambia, el contenido no se toca. La interrupción se calcula con el `slot` real.
 - Al colocar pausas (al planificar y al reajustar) se reservan siempre 3 min, la pausa más larga, para
   que cualquier contenido de reemplazo quepa sin mover la pausa.
+
+## Estado y persistencia (Fase 4)
+
+- **Un único store** Zustand persistido en IndexedDB (`breakbit:state`) con: preferencias, fecha de
+  onboarding (`onboardedAt`), ajustes, excepciones de calendario por fecha, registros diarios (con su
+  plan y el resumen congelado al cerrar), progreso (fase del avatar, semanas evaluadas, habitación),
+  libro de XP y metadatos. Lo derivado (racha, nivel, estadísticas) nunca se guarda.
+- **Acciones finas** por áreas (`state/slices`): preferencias, ajustes/onboarding (rechazan horarios
+  inválidos), calendario (envoltorios de `domain/calendar`) y datos (borrar / reemplazar). Las del día,
+  pausas, XP y semanas llegan con sus fases.
+- **Migraciones versionadas** (`STATE_VERSION = 2`): la v1 de la Fase 1 (solo preferencias) se migra
+  conservando tema e idioma. Datos de una versión más nueva se rechazan.
+- **XP total**: el libro se aplica en orden temporal con suelo en 0 (una penalización no deja el total
+  negativo y lo siguiente suma desde ahí).
+- **Log de eventos** en un almacén IndexedDB aparte, una clave por evento (añadir no reescribe el
+  historial). Tipos del master §25 más `day_off_marked`.
+- **Reloj único** (`services/clock`): `clock.now()` para la lógica y `useNow(resolución)` para la UI
+  (valor en caché por tic, estable dentro de un render). En desarrollo admite desplazamiento (viaje en
+  el tiempo), que se conserva al recargar; en producción siempre es la hora real.
+- **Copias**: exportar/importar JSON (estado + eventos). Al importar se migra a la versión actual y se
+  valida **la estructura completa**: tipos, valores permitidos, fechas y horas válidas, horarios
+  coherentes, planes y actividades, XP, progreso y eventos; se rechazan claves que podrían alterar
+  prototipos (`__proto__`…) y archivos desmesurados. Si algo no es válido no se toca nada.
+- **"Borrar datos"** elimina ajustes, onboarding, calendario, días, progreso, XP y el log de eventos;
+  solo se conservan tema e idioma.
+- **DevPanel** (solo desarrollo, pestaña en el borde izquierdo): reloj simulado (+5 min, +15 min, +1 h,
+  +1 día, ir a fecha/hora, volver a la hora real), recuento de datos, exportar copia y borrar datos con
+  doble confirmación.
+- Pendiente para cuando haga falta: avisos efímeros (toasts) y estado del permiso de notificaciones
+  (fases 7–8), `storage.persist()` (fase 15) y datos semilla en el DevPanel (cuando exista el cierre de
+  día).

@@ -203,3 +203,114 @@ export interface DayPlan {
   /** Sorted by original time. */
   activities: ScheduledActivity[];
 }
+
+// ---------- Day, progress and history ----------
+
+/**
+ * - active: the workday is being tracked.
+ * - closed: summary taken (by the user or automatically the next time the app opens).
+ * - day_off: "Hoy no trabajo"; excluded from weekly stats, keeps the streak.
+ * - absent: a planned workday the app was never opened; counts as not good.
+ */
+export type DayStatus = 'active' | 'closed' | 'day_off' | 'absent';
+export type Mood = 'great' | 'good' | 'loaded' | 'bad';
+export type NextDayDecision = 'repeat' | 'change' | 'day_off';
+
+/** Snapshot taken when a day closes, so history stays stable if rules or content change. */
+export interface DailySummary {
+  planned: number;
+  completed: number;
+  firstPrompt: number;
+  postponed: number;
+  ignored: number;
+  skipped: number;
+  missed: number;
+  extras: number;
+  mainCompleted: boolean;
+  microSec: number;
+  movementSec: number;
+  interruptionSec: number;
+  xp: number;
+  isGood: boolean;
+  isPerfect: boolean;
+}
+
+export interface DayRecord {
+  date: DateKey;
+  status: DayStatus;
+  /** Absent days have no plan. */
+  plan?: DayPlan;
+  openedAt?: Instant;
+  closedAt?: Instant;
+  /** First workday after an absence: ×1.5 base XP (once per absence). */
+  returnBonus: boolean;
+  recoveryUsed: boolean;
+  mood?: Mood;
+  nextDayDecision?: NextDayDecision;
+  summary?: DailySummary;
+}
+
+export type EvolutionPhase = 1 | 2 | 3 | 4 | 5;
+export type WeekResult = 'good' | 'regular' | 'bad' | 'neutral';
+
+export interface WeeklyResult {
+  /** ISO week id, e.g. '2026-W40'. */
+  week: string;
+  planned: number;
+  good: number;
+  result: WeekResult;
+  phaseAfter: EvolutionPhase;
+}
+
+export interface ProgressState {
+  evolutionPhase: EvolutionPhase;
+  lastEvaluatedWeek?: string;
+  weeklyResults: WeeklyResult[];
+  unlockedRoomItems: string[];
+}
+
+export type XpReason =
+  | 'microbreak'
+  | 'main_activity'
+  | 'first_prompt'
+  | 'extra_break'
+  | 'good_day'
+  | 'perfect_day'
+  | 'discard';
+
+/** Append-only XP ledger entry; `key` is deterministic so awards are idempotent. */
+export interface XpEntry {
+  key: string;
+  amount: number;
+  at: Instant;
+  date: DateKey;
+  reason: XpReason;
+}
+
+/** Dogfooding events (breakbit_mvp_master_v1.md §25), stored locally only. */
+export const EVENT_TYPES = [
+  'notification_sent',
+  'notification_opened',
+  'exercise_started',
+  'exercise_completed',
+  'exercise_completed_first_prompt',
+  'exercise_postponed',
+  'exercise_ignored',
+  'exercise_skipped',
+  'exercise_missed',
+  'spontaneous_break',
+  'main_activity_completed',
+  'day_completed',
+  'day_off_marked',
+  'mood_recorded',
+] as const;
+export type EventType = (typeof EVENT_TYPES)[number];
+
+export interface AppEvent {
+  id: string;
+  type: EventType;
+  at: Instant;
+  date: DateKey;
+  activityId?: string;
+  data?: Record<string, string | number | boolean>;
+}
