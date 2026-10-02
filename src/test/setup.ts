@@ -7,6 +7,8 @@ import { useAppStore } from '@/state/store';
 import { installMatchMedia, resetMatchMedia } from './matchMedia';
 
 installMatchMedia();
+// jsdom has no layout; ScrollToTop calls this on every navigation.
+window.scrollTo = () => {};
 
 beforeEach(() => {
   // A fresh install in Spanish for every test.

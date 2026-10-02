@@ -1,5 +1,5 @@
 import { useT } from '@/i18n/useT';
-import { Wordmark } from '@/app/navigation/Wordmark';
+import { Wordmark } from '@/ui/components/Wordmark/Wordmark';
 import styles from './SplashScreen.module.css';
 
 export function SplashScreen() {

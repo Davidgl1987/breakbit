@@ -1,0 +1,44 @@
+/* Five equal columns that always fit the width; small arrows sit in the gaps. */
+.strip {
+  --gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.phase {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.phase:not(:last-child)::after {
+  content: '›';
+  position: absolute;
+  top: calc(min(56px, 100%) / 2 - 0.6em);
+  right: calc(var(--gap) / -2 - 0.25em);
+  color: var(--color-text-subtle);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+}
+
+.caption {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.625rem;
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+  color: var(--color-text-muted);
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+.current .caption {
+  color: var(--color-text);
+}

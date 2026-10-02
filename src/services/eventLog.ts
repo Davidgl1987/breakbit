@@ -19,7 +19,7 @@ export interface EventDetails {
 export async function logEvent(type: EventType, details: EventDetails = {}): Promise<AppEvent> {
   const at = details.at ?? clock.now();
   const event: AppEvent = {
-    id: `${at.toString(36).padStart(9, '0')}-${crypto.randomUUID().slice(0, 8)}`,
+    id: `${at.toString(36).padStart(9, '0')}-${randomSuffix()}`,
     type,
     at,
     date: toDateKey(at),
@@ -28,6 +28,15 @@ export async function logEvent(type: EventType, details: EventDetails = {}): Pro
   };
   await set(event.id, event, eventStore);
   return event;
+}
+
+/**
+ * 8 random hex chars. getRandomValues also works over plain http (e.g. testing from a
+ * phone on the local network), unlike randomUUID, which needs a secure context.
+ */
+function randomSuffix(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(4));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /** All events, oldest first. */

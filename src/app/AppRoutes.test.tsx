@@ -1,9 +1,27 @@
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { DEFAULT_SETTINGS } from '@/domain/defaults';
+import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
 import { AppRoutes } from './AppRoutes';
 
+describe('AppRoutes before onboarding', () => {
+  it.each(['/', '/progress', '/day/end'])('sends %s to the welcome step', (route) => {
+    renderWithRouter(<AppRoutes />, { route });
+    expect(screen.getByRole('button', { name: 'Comenzar' })).toBeInTheDocument();
+  });
+});
+
 describe('AppRoutes', () => {
+  beforeEach(() => {
+    useAppStore.getState().completeOnboarding(DEFAULT_SETTINGS);
+  });
+
+  it('sends onboarded users away from onboarding', () => {
+    renderWithRouter(<AppRoutes />, { route: '/onboarding/welcome' });
+    expect(screen.getByRole('link', { name: 'Hoy' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it.each([
     ['/progress', 'Progreso'],
     ['/settings', 'Ajustes'],

@@ -1,5 +1,5 @@
 import { ROUTES } from '@/app/routes';
-import { Wordmark } from '@/app/navigation/Wordmark';
+import { Wordmark } from '@/ui/components/Wordmark/Wordmark';
 import { useT } from '@/i18n/useT';
 import { Card } from '@/ui/components/Card/Card';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
