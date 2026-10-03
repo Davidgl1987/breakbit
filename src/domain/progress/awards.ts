@@ -34,6 +34,32 @@ export function pauseCompletionXp(
   return entries;
 }
 
+/**
+ * XP for today's main activity: +300 (×1.5 on the return day after an absence). One per
+ * day, whatever path completed it (the timer, "Terminar" or "Ya la he hecho").
+ */
+export function mainCompletionXp(
+  item: ScheduledActivity,
+  { returnBonus }: { returnBonus: boolean },
+  now: Instant,
+): XpEntry[] {
+  if (item.kind !== 'main' || item.status !== 'completed') return [];
+  const date = toDateKey(item.scheduledAt);
+  const amount = Math.round(XP.mainActivity * (returnBonus ? XP.returnMultiplier : 1));
+  return [{ key: `main:${date}`, amount, at: now, date, reason: 'main_activity' }];
+}
+
+/** XP for any completed activity: a microbreak or the main activity. */
+export function completionXp(
+  item: ScheduledActivity,
+  context: { returnBonus: boolean },
+  now: Instant,
+): XpEntry[] {
+  return item.kind === 'main'
+    ? mainCompletionXp(item, context, now)
+    : pauseCompletionXp(item, context, now);
+}
+
 /** Adds entries whose key isn't in the ledger yet. */
 export function withAwards(ledger: readonly XpEntry[], entries: readonly XpEntry[]): XpEntry[] {
   const keys = new Set(ledger.map((entry) => entry.key));

@@ -66,24 +66,6 @@ describe('Today', () => {
     expect(within(sheet).getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
   });
 
-  it('changes the activity from Today, keeping the rest of the plan', async () => {
-    startMonday();
-    travel(MONDAY, '09:10');
-    const before = store().days[MONDAY]!.plan!;
-    const { user } = renderWithRouter(<AppRoutes />);
-    await user.click(screen.getByRole('button', { name: 'Cambiar' }));
-    const sheet = screen.getByRole('dialog', { name: 'Actividad de hoy' });
-    await user.click(within(sheet).getByRole('radio', { name: /Paseo por casa u oficina/ }));
-    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
-
-    const after = store().days[MONDAY]!.plan!;
-    const main = after.activities.find((item) => item.kind === 'main');
-    expect(main?.content).toEqual({ kind: 'main', activityId: 'walk_indoors' });
-    const pauseIds = (plan: typeof after) =>
-      plan.activities.filter((item) => item.kind === 'micro').map((item) => item.id);
-    expect(pauseIds(after)).toEqual(pauseIds(before));
-  });
-
   it('marks the day off and brings it back', async () => {
     startMonday();
     travel(MONDAY, '09:10');

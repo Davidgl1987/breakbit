@@ -1,8 +1,14 @@
-import { pausePath, ROUTES } from '@/app/routes';
+import { mainDonePath, mainPath, pausePath, ROUTES } from '@/app/routes';
 import type { PlannedNotification } from '@/domain/notifications/schedule';
 import { windowEnd } from '@/domain/pause/window';
 import { contentName } from '@/features/day/contentName';
-import { formatSeconds, translate, type MessageKey, type MessageParams } from '@/i18n/translate';
+import {
+  formatDuration,
+  formatSeconds,
+  translate,
+  type MessageKey,
+  type MessageParams,
+} from '@/i18n/translate';
 import type { NotificationContent } from '@/services/notifications/scheduler';
 import { selectActivity } from '@/state/selectors';
 import type { AppState } from '@/state/store';
@@ -10,6 +16,7 @@ import type { AppState } from '@/state/store';
 const ICONS = {
   pause: '/icons/48/stretch.png',
   day: '/icons/48/sun.png',
+  main: '/icons/48/goal.png',
 } as const;
 
 /** Localised text and link for a planned notification, from the current state. */
@@ -33,6 +40,26 @@ export function notificationContent(
     : undefined;
   if (!activity) return undefined;
   const name = contentName(activity.content, state.prefs.locale);
+  if (notification.kind === 'main') {
+    return {
+      title: t('notifications.main.title'),
+      body: t('notifications.main.body', {
+        name,
+        duration: formatDuration(activity.durationSec / 60),
+      }),
+      url: `${mainPath(activity.id)}?src=notif`,
+      icon: ICONS.main,
+    };
+  }
+  if (notification.kind === 'main_done') {
+    const xp = state.xpLedger.find((entry) => entry.key === `main:${notification.date}`);
+    return {
+      title: t('notifications.mainDone.title'),
+      body: t('notifications.mainDone.body', { name, xp: xp?.amount ?? 0 }),
+      url: `${mainDonePath(activity.id)}?src=notif`,
+      icon: ICONS.main,
+    };
+  }
   const url = `${pausePath(activity.id)}?src=notif`;
   if (notification.kind === 'pause') {
     return {

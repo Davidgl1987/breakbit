@@ -190,7 +190,10 @@ export interface ScheduledActivity {
   missReason?: MissReason;
   firstPrompt?: boolean;
   completionMode?: CompletionMode;
+  /** Main activity: time its earlier runs (or blocks) added up to, in whole seconds. */
   accumulatedSec?: number;
+  /** Main activity: when the run under way started; none while paused or between blocks. */
+  runningSince?: Instant;
 }
 
 export interface DayPlan {

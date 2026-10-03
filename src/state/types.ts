@@ -83,6 +83,16 @@ export interface PauseActions {
   discardPause: (date: DateKey, id: string, reason?: SkipReason) => void;
 }
 
+/** Today's main activity: its session and completion. The rules live in domain/main. */
+export interface MainActions {
+  /** Starts, resumes, or begins another block. */
+  startMain: (date: DateKey, id: string) => void;
+  /** Pauses the run, or ends the block, keeping the time done. */
+  pauseMain: (date: DateKey, id: string) => void;
+  /** Done: the time added up, "Terminar", or "Ya la he hecho" (without a session). */
+  completeMain: (date: DateKey, id: string) => void;
+}
+
 export interface DataActions {
   /** Clears everything except appearance and language preferences. */
   resetData: () => void;
@@ -96,4 +106,5 @@ export type AppState = PersistedState &
   CalendarActions &
   DayActions &
   PauseActions &
+  MainActions &
   DataActions;

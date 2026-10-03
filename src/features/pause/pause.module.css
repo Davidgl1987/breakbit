@@ -1,31 +1,5 @@
-.hero {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-2);
-  text-align: center;
-}
-
-.hero > :first-child {
-  justify-self: stretch;
-  margin-bottom: var(--space-2);
-}
-
-.title {
-  font-size: var(--text-3xl);
-}
-
-.name {
-  font-size: var(--text-lg);
-  font-weight: var(--weight-black);
-}
-
-.hint,
 .muted {
   color: var(--color-text-muted);
-}
-
-.hint {
-  font-size: var(--text-sm);
 }
 
 .postpone {
@@ -79,60 +53,9 @@
   min-width: 0;
 }
 
-.timer {
-  display: grid;
-  justify-items: center;
-}
-
-/* Body font: pixel digits are hard to read at a glance. */
-.time {
-  font-size: var(--text-3xl);
-  font-weight: var(--weight-black);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
 /* Pause / resume and next / done, side by side. */
 .controls {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
-}
-
-.xpCard,
-.progressCard {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.xpCard {
-  gap: var(--space-1);
-}
-
-.xpTotal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-black);
-}
-
-.breakdown {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-weight: var(--weight-semibold);
-  text-align: center;
-}
-
-.progressRow {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.progressHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
   gap: var(--space-2);
 }

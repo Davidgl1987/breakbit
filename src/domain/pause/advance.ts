@@ -6,13 +6,15 @@ import {
 } from '../planner/pauseContent';
 import { rebalance } from '../planner/rebalance';
 import { pauseTypeForDuration } from '../planner/selectExercise';
+import { advanceMain } from '../main/session';
 import { createRng } from '../rng';
 import type { DayPlan, Instant, ScheduledActivity } from '../types';
 import { isOpen, windowEnd } from './window';
 
 const MINUTE = 60_000;
 
-export type PauseEventType = 'notification_sent' | 'exercise_ignored' | 'exercise_missed';
+export type PauseEventType =
+  'notification_sent' | 'exercise_ignored' | 'exercise_missed' | 'main_activity_completed';
 
 export interface PauseEvent {
   type: PauseEventType;
@@ -35,13 +37,28 @@ export interface AdvanceResult {
  *   screen is not an answer, only "Vamos", postponing or discarding are;
  * - 30 min after its original time without "Vamos" → missed. The next pause may then
  *   come up to 10 min earlier and become a fuller reset; the missed one still counts.
+ * The main activity never expires: a run under way is completed once its time adds up,
+ * and the pauses right after it move later.
  */
 export function advanceDay(plan: DayPlan, now: Instant, context: ContentContext): AdvanceResult {
   const events: PauseEvent[] = [];
   let missed = false;
+  let mainDone = false;
 
   const activities = plan.activities.map((item) => {
-    if (item.kind !== 'micro' || !isOpen(item) || item.startedAt !== undefined) return item;
+    if (item.kind === 'main') {
+      const next = advanceMain(item, now);
+      if (next !== item) {
+        events.push({
+          type: 'main_activity_completed',
+          activityId: item.id,
+          at: next.completedAt ?? now,
+        });
+        mainDone = true;
+      }
+      return next;
+    }
+    if (!isOpen(item) || item.startedAt !== undefined) return item;
     const end = windowEnd(item);
     if (now >= end) {
       events.push({ type: 'exercise_missed', activityId: item.id, at: end });
@@ -72,8 +89,9 @@ export function advanceDay(plan: DayPlan, now: Instant, context: ContentContext)
 
   if (events.length === 0) return { plan, events };
   const advanced = { ...plan, activities };
-  if (!missed) return { plan: advanced, events };
-  return { plan: rebalance(upgradeNextPause(advanced, now, context), now, context), events };
+  if (!missed && !mainDone) return { plan: advanced, events };
+  const upgraded = missed ? upgradeNextPause(advanced, now, context) : advanced;
+  return { plan: rebalance(upgraded, now, context), events };
 }
 
 /**

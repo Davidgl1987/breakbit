@@ -1,0 +1,16 @@
+.timer {
+  display: grid;
+  justify-items: center;
+}
+
+/* Body font: pixel digits are hard to read at a glance. */
+.time {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-black);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.caption {
+  color: var(--color-text-muted);
+}
