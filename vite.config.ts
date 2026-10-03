@@ -13,7 +13,8 @@ export default defineConfig({
     modules: { localsConvention: 'camelCaseOnly' },
   },
   // Reachable from other devices on the local network (e.g. a phone) for manual testing.
-  server: { host: true },
+  // Coverage reports are written inside the project; they shouldn't reload the app.
+  server: { host: true, watch: { ignored: ['**/coverage/**'] } },
   preview: { host: true },
   test: {
     globals: true,

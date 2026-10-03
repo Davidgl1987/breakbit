@@ -1,7 +1,12 @@
 import type { StoreApi } from 'zustand';
 import { advanceDay } from '@/domain/pause/advance';
 import * as lifecycle from '@/domain/pause/lifecycle';
-import { completionXp, pauseCompletionXp, withAwards } from '@/domain/progress/awards';
+import {
+  completionXp,
+  extraBreakXp,
+  pauseCompletionXp,
+  withAwards,
+} from '@/domain/progress/awards';
 import { rebalance } from '@/domain/planner/rebalance';
 import { compareDateKeys, toDateKey } from '@/domain/time';
 import type { DateKey, DayRecord, XpEntry } from '@/domain/types';
@@ -73,11 +78,11 @@ export function pauseActions(
       );
       if (!updated) return;
       const record = get().days[date];
-      const awards = pauseCompletionXp(
-        updated,
-        { returnBonus: record?.returnBonus ?? false },
-        clock.now(),
-      );
+      const now = clock.now();
+      const awards = [
+        ...pauseCompletionXp(updated, { returnBonus: record?.returnBonus ?? false }, now),
+        ...(record?.plan ? extraBreakXp(updated, record.plan, get().xpLedger, now) : []),
+      ];
       set((state) => ({ xpLedger: withAwards(state.xpLedger, awards) }));
       log('exercise_completed', { activityId: id, data: { elapsedSec: updated.elapsedSec ?? 0 } });
       if (updated.firstPrompt) log('exercise_completed_first_prompt', { activityId: id });

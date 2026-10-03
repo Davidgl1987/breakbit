@@ -34,6 +34,11 @@ export function mainDonePath(id: string): string {
   return `${mainPath(id)}/done`;
 }
 
+/** "Tengo un hueco": a proposal for the time chosen. */
+export function gapPath(option: string): string {
+  return `${ROUTES.gap}/${option}`;
+}
+
 /** Whether `pathname` is inside the section rooted at `to`. */
 export function isRouteActive(pathname: string, to: string): boolean {
   if (to === '/') return pathname === '/';

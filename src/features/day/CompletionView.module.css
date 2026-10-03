@@ -23,6 +23,12 @@
   font-weight: var(--weight-black);
 }
 
+/* No XP this time: a smaller line, so the screen doesn't read as a big "0". */
+.xpTotal[data-quiet] {
+  font-size: var(--text-lg);
+  text-align: center;
+}
+
 .breakdown,
 .muted {
   margin: 0;

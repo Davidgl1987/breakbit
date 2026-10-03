@@ -5,6 +5,7 @@ import { DayStartScreen } from '@/features/day-start/DayStartScreen';
 import { DecisionScreen } from '@/features/pause/DecisionScreen';
 import { DoneScreen } from '@/features/pause/DoneScreen';
 import { PlayScreen } from '@/features/pause/PlayScreen';
+import { GapProposalScreen } from '@/features/gap/GapProposalScreen';
 import { GapScreen } from '@/features/gap/GapScreen';
 import { MainDoneScreen } from '@/features/main-activity/MainDoneScreen';
 import { MainScreen } from '@/features/main-activity/MainScreen';
@@ -31,6 +32,7 @@ export function AppRoutes() {
           <Route path="progress" element={<ProgressScreen />} />
           <Route path="settings" element={<SettingsScreen />} />
           <Route path="gap" element={<GapScreen />} />
+          <Route path="gap/:option" element={<GapProposalScreen />} />
         </Route>
         <Route element={<FullscreenLayout />}>
           <Route path="day/start" element={<DayStartScreen />} />

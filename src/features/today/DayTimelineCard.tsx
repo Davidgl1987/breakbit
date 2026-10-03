@@ -63,10 +63,14 @@ export function DayTimelineCard({ plan, now, nextId }: DayTimelineCardProps) {
               <span className={styles.time}>{formatClock(item.at)}</span>
               <span className={styles.dot} aria-hidden="true" />
               <span className={styles.label}>{label(item)}</span>
-              {status === 'completed' && (
+              {status === 'completed' && 'activity' in item && (
                 <StatusBadge
                   status={
-                    'activity' in item && item.activity.firstPrompt ? 'firstTry' : 'completed'
+                    item.activity.origin === 'gap'
+                      ? 'extra'
+                      : item.activity.firstPrompt
+                        ? 'firstTry'
+                        : 'completed'
                   }
                 />
               )}

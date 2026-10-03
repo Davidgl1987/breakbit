@@ -421,3 +421,41 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   preferencia de avisos de pausas; no hay recordatorios repetidos.
 - Componentes compartidos por pausas y actividad: `ActivityHero` (avatar, título y qué es),
   `TimerRing` (anillo con el tiempo) y `CompletionView` (pantalla de completado).
+
+## Tengo un hueco (Fase 10)
+
+- **Dos pantallas**, con la navegación visible y la pastilla activa: `/gap` pregunta cuánto
+  tiempo hay (30 s, 1 min, 3 min, 10+ min) con el avatar y su bocadillo; `/gap/:opción` muestra
+  la propuesta ("Propuesta de 1 minuto"), cómo se hace, qué gana y qué cambia, con `Empezar
+  ahora` y `Otra propuesta`. Sin jornada en marcha se explica (y, si no ha empezado, se ofrece
+  empezarla).
+- **Qué se propone**, por orden:
+  1. Si una pausa está esperando respuesta (o aplazada), esa misma: "Es tu pausa de las 10:00".
+  2. Con 10+ min y la actividad principal pendiente (o en pausa), la actividad: "+300 XP · Tu
+     actividad de hoy", solo si se puede hacer ahí y en ese momento: con su material y según el
+     contexto (en una reunión "puedo moverme", solo lo que encaja en una reunión, como la reunión
+     caminando o trabajar de pie; fuera de ella, lo que no la necesita). Si no, se propone una
+     rutina como al resto. La opción lo anuncia en la lista ("Buen momento para tu actividad")
+     con la misma regla.
+  3. Si la próxima pausa cae en ≤45 min y han pasado ≥35 min desde el último movimiento (o
+     desde el inicio de la jornada), se **adelanta**: se hace ahora con contenido para el tiempo
+     elegido, cuenta como esa pausa planificada (+100 XP, sin "a la primera": aún no había
+     existido un primer aviso) y las siguientes se reajustan a su distancia. La propuesta lo dice
+     claro: "Cuenta como tu próxima pausa · La de las 10:00: ya no te avisará".
+  4. Si no, es una **pausa extra**: no mueve ni sustituye ninguna pausa del plan ("Tus pausas
+     siguen igual") y no cuenta para el 70 %. Da +10 XP solo si han pasado ≥20 min desde el último
+     movimiento y no se ha llegado al tope diario opcional (3, `GAP.extraXpDailyCap`). Si no da
+     XP se presenta en positivo, antes y después: "Pausa extra · sin XP esta vez", con el motivo
+     debajo ("Te has movido hace poco. Muévete igualmente: tus pausas siguen igual.") y, al
+     terminar, "Suma igualmente a tu movimiento de hoy", sin mostrar un "+0 XP".
+- **Último movimiento** (para las reglas de 35 y 20 min): el final de cualquier movimiento real
+  completado, sea pausa planificada, pausa extra o actividad principal.
+- **Contenido según el tiempo**: 30 s, un movimiento de hasta 30 s; 1 min, uno de hasta un
+  minuto; 3 min, una rutina corta (movimientos discretos en una reunión); 10+ min sin actividad
+  pendiente, la rutina más larga que encaje (movilidad de 5 min). Evita los movimientos de la
+  última pausa y respeta material y molestias. La semilla es fija por día, opción y número de
+  extras, así que la propuesta no cambia al volver y `Otra propuesta` es reproducible.
+- Las pausas extra se reproducen y celebran como las demás ("+10 pausa extra"), aparecen en la línea de tiempo con la insignia "Pausa
+  extra" y se cuentan aparte en el progreso de Hoy y en la pantalla final ("+1 pausa extra").
+- Evento `spontaneous_break` con la opción elegida y el resultado (`due`, `advance`, `extra`).
+- Dev: el servidor de desarrollo ignora `coverage/`, que recargaba la app en cada informe.

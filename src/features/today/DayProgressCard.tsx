@@ -25,6 +25,12 @@ export function DayProgressCard({ progress }: { progress: DayProgress }) {
           <PixelIcon name="clock" size={24} />
           {t('today.interruption', { time: formatInterruption(progress.interruptionSec) })}
         </li>
+        {progress.extras > 0 && (
+          <li>
+            <PixelIcon name="extra" size={24} />
+            {t('today.extras', { count: progress.extras })}
+          </li>
+        )}
         {progress.hasMain && (
           <li>
             <PixelIcon name={progress.mainCompleted ? 'completed' : 'goal'} size={24} />
