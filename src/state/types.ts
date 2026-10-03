@@ -1,3 +1,4 @@
+import type { GapOption, GapProposal } from '@/domain/gap/gap';
 import type {
   DateKey,
   DayOverrides,
@@ -93,6 +94,15 @@ export interface MainActions {
   completeMain: (date: DateKey, id: string) => void;
 }
 
+/** "Tengo un hueco". The rules live in domain/gap. */
+export interface GapActions {
+  /**
+   * Takes a proposal: starts the waiting pause, does the next one now, or adds an extra
+   * one. Returns the pause to play, if any (the main activity is started on its own).
+   */
+  takeGap: (date: DateKey, option: GapOption, proposal: GapProposal) => string | undefined;
+}
+
 export interface DataActions {
   /** Clears everything except appearance and language preferences. */
   resetData: () => void;
@@ -107,4 +117,5 @@ export type AppState = PersistedState &
   DayActions &
   PauseActions &
   MainActions &
+  GapActions &
   DataActions;

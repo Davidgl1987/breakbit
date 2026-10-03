@@ -1,6 +1,7 @@
 import { XP } from '../config';
+import { extraXpBlock } from '../gap/gap';
 import { toDateKey } from '../time';
-import type { Instant, ScheduledActivity, XpEntry } from '../types';
+import type { DayPlan, Instant, ScheduledActivity, XpEntry } from '../types';
 
 /**
  * XP for a completed microbreak. Keys are deterministic, so recording the same
@@ -47,6 +48,23 @@ export function mainCompletionXp(
   const date = toDateKey(item.scheduledAt);
   const amount = Math.round(XP.mainActivity * (returnBonus ? XP.returnMultiplier : 1));
   return [{ key: `main:${date}`, amount, at: now, date, reason: 'main_activity' }];
+}
+
+/**
+ * XP for an extra pause from "Tengo un hueco": +10, only if the last movement before it
+ * started wasn't too recent and the optional daily cap allows it. Never multiplied.
+ */
+export function extraBreakXp(
+  item: ScheduledActivity,
+  plan: DayPlan,
+  ledger: readonly XpEntry[],
+  now: Instant,
+): XpEntry[] {
+  if (item.kind !== 'micro' || item.origin !== 'gap' || item.status !== 'completed') return [];
+  const key = `extra:${item.id}`;
+  const others = ledger.filter((entry) => entry.key !== key);
+  if (extraXpBlock(plan, others, item.startedAt ?? now)) return [];
+  return [{ key, amount: XP.extraBreak, at: now, date: plan.date, reason: 'extra_break' }];
 }
 
 /** XP for any completed activity: a microbreak or the main activity. */

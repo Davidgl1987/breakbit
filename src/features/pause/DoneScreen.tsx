@@ -16,7 +16,7 @@ export function DoneScreen() {
     <CompletionView
       activity={activity}
       title={t('pause.done.title')}
-      xpKeys={[`micro:${id}`, `first:${id}`]}
+      xpKeys={[`micro:${id}`, `first:${id}`, `extra:${id}`]}
       focus="pauses"
     />
   );

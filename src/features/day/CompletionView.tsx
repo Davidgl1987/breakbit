@@ -77,15 +77,25 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
       }
     >
       <Card as="section" variant="tinted" className={styles.xpCard}>
-        <p className={styles.xpTotal}>
-          <PixelIcon name="xp" size={32} />
-          {t('pause.done.xp', { xp: total })}
-        </p>
+        {entries.length > 0 ? (
+          <p className={styles.xpTotal}>
+            <PixelIcon name="xp" size={32} />
+            {t('pause.done.xp', { xp: total })}
+          </p>
+        ) : (
+          // An extra pause too soon after moving, or past the day's cap: still a good move.
+          <p className={styles.xpTotal} data-quiet="">
+            <PixelIcon name="extra" size={32} />
+            {t('gap.extraNoXp')}
+          </p>
+        )}
         <p className={styles.breakdown}>
-          {entries
-            .map((entry) => xpLine(entry, t))
-            .filter(Boolean)
-            .join(' · ')}
+          {entries.length > 0
+            ? entries
+                .map((entry) => xpLine(entry, t))
+                .filter(Boolean)
+                .join(' · ')
+            : t('pause.done.noXp')}
         </p>
       </Card>
 
@@ -122,6 +132,11 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
                         total: progress.planned,
                       })}
                     />
+                    {progress.extras > 0 && (
+                      <span className={styles.muted}>
+                        {t('pause.done.extras', { count: progress.extras })}
+                      </span>
+                    )}
                   </div>
                 ),
           )}
@@ -154,6 +169,8 @@ function xpLine(entry: XpEntry, t: Translate): string | undefined {
       });
     case 'first_prompt':
       return t('pause.done.firstTry', { xp: entry.amount });
+    case 'extra_break':
+      return t('pause.done.extra', { xp: entry.amount });
     case 'main_activity':
       return t(entry.amount > XP.mainActivity ? 'main.done.returnBonus' : 'main.done.xp', {
         xp: entry.amount,

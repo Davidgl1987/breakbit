@@ -1,12 +1,9 @@
 import { ROUTES } from '@/app/routes';
-import { resolveDaySchedule } from '@/domain/calendar/schedule';
-import { todayState } from '@/domain/day/today';
-import { toDateKey } from '@/domain/time';
+import { useToday } from '@/features/day/useToday';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { selectXpOn, useLevel, useStreak } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
-import { useNow } from '@/state/useNow';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { Wordmark } from '@/ui/components/Wordmark/Wordmark';
 import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
@@ -18,19 +15,11 @@ import styles from './TodayScreen.module.css';
 /** "/" — how today is going: avatar and progress, then the day itself. */
 export function TodayScreen() {
   const { t, locale } = useT();
-  const now = useNow(5_000);
-  const date = toDateKey(now);
-  const record = useAppStore((state) => state.days[date]);
-  const override = useAppStore((state) => state.dayOverrides[date]);
-  const settings = useAppStore((state) => state.settings);
-  const overrides = useAppStore((state) => state.dayOverrides);
+  const { now, date, state } = useToday();
   const phase = useAppStore((state) => state.progress.evolutionPhase);
   const xpToday = useAppStore(selectXpOn(date));
   const level = useLevel();
   const streak = useStreak(date);
-
-  const schedule = resolveDaySchedule(date, settings, overrides);
-  const state = todayState({ date, now, record, override, schedule });
 
   return (
     <>
