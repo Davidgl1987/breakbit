@@ -119,6 +119,29 @@ describe('main activity actions', () => {
     );
   });
 
+  it('shortens it only to a short version it declares, before starting', () => {
+    store().shortenMain(DATE, MAIN.id);
+    expect(main().durationSec).toBe(10 * 60);
+    // A walk indoors has no short version: it stays as planned.
+    useAppStore.setState((state) => {
+      const record = state.days[DATE]!;
+      const activities = record.plan!.activities.map((item) =>
+        item.id === MAIN.id
+          ? {
+              ...item,
+              content: { kind: 'main' as const, activityId: 'walk_indoors' },
+              durationSec: 600,
+            }
+          : item,
+      );
+      return {
+        days: { ...state.days, [DATE]: { ...record, plan: { ...record.plan!, activities } } },
+      };
+    });
+    store().shortenMain(DATE, MAIN.id);
+    expect(main().durationSec).toBe(600);
+  });
+
   it('leaves a day that is not under way alone', () => {
     store().markDayOff(DATE);
     store().startMain(DATE, MAIN.id);

@@ -88,6 +88,7 @@ export function NotStartedCard({ date, schedule, late, now }: NotStartedCardProp
 /** Not a workday (or the day is already closed): when the next one is. */
 export function RestCard({ date, closed = false }: { date: DateKey; closed?: boolean }) {
   const { t } = useT();
+  const summary = useAppStore((state) => (closed ? state.days[date]?.summary : undefined));
   return (
     <Card as="section" className={styles.stateCard}>
       <PixelIcon name={closed ? 'success' : 'sofa'} size={48} />
@@ -95,6 +96,27 @@ export function RestCard({ date, closed = false }: { date: DateKey; closed?: boo
         <h2 className={styles.stateTitle}>
           {closed ? t('today.states.closed') : t('today.states.rest')}
         </h2>
+        {summary && (
+          <p className={styles.muted}>
+            {summary.isGood
+              ? t('today.states.closedBody', {
+                  verdict: t(`today.states.verdict.${summary.isPerfect ? 'perfect' : 'good'}`),
+                  pauses: t('today.pausesDone', {
+                    done: summary.completed,
+                    total: summary.planned,
+                  }),
+                  xp: summary.xp >= 0 ? `+${summary.xp}` : String(summary.xp),
+                })
+              : // Not a good day: just the facts.
+                t('today.states.closedData', {
+                  pauses: t('today.pausesDone', {
+                    done: summary.completed,
+                    total: summary.planned,
+                  }),
+                  xp: summary.xp >= 0 ? `+${summary.xp}` : String(summary.xp),
+                })}
+          </p>
+        )}
         <NextWorkday date={date} />
       </div>
       {!closed && (

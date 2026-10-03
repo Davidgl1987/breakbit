@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useShallow } from 'zustand/react/shallow';
+import { DAY_END_LEAD_MIN } from '@/domain/config';
 import { isOpen } from '@/domain/pause/window';
-import { toDateKey } from '@/domain/time';
+import { atTime, toDateKey } from '@/domain/time';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
 import { readEvents } from '@/services/eventLog';
@@ -53,6 +54,14 @@ export function DevPanel() {
       .filter((item) => item.kind === 'micro' && isOpen(item) && item.currentScheduledAt > now)
       .map((item) => item.currentScheduledAt)
       .sort((a, b) => a - b)[0];
+  });
+
+  // …or to 10 min before the end of the workday, when closing it is offered.
+  const dayEndAt = useAppStore((state) => {
+    const today = state.days[toDateKey(now)];
+    if (today?.status !== 'active' || !today.plan) return undefined;
+    const at = atTime(today.date, today.plan.schedule.workEnd) - DAY_END_LEAD_MIN * MINUTE;
+    return at > now ? at : undefined;
   });
 
   useEffect(() => {
@@ -140,6 +149,16 @@ export function DevPanel() {
                 onClick={() => clock.travelTo(nextPauseAt)}
               >
                 {t('dev.nextPause')}
+              </Button>
+            )}
+            {dayEndAt !== undefined && (
+              <Button
+                variant="secondary"
+                size="sm"
+                shape="pill"
+                onClick={() => clock.travelTo(dayEndAt)}
+              >
+                {t('dev.dayEnd')}
               </Button>
             )}
           </div>

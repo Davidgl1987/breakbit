@@ -61,6 +61,13 @@ export function completeMain(item: ScheduledActivity, now: Instant): ScheduledAc
   return { ...item, status: 'completed', completedAt, elapsedSec, runningSince: undefined };
 }
 
+/** A shorter take before starting ("versión corta"), down to `minutes`; never longer. */
+export function shortenMain(item: ScheduledActivity, minutes: number): ScheduledActivity {
+  if (item.kind !== 'main' || !isOpen(item) || item.startedAt !== undefined) return item;
+  const durationSec = minutes * 60;
+  return durationSec < item.durationSec ? { ...item, durationSec } : item;
+}
+
 /** A run whose time has added up is done; the engine checks on every tick. */
 export function advanceMain(item: ScheduledActivity, now: Instant): ScheduledActivity {
   const end = mainEndsAt(item);

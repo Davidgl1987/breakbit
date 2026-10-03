@@ -1,7 +1,9 @@
 import { screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
+import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
+import { sampleAt, sampleDay } from '@/test/sampleDay';
 import { renderWithRouter } from '@/test/render';
 import { AppRoutes } from './AppRoutes';
 
@@ -16,6 +18,7 @@ describe('AppRoutes', () => {
   beforeEach(() => {
     useAppStore.getState().completeOnboarding(DEFAULT_SETTINGS);
   });
+  afterEach(() => clock.setOffset(0));
 
   it('sends onboarded users away from onboarding', () => {
     renderWithRouter(<AppRoutes />, { route: '/onboarding/welcome' });
@@ -33,6 +36,8 @@ describe('AppRoutes', () => {
   });
 
   it('renders the end of day full screen, without bottom navigation', () => {
+    useAppStore.getState().startDay(sampleDay());
+    clock.travelTo(sampleAt('16:55'));
     renderWithRouter(<AppRoutes />, { route: '/day/end' });
     expect(screen.getByRole('heading', { level: 1, name: 'Fin de jornada' })).toBeInTheDocument();
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();

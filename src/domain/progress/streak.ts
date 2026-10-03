@@ -21,7 +21,9 @@ type Verdict = 'good' | 'bad' | 'skip';
 export function currentStreak({ today, since, days, isWorkday, catalog }: StreakInput): number {
   let streak = 0;
   for (let date = today; compareDateKeys(date, since) >= 0; date = addDays(date, -1)) {
-    const verdict = dayVerdict(days[date], date === today, () => isWorkday(date), catalog);
+    // The onboarding day only counts if it was worked.
+    const neutral = date === today || date === since;
+    const verdict = dayVerdict(days[date], neutral, date === today, () => isWorkday(date), catalog);
     if (verdict === 'bad') break;
     if (verdict === 'good') streak++;
   }
@@ -30,11 +32,12 @@ export function currentStreak({ today, since, days, isWorkday, catalog }: Streak
 
 function dayVerdict(
   record: DayRecord | undefined,
+  neutralIfMissing: boolean,
   isToday: boolean,
   isWorkday: () => boolean,
   catalog: Catalog,
 ): Verdict {
-  if (!record) return isToday || !isWorkday() ? 'skip' : 'bad';
+  if (!record) return neutralIfMissing || !isWorkday() ? 'skip' : 'bad';
   switch (record.status) {
     case 'day_off':
       return 'skip';

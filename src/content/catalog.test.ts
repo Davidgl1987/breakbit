@@ -118,6 +118,16 @@ describe('content catalog', () => {
     }
   });
 
+  it("declares short versions only within each activity's range, below its longest", () => {
+    for (const activity of mainActivities) {
+      if (activity.shortVersionMin === undefined) continue;
+      expect(activity.shortVersionMin, activity.id).toBeGreaterThanOrEqual(
+        activity.durationMin.min,
+      );
+      expect(activity.shortVersionMin, activity.id).toBeLessThan(activity.durationMin.max);
+    }
+  });
+
   it('gives every main activity at least one slot', () => {
     for (const activity of mainActivities)
       expect(activity.slots.length, activity.id).toBeGreaterThan(0);

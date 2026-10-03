@@ -1,11 +1,12 @@
-import { PAUSE_WINDOW } from '../config';
+import { DAY_END_LEAD_MIN, PAUSE_WINDOW } from '../config';
 import { isOpen, windowEnd } from '../pause/window';
 import { atTime } from '../time';
 import type { DateKey, DayRecord, DaySchedule, Instant, NotificationPrefs } from '../types';
 
 const MINUTE = 60_000;
 
-export type NotificationKind = 'pause' | 'pause_reminder' | 'day_start' | 'main' | 'main_done';
+export type NotificationKind =
+  'pause' | 'pause_reminder' | 'day_start' | 'day_end' | 'main' | 'main_done';
 
 /**
  * A reminder the app should show at `at`. Ids are deterministic, so a delivery channel
@@ -38,7 +39,8 @@ export interface ScheduleInput {
  * - a reminder every 10 min while it gets no answer ("Vamos", postpone or discard) and its
  *   window is open. Just opening the screen is not an answer;
  * - the main activity at its time, while it hasn't started, and once a session completes
- *   on its own (a walk with the phone away). Both follow the pauses preference.
+ *   on its own (a walk with the phone away). Both follow the pauses preference;
+ * - the end of the workday, 10 min before it, while the day is under way.
  */
 export function buildNotificationSchedule({
   date,
@@ -104,6 +106,16 @@ export function buildNotificationSchedule({
         activityId: main.id,
       });
     }
+  }
+
+  if (prefs.dayEnd && record?.status === 'active' && record.plan) {
+    planned.push({
+      id: `day-end:${date}`,
+      kind: 'day_end',
+      at: atTime(date, record.plan.schedule.workEnd) - DAY_END_LEAD_MIN * MINUTE,
+      date,
+      tag: 'day-end',
+    });
   }
 
   return planned.sort((a, b) => a.at - b.at);

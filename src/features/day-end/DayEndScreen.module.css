@@ -1,0 +1,102 @@
+.header {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: var(--text-3xl);
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* The avatar and how the day went, side by side. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.verdict {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.xp {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+}
+
+.verdictTitle {
+  font-size: var(--text-lg);
+}
+
+.small {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.goal {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.goalTexts {
+  display: grid;
+  min-width: 0;
+}
+
+.goalTitle {
+  font-weight: var(--weight-black);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.action {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.actionTitle {
+  font-size: var(--text-md);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.section {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-black);
+}
+
+.sheetBody {
+  display: grid;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+@media (max-width: 359px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
