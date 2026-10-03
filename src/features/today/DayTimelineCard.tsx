@@ -65,6 +65,8 @@ export function DayTimelineCard({ plan, now, nextId }: DayTimelineCardProps) {
               <span className={styles.label}>{label(item)}</span>
               {status === 'completed' && <StatusBadge status="completed" />}
               {status === 'missed' && <StatusBadge status="missed" />}
+              {status === 'skipped' && <StatusBadge status="skipped" />}
+              {status === 'postponed' && <StatusBadge status="postponed" />}
             </li>
           );
         })}

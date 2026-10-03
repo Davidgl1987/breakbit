@@ -10,7 +10,8 @@
   white-space: nowrap;
 }
 
-.pending {
+.pending,
+.skipped {
   background: var(--color-pending-soft);
   color: var(--color-pending);
 }

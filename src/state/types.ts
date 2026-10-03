@@ -6,6 +6,7 @@ import type {
   DaySchedule,
   Instant,
   ProgressState,
+  SkipReason,
   UserSettings,
   XpEntry,
 } from '@/domain/types';
@@ -67,6 +68,19 @@ export interface DayActions {
   undoDayOff: (date: DateKey) => void;
 }
 
+export interface PauseActions {
+  /** The engine: moves every day under way forward to `now` (notified, reminded, missed). */
+  reconcile: (now: Instant) => void;
+  /** A notification was opened (metrics only: it is not an answer to the pause). */
+  notificationOpened: (date: DateKey, id: string) => void;
+  /** +5 / +10 / +15 while it fits; later pauses move if they come too close. */
+  postponePause: (date: DateKey, id: string, minutes: number) => void;
+  /** "Vamos". */
+  startPause: (date: DateKey, id: string) => void;
+  /** "Descartar pausa": −50 XP, with an optional reason. */
+  discardPause: (date: DateKey, id: string, reason?: SkipReason) => void;
+}
+
 export interface DataActions {
   /** Clears everything except appearance and language preferences. */
   resetData: () => void;
@@ -79,4 +93,5 @@ export type AppState = PersistedState &
   SettingsActions &
   CalendarActions &
   DayActions &
+  PauseActions &
   DataActions;

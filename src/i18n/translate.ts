@@ -99,6 +99,14 @@ export function formatDuration(minutes: number): string {
   return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
 }
 
+/** '40 s', '1 min 30 s', '2 min'. */
+export function formatSeconds(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds));
+  if (total < 60) return `${total} s`;
+  const rest = total % 60;
+  return rest === 0 ? `${total / 60} min` : `${Math.floor(total / 60)} min ${rest} s`;
+}
+
 /** 'lunes, 5 de octubre' / 'Monday, 5 October'. */
 export function formatLongDate(locale: Locale, date: DateKey): string {
   const [year, month, day] = date.split('-').map(Number);

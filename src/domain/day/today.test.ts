@@ -55,6 +55,32 @@ describe('nextPause', () => {
     expect(nextPause(plan, first!.scheduledAt + 30 * 60_000)?.id).toBe(second!.id);
   });
 
+  it('keeps a pause under way as next, even after its window', () => {
+    const [first] = micros;
+    const started: DayPlan = {
+      ...plan,
+      activities: plan.activities.map((item) =>
+        item.id === first!.id
+          ? { ...item, status: 'notification_sent', startedAt: item.scheduledAt }
+          : item,
+      ),
+    };
+    expect(nextPause(started, first!.scheduledAt + 2 * 3_600_000)?.id).toBe(first!.id);
+  });
+
+  it('puts a pause waiting for an answer before one left half done', () => {
+    const [first, second] = micros;
+    const started: DayPlan = {
+      ...plan,
+      activities: plan.activities.map((item) =>
+        item.id === first!.id
+          ? { ...item, status: 'notification_sent', startedAt: item.scheduledAt }
+          : item,
+      ),
+    };
+    expect(nextPause(started, second!.scheduledAt + 60_000)?.id).toBe(second!.id);
+  });
+
   it('skips pauses already done', () => {
     const [first, second] = micros;
     const updated: DayPlan = {

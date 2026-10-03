@@ -1,4 +1,4 @@
-import { PAUSE_WINDOW } from '../config';
+import { isDue, isOpen, windowEnd } from '../pause/window';
 import { contentExerciseIds } from '../planner/pauseContent';
 import { atTime } from '../time';
 import {
@@ -54,21 +54,18 @@ export function workEnd(plan: DayPlan): Instant {
 }
 
 /**
- * The next microbreak to do: the earliest one not done, skipped or missed whose window
- * is still open (a due pause stays "next" while it can still be done).
+ * The pause to show as "next", in this order: one waiting for an answer, one under way
+ * (started and not finished), or the earliest still to come while its window is open.
  */
 export function nextPause(plan: DayPlan, now: Instant): ScheduledActivity | undefined {
-  const windowMs = PAUSE_WINDOW.validityMin * 60_000;
-  return plan.activities
-    .filter(
-      (item) =>
-        item.kind === 'micro' &&
-        (item.status === 'pending' ||
-          item.status === 'notification_sent' ||
-          item.status === 'postponed') &&
-        item.scheduledAt + windowMs > now,
-    )
-    .sort((a, b) => a.currentScheduledAt - b.currentScheduledAt)[0];
+  const open = plan.activities
+    .filter((item) => item.kind === 'micro' && isOpen(item))
+    .sort((a, b) => a.currentScheduledAt - b.currentScheduledAt);
+  return (
+    open.find((item) => isDue(item, now)) ??
+    open.findLast((item) => item.startedAt !== undefined) ??
+    open.find((item) => item.startedAt === undefined && now < windowEnd(item))
+  );
 }
 
 export function mainActivityOf(plan: DayPlan): ScheduledActivity | undefined {

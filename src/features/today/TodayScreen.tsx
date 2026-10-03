@@ -18,7 +18,7 @@ import styles from './TodayScreen.module.css';
 /** "/" — how today is going: avatar and progress, then the day itself. */
 export function TodayScreen() {
   const { t, locale } = useT();
-  const now = useNow(30_000);
+  const now = useNow(5_000);
   const date = toDateKey(now);
   const record = useAppStore((state) => state.days[date]);
   const override = useAppStore((state) => state.dayOverrides[date]);

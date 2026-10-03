@@ -13,14 +13,28 @@ interface AvatarProps {
   /** Accessible description; omit when a visible caption says the same. */
   label?: string;
   highlighted?: boolean;
+  /** Without its own box, for art placed on a stage. */
+  framed?: boolean;
 }
 
 /** The user's avatar. Renders a pixel placeholder until the final art is in the registry. */
-export function Avatar({ phase, pose = 'idle', size = 'md', label, highlighted }: AvatarProps) {
+export function Avatar({
+  phase,
+  pose = 'idle',
+  size = 'md',
+  label,
+  highlighted,
+  framed = true,
+}: AvatarProps) {
   const src = avatarAsset(phase, pose);
   return (
     <span
-      className={cx(styles.avatar, styles[size], highlighted && styles.highlighted)}
+      className={cx(
+        styles.avatar,
+        styles[size],
+        highlighted && styles.highlighted,
+        !framed && styles.bare,
+      )}
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}

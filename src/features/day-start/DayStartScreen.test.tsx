@@ -183,7 +183,7 @@ describe('day start', () => {
 
   it('says so when no gear is needed today', () => {
     renderWithRouter(<AppRoutes />, { route: '/day/start' });
-    expect(screen.getByText('Hoy no necesitas preparar material.')).toBeInTheDocument();
+    expect(screen.getByText('Hoy no hace falta material.')).toBeInTheDocument();
     expect(screen.queryByText('A mano hoy')).not.toBeInTheDocument();
   });
 });

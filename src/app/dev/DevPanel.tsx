@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useShallow } from 'zustand/react/shallow';
+import { isOpen } from '@/domain/pause/window';
 import { toDateKey } from '@/domain/time';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
@@ -44,6 +45,15 @@ export function DevPanel() {
       xp: state.xpLedger.length,
     })),
   );
+
+  // Jump straight to the next pause (its notification) to walk through the cycle.
+  const nextPauseAt = useAppStore((state) => {
+    const today = state.days[toDateKey(now)]?.plan;
+    return today?.activities
+      .filter((item) => item.kind === 'micro' && isOpen(item) && item.currentScheduledAt > now)
+      .map((item) => item.currentScheduledAt)
+      .sort((a, b) => a - b)[0];
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -122,6 +132,16 @@ export function DevPanel() {
                 {'label' in jump ? jump.label : t(jump.labelKey)}
               </Button>
             ))}
+            {nextPauseAt !== undefined && (
+              <Button
+                variant="secondary"
+                size="sm"
+                shape="pill"
+                onClick={() => clock.travelTo(nextPauseAt)}
+              >
+                {t('dev.nextPause')}
+              </Button>
+            )}
           </div>
           <form
             className={styles.row}

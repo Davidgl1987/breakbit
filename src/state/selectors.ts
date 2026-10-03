@@ -39,3 +39,12 @@ export function useStreak(today: DateKey): number {
     });
   }, [today, days, settings, overrides, onboardedAt]);
 }
+
+/** The day an activity belongs to: ids start with their date ('2026-10-05:p0'). */
+export function activityDate(id: string): DateKey {
+  return id.slice(0, 10) as DateKey;
+}
+
+/** An activity by id (the stored object, so selecting it never re-renders needlessly). */
+export const selectActivity = (id: string) => (state: AppState) =>
+  state.days[activityDate(id)]?.plan?.activities.find((item) => item.id === id);

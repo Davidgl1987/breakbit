@@ -9,6 +9,16 @@ export const ROUTES = {
   devKit: '/dev/kit',
 } as const;
 
+/** The decision screen of a pause ("Vamos" / postpone / discard). */
+export function pausePath(id: string): string {
+  return `/pause/${encodeURIComponent(id)}`;
+}
+
+/** The exercise itself, after "Vamos". */
+export function pausePlayPath(id: string): string {
+  return `${pausePath(id)}/play`;
+}
+
 /** Whether `pathname` is inside the section rooted at `to`. */
 export function isRouteActive(pathname: string, to: string): boolean {
   if (to === '/') return pathname === '/';

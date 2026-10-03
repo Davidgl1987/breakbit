@@ -283,3 +283,68 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   "Tengo un hueco"), `FlowLayout` (pantallas de flujo con la acción fija abajo, usado por el
   onboarding y "Tu día") y `AvatarCard`.
 - Las horas se muestran en formato 24 h en los dos idiomas, igual que el usuario las escribe.
+
+## Ciclo de la pausa y avisos (Fase 7)
+
+- **Motor** (`domain/pause/advance`, ejecutado por `app/engine`): hace avanzar los días en curso
+  hasta "ahora" al abrir la app, cada 15 s, tras cada acción, al volver a la pestaña y al viajar en
+  el tiempo en desarrollo. Depende solo de la hora, no de que el aviso llegara, y es idempotente:
+  - a su hora (o a su nueva hora tras aplazarla) la pausa pasa a `notification_sent`;
+  - cada 10 min sin respuesta cuenta un recordatorio (evento `exercise_ignored`). Solo
+    responden `Vamos`, aplazar o descartar: abrir la pantalla (o el aviso) no es una respuesta,
+    así que si el usuario no actúa siguen llegando recordatorios mientras quede ventana;
+  - 30 min después de su hora original sin `Vamos` pasa a `missed`, aunque se aplazara. La
+    siguiente puede adelantarse hasta 10 min y, si era un solo movimiento en horario de trabajo,
+    pasa a reset (2–4 movimientos). La perdida sigue contando como perdida;
+  - una pausa empezada con `Vamos` nunca caduca durante el día.
+  Los días anteriores aún abiertos se ponen al día igual (sus pausas quedan perdidas); su cierre
+  con resumen llega en la Fase 11.
+- **Pantalla de decisión** (`/pause/:id`): un bloque reservado para el avatar animando (con el
+  placeholder de su fase hasta que exista el arte), el ejercicio y, justo debajo y juntas, las
+  acciones en orden de preferencia: `Vamos` (lo que queremos que haga), `Ahora no puedo` con
+  +5/+10/+15 (solo las opciones que vuelven antes de que cierre la ventana) y `Descartar pausa ·
+  −50 XP` en tono de aviso suave (hoja con motivo opcional). Al no caber ninguna opción de aplazar,
+  se dice y quedan `Vamos` y `Descartar`. Si la pausa no está esperando respuesta (próxima, hecha,
+  descartada o perdida), la pantalla lo explica.
+- **Aplazar no la aparta**: una pausa aplazada sigue esperando respuesta hasta que vuelva. En Hoy
+  conserva `Vamos` y su pantalla también, con "Te la volvemos a proponer a las 09:55"; se puede
+  hacer antes si te queda un hueco.
+- **Aplazado frente a ignorado**: `postponeMinutes` suma solo aplazamientos explícitos; el tiempo
+  sin responder (`ignoredMinutes` = consumido − aplazado) se mide aparte. Ambos son de cada pausa,
+  no del día. En pantalla solo se llaman "aplazados" los explícitos ("Ya la has aplazado
+  10 min"); cuando ya no caben todas las opciones se indica el margen que queda ("Quedan 14 min
+  para hacerla"). `notificationOpenedAt` solo se apunta al abrir desde un aviso, para métricas.
+- **"A la primera"**: se decide al pulsar `Vamos`: sin aplazamientos y antes del primer
+  recordatorio. El XP de completar llega con el reproductor (Fase 8); el de descartar (−50) se
+  apunta ya, con clave única para no repetirse.
+- **Aplazar** mueve la pausa desde ahora y reajusta las siguientes si quedan a menos de 35 min.
+- **Avisos**: una función pura (`domain/notifications/schedule`) da la agenda del día con ids
+  deterministas: inicio de jornada (mientras no se haya empezado), cada pausa a su hora y
+  recordatorios cada 10 min sin respuesta, con la misma etiqueta para que se reemplacen y no se
+  apilen. Se respetan las preferencias (`enabled`, `dayStart`, `microbreaks`) y los días libres.
+- **Canal local** (`services/notifications/scheduler`, puerto `NotificationScheduler`): muestra
+  cada aviso una vez (recuerda los ids entre recargas), descarta los muy atrasados (más de 5 min,
+  p. ej. tras suspender el equipo) y no muestra nada mientras la app está delante, porque lo cubre
+  el banner. Un canal Web Push podrá sustituirlo sin tocar el dominio.
+- **Service worker** mínimo (`public/sw.js`): al pulsar un aviso enfoca la app y navega, o la abre
+  en `/pause/:id?src=notif`. Sin caché offline todavía (Fase 15). Requiere contexto seguro (https o
+  localhost); por http a una IP no hay avisos del sistema.
+- **Dentro de la app**: con una pausa pendiente de respuesta, la tarjeta "Próxima pausa" de Hoy se
+  destaca con `Vamos` (y `Continuar` si está en curso), las demás pestañas muestran un banner, y el
+  título de la pestaña cambia a "Pausa ahora · Breakbit". Es también el único aviso cuando las
+  notificaciones están desactivadas o bloqueadas.
+- **"Próxima pausa"** muestra, por este orden: la que espera respuesta, la que está a medias
+  (empezada y sin terminar) y la siguiente por llegar. Una pausa abandonada a medias nunca tapa
+  una nueva pendiente.
+- **Pausas combinadas** se nombran "3 movimientos seguidos"; cada movimiento se detalla dentro.
+- **Pantalla del ejercicio** (`/pause/:id/play`) con la estructura definitiva: bloque para el
+  avatar en su fase más evolucionada haciendo el movimiento, anillo de progreso grande y centrado
+  con el tiempo, y descripción y pasos debajo. "Si puedes, hazlo mejor de pie" solo cuando el
+  movimiento lo admite y nunca en una reunión. El anillo avanza y la pausa se completa (con su XP)
+  en la Fase 8.
+- **Design system**: `AvatarStage` (espacio para el arte del avatar) y `ProgressRing`
+  (temporizador circular), ambos en `/dev/kit`.
+- **Material**: el paso del onboarding deja claro que es opcional y que sin material todo funciona
+  igual; el resumen lo dice como "Nada extra: tus pausas serán movimientos suaves sin material", y
+  "Tu día" usa "Hoy no hace falta material" (en Hoy no se muestra nada).
+- DevPanel: atajo "Próxima pausa" para saltar a la hora del siguiente aviso.
