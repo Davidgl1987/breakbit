@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { goodWeekStreak } from '@/domain/progress/weekly';
 import { useAppStore } from '@/state/store';
 import { validatePersistedState } from '@/state/validatePersisted';
+import { historyScenarioState } from './historyScenario';
 import { SCENARIO_NOW, SCENARIO_WEEK, weekScenarioState, type WeekScenario } from './weekScenarios';
 
 function judged(scenario: WeekScenario) {
@@ -38,5 +39,19 @@ describe('weekly test scenarios', () => {
     const { progress, week } = judged('room');
     expect(week).toMatchObject({ result: 'good', phaseAfter: 5, unlocked: 'lamp' });
     expect(progress.unlockedRoomItems).toEqual(['plant', 'picture', 'lamp']);
+  });
+});
+
+describe('history test scenario', () => {
+  it('is a valid state with eight judged weeks and today under way', () => {
+    const sample = historyScenarioState(useAppStore.getState());
+    expect(validatePersistedState(sample)).toEqual([]);
+    expect(sample.progress.weeklyResults).toHaveLength(8);
+    expect(sample.progress.lastSeenWeek).toBe(sample.progress.lastEvaluatedWeek);
+    expect(sample.days['2026-10-14']?.status).toBe('active');
+    expect(sample.days['2026-09-23']?.status).toBe('absent');
+    expect(
+      Object.values(sample.days).filter((day) => day?.status === 'closed').length,
+    ).toBeGreaterThan(30);
   });
 });

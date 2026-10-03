@@ -553,3 +553,54 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   evoluciona (Sedentario → Activo, segunda semana buena seguida), semana estable (3 de 5) y semana
   buena ya en la fase 5 que trae la lámpara. Sustituyen los datos por una semana de ejemplo y la
   evalúa el flujo real.
+
+## Progreso (Fase 13)
+
+- **Orden** (backlog §17, `progress_reference`): Tu evolución, Tu constancia, Resumen semanal,
+  Molestias que más cuidas, Esta semana y, al final, Tus semanas (historial).
+- **Tu evolución**: tira de fases con la actual marcada, racha (días) y XP total arriba. En vez
+  de la barra "320 / 500 XP · A 180 XP de tu próxima evolución" de la referencia (mezcla nivel y
+  fase), muestra el progreso de la semana hacia la siguiente fase: "Esta semana: 2 de 5 días
+  buenos" con su barra y "Te faltan 2 días buenos para que tu avatar evolucione" (en la fase 5,
+  "para un objeto nuevo en tu habitación"). Cuenta las jornadas que quedan por venir según el
+  calendario. Si ya no llega: "Esta semana ya no llega para evolucionar; cada día bueno sigue
+  sumando a tu racha". Ese mensaje sale directamente en cuanto los días buenos que faltan superan
+  las jornadas planificadas que quedan esa semana (hoy cuenta mientras pueda volverse bueno; los
+  días libres no). Semana corta y semana ya buena tienen su texto. Debajo, la racha de
+  semanas y, en la fase 5 o con objetos, la habitación.
+- **Tu constancia**: heatmap tipo GitHub de 20 semanas (unos cinco meses, legible en móvil), una
+  columna por semana con el lunes arriba, y flechas para periodos anteriores (hasta el
+  onboarding). El tono depende de cuánto del día se hizo, no del número bruto de ejercicios: sin
+  actividad, algo (<40 %), media (40–69 %), alta (≥70 % sin ser día bueno) y día bueno. Los días
+  libres y los fines de semana no laborables se ven distintos (borde discontinuo) porque ni
+  suman ni rompen nada; los días antes del onboarding o por venir quedan como cuadrícula tenue.
+  Un token propio, `--color-heat-empty`, separa en ambos temas "sin actividad" de la cuadrícula
+  tenue (en oscuro el tono de las pistas quedaba casi igual que la tarjeta).
+  Una jornada no empezada cuenta como "sin actividad". Para lectores de pantalla, la cuadrícula
+  se resume ("18 días buenos de 30 jornadas, de … a …") y cada día tiene su texto al pasar el
+  ratón.
+- **Resumen semanal** (lunes a domingo): pausas completadas, % a la primera (sobre las hechas),
+  movimiento e interrupción real, y debajo días buenos, actividad principal, aplazadas,
+  ignoradas, descartadas, perdidas, pausas extra, minutos en micropausas y XP de la semana (las
+  métricas del master §23 y §25). Sin jornadas, "Aún no hay jornadas esta semana".
+- **Molestias que más cuidas** ("Lo que has movido por zona · últimas 4 semanas"): solo datos de
+  actividad por zona (ejercicios y minutos), nunca mejoría física ni menos dolor: cada ejercicio de una pausa hecha cuenta para cada zona que trabaja, con su parte del
+  tiempo real de la pausa ("Espalda · 38 ejercicios · 23 min"). Las cuatro zonas más trabajadas.
+- **Esta semana**: hasta tres cosas que contar. Los cambios frente a la semana anterior salen en
+  los dos sentidos, con texto neutro y sin juicio ("Aplazaste 3 avisos más que la semana
+  pasada", "7 min menos de movimiento que la semana pasada", "Dejaste pasar 2 avisos menos…"),
+  pero solo si son relevantes (al menos 2 en un recuento o 5 min de movimiento); si no aportan,
+  no se fuerzan. Se compara con la semana pasada **hasta el mismo día** ("Comparado hasta el
+  miércoles"), para no medir una semana a medias contra una entera. Después, datos llanos
+  ("Actividad principal: 3 de 3 días", "Has hecho el 73 % de tus pausas"), solo cuando hay algo
+  hecho: un "0 %" no se muestra.
+- **Tus semanas**: las 8 últimas, la más reciente arriba, con su resultado, fechas, días buenos
+  y cambio de fase; cada una abre su pantalla de resultado.
+- Todo se calcula al vuelo desde los días guardados (resúmenes de los cerrados, el plan de hoy)
+  y los resultados semanales; no se guarda nada nuevo.
+- Componentes: `Heatmap` (en `/dev/kit`); `IconButton` admite `disabled`.
+- En un móvil estrecho, las cabeceras de tarjeta dejan el título en su línea y pasan cifras o
+  flechas debajo; los valores del resumen no se parten ("3 de 3").
+- DevPanel: escenario "Historial de 8 semanas" (planes reales del planificador, más pausas hechas
+  según avanzan las semanas, un día libre y uno sin empezar, hoy en marcha), para revisar
+  Progreso con datos.

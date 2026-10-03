@@ -12,7 +12,12 @@
   transition: background-color var(--duration-fast) var(--ease-out);
 }
 
-.plain:hover {
+.iconButton:disabled {
+  color: var(--color-text-subtle);
+  cursor: default;
+}
+
+.plain:hover:not(:disabled) {
   background: var(--color-surface-muted);
 }
 

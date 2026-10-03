@@ -9,6 +9,8 @@ interface IconButtonProps {
   children: ReactNode;
   to?: string;
   onClick?: () => void;
+  /** Only for buttons (a link can't be disabled). */
+  disabled?: boolean;
   variant?: 'plain' | 'soft';
   className?: string;
 }
@@ -18,6 +20,7 @@ export function IconButton({
   children,
   to,
   onClick,
+  disabled = false,
   variant = 'plain',
   className,
 }: IconButtonProps) {
@@ -30,7 +33,13 @@ export function IconButton({
     );
   }
   return (
-    <button type="button" aria-label={label} onClick={onClick} className={classes}>
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      disabled={disabled}
+      className={classes}
+    >
       {children}
     </button>
   );

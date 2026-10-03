@@ -118,6 +118,27 @@ export function formatActiveTime(seconds: number): string {
   return seconds > 0 && seconds < 60 ? formatSeconds(seconds) : formatDuration(seconds / 60);
 }
 
+const localDate = (date: DateKey) => {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Date(year!, month! - 1, day);
+};
+
+/** '5–11 oct' / '28 sept – 4 oct': a week or any span of days. */
+export function formatDayRange(locale: Locale, from: DateKey, to: DateKey): string {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : locale, {
+    day: 'numeric',
+    month: 'short',
+  }).formatRange(localDate(from), localDate(to));
+}
+
+/** 'jun – oct 2026': a span of months. */
+export function formatMonthRange(locale: Locale, from: DateKey, to: DateKey): string {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : locale, {
+    month: 'short',
+    year: 'numeric',
+  }).formatRange(localDate(from), localDate(to));
+}
+
 /** 'lunes, 5 de octubre' / 'Monday, 5 October'. */
 export function formatLongDate(locale: Locale, date: DateKey): string {
   const [year, month, day] = date.split('-').map(Number);
