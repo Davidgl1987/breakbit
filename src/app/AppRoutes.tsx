@@ -12,6 +12,7 @@ import { MainScreen } from '@/features/main-activity/MainScreen';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
+import { SettingsSectionScreen } from '@/features/settings/SettingsSectionScreen';
 import { TodayScreen } from '@/features/today/TodayScreen';
 import { WeekScreen } from '@/features/week/WeekScreen';
 import { FullscreenLayout } from './layouts/FullscreenLayout';
@@ -32,6 +33,7 @@ export function AppRoutes() {
           <Route index element={<TodayScreen />} />
           <Route path="progress" element={<ProgressScreen />} />
           <Route path="settings" element={<SettingsScreen />} />
+          <Route path="settings/:section" element={<SettingsSectionScreen />} />
           <Route path="gap" element={<GapScreen />} />
           <Route path="gap/:option" element={<GapProposalScreen />} />
         </Route>

@@ -5,7 +5,7 @@ import { microbreakViolations } from '@/test/planInvariants';
 import { generateDayPlan } from '../planner/generateDayPlan';
 import { atTime, fromMinutes, minutesOfDay, toMinutes } from '../time';
 import type { DayPlan, DayRecord, ScheduledActivity } from '../types';
-import { changeMainActivity, choiceFits, planDay, recentExerciseIds } from './planDay';
+import { changeMainActivity, choiceFits, planDay, recentExerciseIds, replanDay } from './planDay';
 
 const DATE = '2026-10-05';
 const settings = makeSettings();
@@ -143,5 +143,127 @@ describe('changeMainActivity', () => {
     const choice = { activityId: 'walk_outside', start: '16:50', durationMin: 20 } as const;
     expect(choiceFits(choice, settings.schedule)).toBe(false);
     expect(choiceFits({ ...choice, start: '16:40' }, settings.schedule)).toBe(true);
+  });
+});
+
+describe('replanDay', () => {
+  const morning = planDay({
+    ...base,
+    now: at('08:00'),
+    mainActivity: { activityId: 'walk_outside', start: '13:00', durationMin: 20 },
+  });
+  const [first] = micros(morning);
+  const done: ScheduledActivity = {
+    ...first!,
+    status: 'completed',
+    startedAt: first!.currentScheduledAt,
+    completedAt: first!.currentScheduledAt + 60_000,
+  };
+  const day = {
+    ...morning,
+    activities: morning.activities.map((item) => (item.id === done.id ? done : item)),
+  };
+  const now = done.completedAt! + 60_000;
+
+  it('re-plans what is left with the new settings, keeping what happened', () => {
+    const active = makeSettings({ intensity: 'active' });
+    const result = replanDay(day, { settings: active, catalog: CATALOG, now });
+    expect(result.activities).toContainEqual(done);
+    expect(result.schedule).toEqual(day.schedule);
+    // A livelier pace means more pauses in what's left of the day.
+    expect(micros(result).length).toBeGreaterThan(micros(day).length);
+    for (const item of micros(result)) {
+      if (item.id !== done.id) expect(item.currentScheduledAt).toBeGreaterThan(now);
+    }
+    expect(
+      microbreakViolations(result, CATALOG, { from: minutesOfDay(now), equipment: [] }).filter(
+        // The pause already done keeps its place, before `from`.
+        (issue) => !issue.includes(done.id),
+      ),
+    ).toEqual([]);
+  });
+
+  it('only touches pending pauses still to come', () => {
+    // At 12:00: one pause done, one under way, one due and waiting, one postponed.
+    const noon = at('12:00');
+    const pauses = micros(morning);
+    const states: Record<number, Partial<ScheduledActivity>> = {
+      0: { status: 'completed', startedAt: at('09:45'), completedAt: at('09:46') },
+      1: { startedAt: noon - 60_000 },
+      2: { status: 'notification_sent', currentScheduledAt: noon - 5 * 60_000 },
+      3: { status: 'postponed', postponeCount: 1, postponeMinutes: 10 },
+    };
+    const busy = {
+      ...morning,
+      activities: morning.activities.map((item) => {
+        const index = pauses.indexOf(item);
+        return index in states ? { ...item, ...states[index] } : item;
+      }),
+    };
+    const keptIds = Object.keys(states).map((index) => pauses[Number(index)]!.id);
+    const untouched = busy.activities.filter((item) => keptIds.includes(item.id));
+    expect(untouched).toHaveLength(4);
+    const result = replanDay(busy, {
+      settings: makeSettings({
+        intensity: 'active',
+        discomfort: { ...settings.discomfort, neck: 5 },
+      }),
+      catalog: CATALOG,
+      now: noon,
+    });
+    for (const item of untouched) expect(result.activities).toContainEqual(item);
+    // Everything else that changed is still to come.
+    for (const item of result.activities) {
+      if (untouched.some((kept) => kept.id === item.id)) continue;
+      expect(item.status).toBe('pending');
+      expect(item.startedAt).toBeUndefined();
+      expect(item.currentScheduledAt).toBeGreaterThan(noon);
+    }
+  });
+
+  it('keeps a main activity under way, whatever the equipment', () => {
+    const started = {
+      ...day,
+      activities: day.activities.map((item) =>
+        item.kind === 'main' ? { ...item, startedAt: now, runningSince: now } : item,
+      ),
+    };
+    const main = started.activities.find((item) => item.kind === 'main')!;
+    const result = replanDay(started, {
+      settings: makeSettings({ equipment: [] }),
+      catalog: CATALOG,
+      now: now + 60_000,
+    });
+    expect(result.activities).toContainEqual(main);
+  });
+
+  it('keeps the main activity while its equipment is still there', () => {
+    const result = replanDay(day, { settings, catalog: CATALOG, now });
+    expect(result.activities.find((item) => item.kind === 'main')?.content).toEqual({
+      kind: 'main',
+      activityId: 'walk_outside',
+    });
+  });
+
+  it('proposes another main activity when its equipment is gone', () => {
+    const withBell = makeSettings({ equipment: ['kettlebell'] });
+    const kettlebell = planDay({
+      ...base,
+      settings: withBell,
+      now: at('08:00'),
+      mainActivity: { activityId: 'kettlebell_block', start: '13:00', durationMin: 10 },
+    });
+    const result = replanDay(kettlebell, {
+      settings: makeSettings({ equipment: [] }),
+      catalog: CATALOG,
+      now: at('09:00'),
+    });
+    // Another one, still today, that needs nothing the user no longer has.
+    const main = result.activities.find((item) => item.kind === 'main');
+    expect(main).toBeDefined();
+    expect(main?.content).not.toEqual({ kind: 'main', activityId: 'kettlebell_block' });
+    const activityId = main?.content.kind === 'main' ? main.content.activityId : '';
+    const replacement = CATALOG.mainActivities.find((item) => item.id === activityId)!;
+    expect(replacement.equipment).toEqual([]);
   });
 });

@@ -4,7 +4,12 @@ import { atTime } from '@/domain/time';
 import { clearEvents, logEvent, readEvents } from '@/services/eventLog';
 import { BackupError, exportBackup, importBackup, parseBackup, resetAllData } from './backup';
 import { fullState } from '@/test/fixtures';
+import { historyScenarioState } from '@/app/dev/historyScenario';
+import { levelFromXp, totalXp } from '@/domain/progress/xp';
+import { SAMPLE_DATE, sampleDay } from '@/test/sampleDay';
+import { pickPersisted } from './initialState';
 import { STATE_VERSION, useAppStore } from './store';
+import { validatePersistedState } from './validatePersisted';
 
 const store = () => useAppStore.getState();
 
@@ -29,6 +34,32 @@ describe('backup', () => {
     expect(store().settings.intensity).toBe('soft');
     expect(store().dayOverrides['2026-10-05']?.schedule?.workEnd).toBe('15:00');
     expect((await readEvents()).map((event) => event.activityId)).toEqual(['p0']);
+  });
+
+  it('brings back a rich state exactly: XP ledger, events and everything derived from them', async () => {
+    store().completeOnboarding(DEFAULT_SETTINGS);
+    store().replaceData(historyScenarioState(store()));
+    await logEvent('exercise_completed', { at: atTime('2026-10-05', '10:00'), activityId: 'p0' });
+    await logEvent('day_completed', { at: atTime('2026-10-05', '17:00'), data: { good: true } });
+    const before = pickPersisted(store());
+    const eventsBefore = await readEvents();
+    const level = levelFromXp(totalXp(before.xpLedger));
+
+    const backup = JSON.parse(JSON.stringify(await exportBackup()));
+    // Something else on the device meanwhile: importing replaces it, it doesn't merge.
+    await resetAllData();
+    store().completeOnboarding({ ...DEFAULT_SETTINGS, intensity: 'active' });
+    store().startDay(sampleDay());
+    await logEvent('notification_sent', { at: atTime('2026-11-02', '09:00') });
+
+    await importBackup(backup);
+    const after = pickPersisted(store());
+    expect(after).toEqual(before);
+    expect(after.xpLedger).toHaveLength(before.xpLedger.length);
+    expect(levelFromXp(totalXp(after.xpLedger))).toEqual(level);
+    expect(after.days[SAMPLE_DATE]).toEqual(before.days[SAMPLE_DATE]);
+    expect(await readEvents()).toEqual(eventsBefore);
+    expect(validatePersistedState(after)).toEqual([]);
   });
 
   it('migrates backups from older versions', () => {

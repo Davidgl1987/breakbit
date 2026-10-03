@@ -604,3 +604,43 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - DevPanel: escenario "Historial de 8 semanas" (planes reales del planificador, más pausas hechas
   según avanzan las semanas, un día libre y uno sin empezar, hoy en marcha), para revisar
   Progreso con datos.
+
+## Ajustes (Fase 14)
+
+- **Pantalla** (estructura de `settings_reference`, paleta arena/verde): jornada habitual (inicio,
+  fin, descanso, comida y días), molestias prioritarias (las tres más altas), equipamiento,
+  intensidad ("Normal · 6 pausas al día", con el planificador real), notificaciones,
+  apariencia, idioma, tus datos y "Acerca de". El avatar no aparece (master §31).
+- **Mismos formularios que el onboarding**: los campos de días laborables, molestias, material e
+  intensidad viven en `features/profile/` y los usan los dos (el horario ya era compartido,
+  `ScheduleFields`). Cada parte se edita en `/settings/:sección` con borrador: nada cambia hasta
+  `Guardar`; `Cancelar` lo descarta. Un horario no válido no se puede guardar.
+- **Rehacer el plan al cambiar**: molestias, material o intensidad replanifican lo que queda de
+  hoy si la jornada está en marcha (`replanDay`): lo hecho o en curso se queda, el horario y las
+  reuniones también, y la actividad principal se mantiene salvo que ya no tengas su material.
+  Solo cambia lo pendiente y por venir: lo completado, lo que está en curso, lo que ya tocaba
+  (avisado o aplazado) y la actividad principal empezada quedan intactos. Si la actividad
+  principal pendiente deja de ser compatible al quitar material, se sustituye por otra válida
+  (no se deja el día sin ella). El aviso lo dice ("Tus pausas de hoy se han ajustado").
+- **Horario habitual**: nunca toca una jornada ya iniciada (se confirmó al empezar). Con la
+  jornada empezada, la pantalla y el aviso dicen "Se aplica desde tu próxima jornada"; si hoy aún
+  no se ha empezado, "Se aplicará a tus próximas jornadas, empezando por la siguiente que
+  inicies". Los días futuros se planifican con los ajustes vigentes al empezarlos.
+- **Notificaciones**: tres interruptores (inicio de jornada, pausas y actividad principal, fin de
+  jornada) cuando el navegador lo permite. Si aún no hay permiso, se explica y solo se pide al
+  pulsar "Activar notificaciones"; si está bloqueado, un texto práctico y válido para cualquier
+  navegador ("Permítelas en la configuración de este sitio y vuelve aquí. Mientras, verás tus
+  pausas al abrir Breakbit"); si no hay soporte, que verás las pausas al abrir Breakbit. El estado se relee al volver a la app.
+  Sonido y vibración son los del sistema (no hay ajuste propio en web).
+- **Tus datos** ("Todo se guarda en este dispositivo: no hay cuentas ni servidor"):
+  exportar copia (JSON con estado y eventos), importar copia (se valida entera antes de
+  preguntar "¿Importar esta copia? Sustituirá todos los datos… por los de la copia del …"; un
+  archivo no válido o de una versión más nueva se rechaza sin tocar nada) y borrar todos los datos
+  (con confirmación; se conservan tema e idioma y se vuelve a la bienvenida).
+- Importar una copia la deja exactamente como estaba (ajustes, días con planes y resúmenes,
+  libro de XP, progreso, habitación y eventos), sustituyendo —no mezclando— lo que hubiera.
+- Apariencia e idioma: en móvil, título arriba y selector a todo el ancho; en pantalla ancha, en
+  una línea.
+- **Acerca de**: versión, qué es Breakbit, que no es una herramienta médica ni sustituye a un
+  profesional, y que los datos no salen del dispositivo.
+- La descarga del JSON es un servicio compartido con el DevPanel (`services/download`).

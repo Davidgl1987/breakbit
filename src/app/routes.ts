@@ -34,6 +34,11 @@ export function mainDonePath(id: string): string {
   return `${mainPath(id)}/done`;
 }
 
+/** One part of the settings: the usual workday, discomfort, equipment, pace, about. */
+export function settingsPath(section: string): string {
+  return `${ROUTES.settings}/${section}`;
+}
+
 /** "Tengo un hueco": a proposal for the time chosen. */
 export function gapPath(option: string): string {
   return `${ROUTES.gap}/${option}`;

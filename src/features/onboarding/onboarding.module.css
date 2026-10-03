@@ -1,4 +1,4 @@
-/* Layout helpers shared by the onboarding steps (no new visual components). */
+/* Layout helpers for the onboarding summary (the forms live in features/profile). */
 .section {
   display: grid;
   gap: var(--space-3);
@@ -17,36 +17,6 @@
   font-weight: var(--weight-black);
 }
 
-.grid2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
-}
-
 .muted {
-  color: var(--color-text-muted);
-}
-
-/* A discreet line under a form (icon + muted text). */
-.note {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: var(--text-sm);
-}
-
-.option {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.optionTexts {
-  display: grid;
-}
-
-.optionHint {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-regular);
   color: var(--color-text-muted);
 }
