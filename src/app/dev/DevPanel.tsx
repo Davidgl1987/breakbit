@@ -6,6 +6,7 @@ import { isOpen } from '@/domain/pause/window';
 import { atTime, toDateKey } from '@/domain/time';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
+import { downloadJson } from '@/services/download';
 import { readEvents } from '@/services/eventLog';
 import { exportBackup, resetAllData } from '@/state/backup';
 import { useAppStore } from '@/state/store';
@@ -119,15 +120,7 @@ export function DevPanel() {
   };
 
   const download = async () => {
-    const backup = await exportBackup();
-    const url = URL.createObjectURL(
-      new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }),
-    );
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `breakbit-${toDateKey(clock.now())}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadJson(`breakbit-${toDateKey(clock.now())}.json`, await exportBackup());
   };
 
   const reset = async () => {

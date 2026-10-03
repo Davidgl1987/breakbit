@@ -1,23 +1,18 @@
 import { useNavigate } from 'react-router';
-import type { DaySchedule, Weekday } from '@/domain/types';
-import { weekdayName, type MessageKey } from '@/i18n/translate';
-import { useT } from '@/i18n/useT';
-import { Card } from '@/ui/components/Card/Card';
-import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
-import { MultiChipGroup } from '@/ui/components/ChipGroup/MultiChipGroup';
-import { PixelIcon } from '@/ui/icons/PixelIcon';
+import type { DaySchedule } from '@/domain/types';
+import { WorkdaysField } from '@/features/profile/WorkdaysField';
 import { ScheduleFields } from '@/features/schedule/ScheduleFields';
 import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
+import type { MessageKey } from '@/i18n/translate';
+import { useT } from '@/i18n/useT';
+import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { useOnboardingDraft } from '../draftContext';
-import styles from '../onboarding.module.css';
 import { OnboardingStep } from '../OnboardingStep';
 import { onboardingPath } from '../steps';
 
-const WEEKDAYS: Weekday[] = [1, 2, 3, 4, 5, 6, 7];
-
 /** Step 2: the usual workday — a template the user adjusts each day, not a fixed calendar. */
 export function ScheduleStep() {
-  const { t, locale } = useT();
+  const { t } = useT();
   const navigate = useNavigate();
   const [draft, update] = useOnboardingDraft();
   const { schedule } = draft;
@@ -37,28 +32,10 @@ export function ScheduleStep() {
         onClick: () => navigate(onboardingPath('discomfort')),
       }}
     >
-      <Card className={styles.section}>
-        <h3 className={styles.heading}>
-          <PixelIcon name="calendar" size={24} />
-          {t('onboarding.schedule.workDays')}
-        </h3>
-        <MultiChipGroup<`${Weekday}`>
-          label={t('onboarding.schedule.workDays')}
-          fill
-          options={WEEKDAYS.map((day) => ({
-            value: `${day}`,
-            label: weekdayName(locale, day, 'narrow'),
-            ariaLabel: weekdayName(locale, day, 'long'),
-          }))}
-          values={draft.workDays.map((day) => `${day}` as const)}
-          onChange={(values) =>
-            update((current) => ({
-              ...current,
-              workDays: values.map((value) => Number(value) as Weekday),
-            }))
-          }
-        />
-      </Card>
+      <WorkdaysField
+        value={draft.workDays}
+        onChange={(workDays) => update((current) => ({ ...current, workDays }))}
+      />
 
       <ScheduleFields schedule={schedule} onChange={(next) => setSchedule(next)} />
 

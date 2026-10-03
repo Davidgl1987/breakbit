@@ -1,21 +1,163 @@
-.prefRow {
+.card {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.cardHead {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-black);
+}
+
+.headTexts {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.edit {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin: calc((var(--tap-min) - 24px) / -2);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+}
+
+.edit:hover {
+  background: var(--color-surface-muted);
+}
+
+.muted {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Start, end, break and lunch at a glance. */
+.times {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+@media (min-width: 480px) {
+  .times {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}
+
+.timeTexts {
+  display: grid;
+  min-width: 0;
+}
+
+.timeLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.timeValue {
+  font-weight: var(--weight-black);
+  font-variant-numeric: tabular-nums;
+}
+
+.gear {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gearItem {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  min-width: 72px;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  text-align: center;
+}
+
+.toggles {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.toggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Appearance and language: label above a full-width control on a phone, side by side when wide. */
+.prefRow {
+  display: grid;
   gap: var(--space-3);
+}
+
+.prefRow > [role='radiogroup'] {
+  display: flex;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .prefRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .prefRow > [role='radiogroup'] {
+    width: auto;
+  }
 }
 
 .prefLabel {
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   font-weight: var(--weight-black);
 }
 
-.upcoming {
+.actions {
   display: grid;
   gap: var(--space-2);
-  opacity: 0.75;
+}
+
+.about {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
 }

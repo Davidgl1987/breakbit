@@ -388,7 +388,7 @@ export const en: Messages = {
   },
   settings: {
     title: 'Settings',
-    subtitle: 'Tune your Breakbit experience.',
+    subtitle: 'Set up your Breakbit experience.',
     appearance: 'Appearance',
     theme: {
       light: 'Light',
@@ -405,6 +405,86 @@ export const en: Messages = {
     equipment: 'Available equipment',
     intensity: 'Intensity',
     notifications: 'Notifications',
+    edit: 'Edit {section}',
+    start: 'Start',
+    end: 'End',
+    break: 'Break',
+    lunch: 'Lunch',
+    none: 'No',
+    noEquipment: 'No equipment: gear-free moves and walking.',
+    intensityValue: '{intensity} · {pauses} a day',
+    alerts: {
+      dayStart: 'Start of the workday',
+      pauses: 'Breaks and main activity',
+      dayEnd: 'End of the workday',
+      enable: 'Turn on notifications',
+      off: "Turn them on to get reminders even when Breakbit isn't in front of you.",
+      denied:
+        "Notifications are blocked in this browser. Allow them in this site's settings and come back here. Meanwhile, you'll see your breaks when you open Breakbit.",
+      unsupported:
+        "This browser doesn't allow notifications. You'll see your breaks when you open Breakbit.",
+    },
+    data: {
+      title: 'Your data',
+      hint: 'Everything stays on this device: no accounts, no server.',
+      export: 'Export a backup',
+      exportHint: 'A file with all your data',
+      import: 'Import a backup',
+      importHint: "Replaces this device's data",
+      reset: 'Delete all data',
+      resetHint: "You'll start from scratch",
+      importSheet: {
+        title: 'Import this backup?',
+        body: "It will replace all of this device's data with the backup from {date}.",
+        confirm: 'Import',
+        cancel: 'Cancel',
+      },
+      resetSheet: {
+        title: 'Delete all data?',
+        body: 'Your workday, history, progress and XP will be deleted; theme and language are kept. This cannot be undone.',
+        confirm: 'Delete everything',
+        cancel: 'Cancel',
+      },
+      exported: 'Backup downloaded.',
+      imported: 'Backup imported.',
+      invalid: "That file isn't a valid Breakbit backup.",
+      newer: 'That backup comes from a newer version of Breakbit.',
+    },
+    about: {
+      title: 'About Breakbit',
+      version: 'Version {version}',
+      body: 'Breakbit helps you break up the hours sitting down with short breaks through the workday and one activity a day.',
+      notMedical:
+        "It isn't a medical tool and doesn't replace a professional. If you have pain or discomfort that doesn't go away, see one.",
+      privacy: 'Your data stays on this device: no accounts, no server, no tracking.',
+    },
+    sections: {
+      schedule: {
+        title: 'Usual workday',
+        subtitle: 'Your weekly template; you can adjust each day when you start it.',
+        note: 'It applies from your next workday; today keeps the hours you confirmed.',
+        noteNotStarted:
+          'It will apply to your next workdays, starting with the next one you start.',
+      },
+      discomfort: {
+        title: 'Priority areas',
+        subtitle: 'They steer which areas your breaks move most.',
+      },
+      equipment: {
+        title: 'Available equipment',
+        subtitle: 'Only for variety; everything works the same without equipment.',
+      },
+      intensity: {
+        title: 'Intensity',
+        subtitle: 'How many breaks Breakbit suggests each day.',
+      },
+    },
+    back: 'Back to Settings',
+    save: 'Save',
+    cancel: 'Cancel',
+    saved: 'Changes saved.',
+    savedNextDay: 'Changes saved. They apply from your next workday.',
+    replanned: "Changes saved. Today's breaks have been adjusted.",
   },
   gap: {
     title: 'I have a gap',

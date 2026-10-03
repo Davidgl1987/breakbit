@@ -3,6 +3,7 @@ import { generateDayPlan, type PlanInput } from '../planner/generateDayPlan';
 import { placeChosenMainActivity, type MainActivityChoice } from '../planner/placeMainActivity';
 import { contentExerciseIds, type ContentContext } from '../planner/pauseContent';
 import { rebalance } from '../planner/rebalance';
+import { hasEquipment } from '../planner/selectExercise';
 import { buildTimeline } from '../planner/timeline';
 import { addDays, atMinutes, fromMinutes, minutesOfDay, toMinutes } from '../time';
 import type {
@@ -145,4 +146,36 @@ export function choiceFits(choice: MainActivityChoice, schedule: DaySchedule): b
     start >= toMinutes(schedule.workStart) &&
     start + choice.durationMin <= toMinutes(schedule.workEnd)
   );
+}
+
+/**
+ * Re-plans the rest of a day under way after the user changed their settings (discomfort,
+ * equipment, pace): what's done or under way stays, the hours and meetings stay, and the
+ * main activity stays unless its equipment is no longer available.
+ */
+export function replanDay(
+  plan: DayPlan,
+  {
+    settings,
+    catalog,
+    now,
+    recentExerciseIds,
+  }: Pick<PlanDayRequest, 'settings' | 'catalog' | 'now' | 'recentExerciseIds'>,
+): DayPlan {
+  const main = mainChoiceOf(plan);
+  const activityId = main?.activityId;
+  const activity = catalog.mainActivities.find((item) => item.id === activityId);
+  const keepMain = activity !== undefined && hasEquipment(activity.equipment, settings.equipment);
+  return planDay({
+    date: plan.date,
+    schedule: plan.schedule,
+    meetings: plan.meetings,
+    settings,
+    catalog,
+    rerollCount: plan.rerollCount,
+    recentExerciseIds,
+    ...(keepMain && main && { mainActivity: main }),
+    now,
+    previous: plan,
+  });
 }
