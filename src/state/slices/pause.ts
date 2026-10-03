@@ -2,6 +2,7 @@ import type { StoreApi } from 'zustand';
 import { CATALOG } from '@/content/catalog';
 import { advanceDay } from '@/domain/pause/advance';
 import * as lifecycle from '@/domain/pause/lifecycle';
+import { pauseCompletionXp, withAwards } from '@/domain/progress/awards';
 import type { ContentContext } from '@/domain/planner/pauseContent';
 import { rebalance } from '@/domain/planner/rebalance';
 import { compareDateKeys, toDateKey } from '@/domain/time';
@@ -95,15 +96,27 @@ export function pauseActions(
       if (updated) log('exercise_started', { activityId: id });
     },
 
+    completePause: (date, id, elapsedSec) => {
+      const updated = updateActivity(date, id, (item, _plan, now) =>
+        lifecycle.complete(item, now, elapsedSec),
+      );
+      if (!updated) return;
+      const record = get().days[date];
+      const awards = pauseCompletionXp(
+        updated,
+        { returnBonus: record?.returnBonus ?? false },
+        clock.now(),
+      );
+      set((state) => ({ xpLedger: withAwards(state.xpLedger, awards) }));
+      log('exercise_completed', { activityId: id, data: { elapsedSec: updated.elapsedSec ?? 0 } });
+      if (updated.firstPrompt) log('exercise_completed_first_prompt', { activityId: id });
+    },
+
     discardPause: (date, id, reason) => {
       const updated = updateActivity(date, id, (item) => lifecycle.discard(item, reason));
       if (!updated) return;
       const penalty = lifecycle.discardPenalty(updated, clock.now());
-      set((state) =>
-        state.xpLedger.some((entry) => entry.key === penalty.key)
-          ? {}
-          : { xpLedger: [...state.xpLedger, penalty] },
-      );
+      set((state) => ({ xpLedger: withAwards(state.xpLedger, [penalty]) }));
       log('exercise_skipped', { activityId: id, data: reason ? { reason } : undefined });
     },
   };

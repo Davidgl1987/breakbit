@@ -21,11 +21,13 @@ import { Slider05 } from '@/ui/components/Slider05/Slider05';
 import { StatusBadge, type BadgeStatus } from '@/ui/components/StatusBadge/StatusBadge';
 import { Stepper } from '@/ui/components/Stepper/Stepper';
 import { Tag } from '@/ui/components/Tag/Tag';
+import { Toast } from '@/ui/components/Toast/Toast';
 import { TimeField } from '@/ui/components/TimeField/TimeField';
 import { Toggle } from '@/ui/components/Toggle/Toggle';
 import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
+import { Celebration } from '@/ui/game/Celebration/Celebration';
 import { EvolutionStrip } from '@/ui/game/EvolutionStrip/EvolutionStrip';
 import type { ButtonVariant } from '@/ui/components/Button/buttonStyles';
 import { ICON_NAMES } from '@/ui/icons/iconNames';
@@ -378,6 +380,17 @@ export function DevKitScreen() {
       <Section title={t('kit.sections.messages')}>
         <InlineMessage icon="info">{t('kit.sample.hint')}</InlineMessage>
         <InlineMessage tone="danger">{t('schedule.issues.overlap')}</InlineMessage>
+        <Toast
+          message={t('toasts.postponed', { time: '10:15' })}
+          closeLabel={t('toasts.close')}
+          onClose={() => {}}
+        />
+        <Toast
+          message={t('toasts.discarded')}
+          tone="warning"
+          closeLabel={t('toasts.close')}
+          onClose={() => {}}
+        />
       </Section>
 
       <Section title={t('kit.sections.tags')}>
@@ -396,6 +409,9 @@ export function DevKitScreen() {
         </div>
         <EvolutionStrip />
         <AvatarStage phase={5} pose="demo" label={t('pause.demo')} />
+        <AvatarStage phase={3} pose="celebrate" label={t('pause.done.stage')}>
+          <Celebration />
+        </AvatarStage>
         <AvatarCard
           phase={3}
           streak={7}

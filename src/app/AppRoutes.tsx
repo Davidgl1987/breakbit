@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { DayEndScreen } from '@/features/day-end/DayEndScreen';
 import { DayStartScreen } from '@/features/day-start/DayStartScreen';
 import { DecisionScreen } from '@/features/pause/DecisionScreen';
+import { DoneScreen } from '@/features/pause/DoneScreen';
 import { PlayScreen } from '@/features/pause/PlayScreen';
 import { GapScreen } from '@/features/gap/GapScreen';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
@@ -33,6 +34,7 @@ export function AppRoutes() {
           <Route path="day/start" element={<DayStartScreen />} />
           <Route path="pause/:id" element={<DecisionScreen />} />
           <Route path="pause/:id/play" element={<PlayScreen />} />
+          <Route path="pause/:id/done" element={<DoneScreen />} />
           <Route path="day/end" element={<DayEndScreen />} />
         </Route>
       </Route>

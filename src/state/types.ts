@@ -77,6 +77,8 @@ export interface PauseActions {
   postponePause: (date: DateKey, id: string, minutes: number) => void;
   /** "Vamos". */
   startPause: (date: DateKey, id: string) => void;
+  /** The exercise was finished: completed, with its XP (once). */
+  completePause: (date: DateKey, id: string, elapsedSec: number) => void;
   /** "Descartar pausa": −50 XP, with an optional reason. */
   discardPause: (date: DateKey, id: string, reason?: SkipReason) => void;
 }

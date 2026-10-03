@@ -19,6 +19,11 @@ export function pausePlayPath(id: string): string {
   return `${pausePath(id)}/play`;
 }
 
+/** The celebration once the exercise is done. */
+export function pauseDonePath(id: string): string {
+  return `${pausePath(id)}/done`;
+}
+
 /** Whether `pathname` is inside the section rooted at `to`. */
 export function isRouteActive(pathname: string, to: string): boolean {
   if (to === '/') return pathname === '/';

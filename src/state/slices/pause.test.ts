@@ -122,3 +122,35 @@ describe('pause actions', () => {
     expect(store().days[DATE]).toBe(before);
   });
 });
+
+describe('completing a pause', () => {
+  beforeEach(async () => {
+    await clearEvents();
+  });
+
+  it('records it as done, with its XP once and its events', async () => {
+    store().reconcile(first.scheduledAt);
+    at(first.scheduledAt + MIN);
+    store().startPause(DATE, first.id);
+    at(first.scheduledAt + 2 * MIN);
+    store().completePause(DATE, first.id, 41);
+    store().completePause(DATE, first.id, 41);
+
+    expect(activity()).toMatchObject({ status: 'completed', elapsedSec: 41 });
+    expect(store().xpLedger.map((entry) => [entry.reason, entry.amount])).toEqual([
+      ['microbreak', 100],
+      ['first_prompt', 20],
+    ]);
+    await settle();
+    const types = await eventTypes();
+    expect(types.filter((type) => type === 'exercise_completed')).toHaveLength(1);
+    expect(types).toContain('exercise_completed_first_prompt');
+  });
+
+  it('does not complete a pause that was never started', () => {
+    store().reconcile(first.scheduledAt);
+    store().completePause(DATE, first.id, 40);
+    expect(activity().status).toBe('notification_sent');
+    expect(store().xpLedger).toEqual([]);
+  });
+});

@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { createActivity } from '../planner/activities';
 import { atTime } from '../time';
 import type { ScheduledActivity } from '../types';
-import { discard, discardPenalty, markNotificationOpened, postpone, start } from './lifecycle';
+import {
+  complete,
+  discard,
+  discardPenalty,
+  markNotificationOpened,
+  postpone,
+  start,
+} from './lifecycle';
 import { consumedMinutes, ignoredMinutes, isDue, postponeOptions, windowEnd } from './window';
 
 const DATE = '2026-10-05';
@@ -99,5 +106,17 @@ describe('pause lifecycle', () => {
     // Never answered at all: everything is ignored, nothing postponed.
     expect(pause().postponeMinutes).toBe(0);
     expect(ignoredMinutes(pause(), AT + 25 * MIN)).toBe(25);
+  });
+});
+
+describe('completing a pause', () => {
+  it('needs "Vamos" first, and may finish after the window', () => {
+    expect(complete(pause(), AT + MIN, 40)).toEqual(pause());
+    const started = start(pause(), AT + MIN);
+    expect(complete(started, AT + 45 * MIN, 39.6)).toMatchObject({
+      status: 'completed',
+      completedAt: AT + 45 * MIN,
+      elapsedSec: 40,
+    });
   });
 });
