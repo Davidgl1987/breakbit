@@ -7,6 +7,7 @@ import { migrateState, STATE_VERSION } from './migrations';
 import { calendarActions } from './slices/calendar';
 import { dataActions } from './slices/data';
 import { dayActions } from './slices/day';
+import { mainActions } from './slices/main';
 import { pauseActions } from './slices/pause';
 import { prefsActions } from './slices/prefs';
 import { settingsActions } from './slices/settings';
@@ -28,6 +29,7 @@ export const useAppStore = create<AppState>()(
       ...calendarActions(set),
       ...dayActions(set),
       ...pauseActions(set, get),
+      ...mainActions(set, get),
       ...dataActions(set),
     }),
     {

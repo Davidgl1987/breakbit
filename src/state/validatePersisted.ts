@@ -241,7 +241,13 @@ function validateActivity(v: Validator, activity: unknown, path: string): void {
   for (const key of ['remindersSent', 'postponeMinutes', 'postponeCount']) {
     v.integer(activity[key], `${path}.${key}`, 0);
   }
-  for (const key of ['notificationSentAt', 'notificationOpenedAt', 'startedAt', 'completedAt']) {
+  for (const key of [
+    'notificationSentAt',
+    'notificationOpenedAt',
+    'startedAt',
+    'completedAt',
+    'runningSince',
+  ]) {
     v.optional(activity[key], `${path}.${key}`, (item, itemPath) => v.instant(item, itemPath));
   }
   for (const key of ['elapsedSec', 'accumulatedSec']) {

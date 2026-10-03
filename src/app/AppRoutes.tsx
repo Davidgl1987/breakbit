@@ -6,6 +6,8 @@ import { DecisionScreen } from '@/features/pause/DecisionScreen';
 import { DoneScreen } from '@/features/pause/DoneScreen';
 import { PlayScreen } from '@/features/pause/PlayScreen';
 import { GapScreen } from '@/features/gap/GapScreen';
+import { MainDoneScreen } from '@/features/main-activity/MainDoneScreen';
+import { MainScreen } from '@/features/main-activity/MainScreen';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
@@ -35,6 +37,8 @@ export function AppRoutes() {
           <Route path="pause/:id" element={<DecisionScreen />} />
           <Route path="pause/:id/play" element={<PlayScreen />} />
           <Route path="pause/:id/done" element={<DoneScreen />} />
+          <Route path="main/:id" element={<MainScreen />} />
+          <Route path="main/:id/done" element={<MainDoneScreen />} />
           <Route path="day/end" element={<DayEndScreen />} />
         </Route>
       </Route>

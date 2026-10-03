@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CATALOG } from '@/content/catalog';
 import { makeSettings } from '@/test/builders';
+import { completeMain, pauseMain, startMain } from '../main/session';
 import { markNotificationOpened, postpone, start } from '../pause/lifecycle';
 import { generateDayPlan } from '../planner/generateDayPlan';
 import { atTime } from '../time';
@@ -107,5 +108,57 @@ describe('buildNotificationSchedule', () => {
     expect(
       schedule({ record: undefined, prefs: { ...settings.notifications, dayStart: false } }),
     ).toEqual([]);
+  });
+});
+
+describe('main activity reminders', () => {
+  const main = plan.activities.find((item) => item.kind === 'main')!;
+  const withMain = (patch: (item: ScheduledActivity) => ScheduledActivity) =>
+    record({
+      ...plan,
+      activities: plan.activities.map((item) => (item.id === main.id ? patch(item) : item)),
+    });
+  const forMain = (input: Partial<ScheduleInput> = {}) =>
+    schedule(input)
+      .filter((item) => item.activityId === main.id)
+      .map((item) => [item.id, item.kind, item.at, item.tag]);
+
+  it('reminds of it at its time while it has not started', () => {
+    expect(forMain()).toEqual([
+      [
+        `main:${main.id}:${main.currentScheduledAt}`,
+        'main',
+        main.currentScheduledAt,
+        `main:${main.id}`,
+      ],
+    ]);
+    // Moved: a new reminder.
+    const moved = main.currentScheduledAt + 60 * MIN;
+    expect(
+      forMain({ record: withMain((item) => ({ ...item, currentScheduledAt: moved })) }),
+    ).toEqual([[`main:${main.id}:${moved}`, 'main', moved, `main:${main.id}`]]);
+  });
+
+  it('says so when a session completes on its own', () => {
+    const at = main.currentScheduledAt;
+    expect(forMain({ record: withMain((item) => startMain(item, at)) })).toEqual([]);
+    expect(
+      forMain({ record: withMain((item) => pauseMain(startMain(item, at), at + MIN)) }),
+    ).toEqual([]);
+    const done = withMain((item) =>
+      completeMain(startMain(item, at), at + main.durationSec * 1000 + 5 * MIN),
+    );
+    expect(forMain({ record: done })).toEqual([
+      [`main-done:${main.id}`, 'main_done', at + main.durationSec * 1000, `main:${main.id}`],
+    ]);
+  });
+
+  it('stays quiet when it was done without the timer', () => {
+    const at = main.currentScheduledAt;
+    expect(forMain({ record: withMain((item) => completeMain(item, at)) })).toEqual([]);
+  });
+
+  it('follows the pauses preference', () => {
+    expect(forMain({ prefs: { ...settings.notifications, microbreaks: false } })).toEqual([]);
   });
 });

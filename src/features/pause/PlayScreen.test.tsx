@@ -160,7 +160,7 @@ describe('routines in the player', () => {
     expect(move(2)).toBeInTheDocument();
   });
 
-  it('a double tap on the move before last doesn\'t finish the routine', async () => {
+  it("a double tap on the move before last doesn't finish the routine", async () => {
     const { user } = ui(pausePlayPath(first.id));
     for (let n = 1; n < total - 1; n++) {
       await user.click(next());
@@ -224,7 +224,14 @@ describe('pause done', () => {
     expect(screen.getByText(contentName(first.content, 'es'))).toBeInTheDocument();
     expect(screen.getByText('+120 XP')).toBeInTheDocument();
     expect(screen.getByText('+100 pausa · +20 a la primera')).toBeInTheDocument();
-    expect(screen.getByText('1 de 5 pausas')).toBeInTheDocument();
+    expect(screen.getByText('Pausas de hoy')).toBeInTheDocument();
+    expect(screen.getByText('1 de 5')).toBeInTheDocument();
+    // The pauses lead; the main activity comes after, still to do.
+    const pauses = screen.getByText('Pausas de hoy');
+    const mainLine = screen.getByText('Actividad principal pendiente');
+    expect(
+      pauses.compareDocumentPosition(mainLine) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     await user.click(screen.getByRole('button', { name: 'Volver a lo mío' }));
     expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();

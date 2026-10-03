@@ -380,3 +380,44 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   su nueva hora, descartada con −50 XP, vuelta al trabajo). No se guardan.
 - Línea de tiempo: las pausas hechas a la primera muestran esa insignia.
 - Design system: `Toast` y `Celebration`, en `/dev/kit`.
+
+## Actividad principal (Fase 9)
+
+- **Pantalla única** (`/main/:id`): antes de empezar muestra qué es, su modalidad y duración
+  ("Continua · 20 min" o "En bloques · 30 min"), cuándo y dónde cae ("13:00 · en tu descanso"), el
+  material y los pasos. Acciones: `Empezar` (o `Empezar un bloque`), `Cambiar actividad u hora` y `Ya la he
+  hecho` (secundaria). Una vez empezada, la misma pantalla pasa a ser la sesión, con una nota
+  discreta: "Puedes salir de aquí: el tiempo sigue contando".
+- **La sesión se guarda en la actividad** (`accumulatedSec` y `runningSince`), no en la pantalla:
+  se puede salir, bloquear el móvil o cerrar la app y el tiempo sigue contando. Es lo que pide un
+  paseo de 20 min o un bloque de trabajo de pie.
+- **Continua y acumulable comparten mecánica** (empezar, parar, seguir, terminar) y cambian el
+  enfoque: la continua es una cuenta atrás con `Pausar`/`Seguir`; la acumulable suma bloques
+  ("10:00 de 30 min", "Bloque en marcha · 3:12") con `Parar bloque`/`Otro bloque`.
+- **Se completa sola** cuando el tiempo suma, en pantalla o, si la app estaba en otra cosa, en el
+  siguiente tick del motor (que la da por hecha en el momento en que el tiempo sumó). `Terminar`
+  antes de tiempo pide confirmación ("Llevas 5 min de 20 min. Contará como hecha."), porque no se
+  puede deshacer; confirmada, cuenta como hecha con el tiempo real: la app confía en el usuario.
+- **"Ya la he hecho"**, con una confirmación breve, la apunta como hecha con su duración prevista
+  (el backlog pide poder completarla manualmente). Cuenta igual para el día bueno.
+- **Nunca caduca durante la jornada**: no tiene ventana de 30 min ni recordatorios; el cierre de
+  día (Fase 11) decidirá qué pasa si queda pendiente.
+- **Encaje con las pausas**: al empezarla por primera vez se mueve a la hora real
+  (`currentScheduledAt`) y las pausas que chocarían con ella se recolocan; al terminarla, las que
+  quedan a menos de 35 min después se mueven más tarde.
+- Una actividad con rutina guiada (movilidad) muestra el movimiento que toca según el tiempo
+  hecho ("Movimiento 2 de 7", con "Después: …"); al pausar se queda en ese movimiento.
+- **XP**: +300 por día (clave `main:{fecha}`), ×1,5 el día de regreso. Pantalla de completado
+  compartida con las pausas: "+300 actividad principal", el día con la actividad principal y las
+  pausas en filas separadas, y el nivel aparte. Lo recién hecho va primero: tras la actividad,
+  "Actividad principal completada" y después "Pausas de hoy · 0 de 1"; tras una pausa, al revés.
+  Así "0 de 1 pausas" no parece el resumen de la actividad.
+- **En Hoy**, la tarjeta "Actividad de hoy" tiene una única acción: `Ver actividad` antes de su
+  hora, `Vamos` cuando llega (destacada), y `Continuar` con el tiempo hecho ("5 de 20 min") si
+  está en curso o en pausa. `Cambiar` pasa a la pantalla de la actividad, donde caben la actividad,
+  la hora y "Ya la he hecho" sin apretar la tarjeta. El inicio de jornada mantiene su `Cambiar`.
+- **Avisos**: uno a su hora mientras no se haya empezado (un cambio de hora es un aviso nuevo) y
+  otro, "¡Actividad hecha!", si una sesión se completa sola con la app en segundo plano. Siguen la
+  preferencia de avisos de pausas; no hay recordatorios repetidos.
+- Componentes compartidos por pausas y actividad: `ActivityHero` (avatar, título y qué es),
+  `TimerRing` (anillo con el tiempo) y `CompletionView` (pantalla de completado).

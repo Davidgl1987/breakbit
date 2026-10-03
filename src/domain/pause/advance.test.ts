@@ -5,6 +5,7 @@ import { generateDayPlan } from '../planner/generateDayPlan';
 import { atTime } from '../time';
 import type { DayPlan, ScheduledActivity } from '../types';
 import { advanceDay } from './advance';
+import { pauseMain, startMain } from '../main/session';
 import { markNotificationOpened, postpone, start } from './lifecycle';
 
 const DATE = '2026-10-05';
@@ -116,5 +117,62 @@ describe('advanceDay', () => {
   it('closes a past day whose pauses were never done', () => {
     const { plan: day } = advanceDay(plan, atTime('2026-10-06', '09:00'), context);
     expect(micros(day).every((item) => item.status === 'missed')).toBe(true);
+  });
+});
+
+describe('advanceDay and the main activity', () => {
+  // 09:00–17:00, a 20 min walk at 11:00 and pauses around it.
+  const day = generateDayPlan({
+    date: DATE,
+    schedule: makeSchedule({ breaks: [], lunch: undefined }),
+    settings,
+    catalog: CATALOG,
+    mainActivity: { activityId: 'walk_outside', start: '11:00', durationMin: 20 },
+  });
+  const main = day.activities.find((item) => item.kind === 'main')!;
+  const withMain = (patch: (item: ScheduledActivity) => ScheduledActivity): DayPlan => ({
+    ...day,
+    activities: day.activities.map((item) => (item.id === main.id ? patch(item) : item)),
+  });
+  const mainOf = (plan: DayPlan) => plan.activities.find((item) => item.kind === 'main')!;
+
+  it('never lets it expire: it waits all day', () => {
+    const later = atTime(DATE, '16:30');
+    const { plan: advanced } = advanceDay(day, later, context);
+    expect(mainOf(advanced)).toMatchObject({ status: 'pending' });
+    const paused = withMain((item) =>
+      pauseMain(startMain(item, main.scheduledAt), main.scheduledAt + MIN),
+    );
+    expect(mainOf(advanceDay(paused, later, context).plan).status).toBe('pending');
+  });
+
+  it('completes a session once its time adds up', () => {
+    // Started 30 min early: the time adds up at 10:50.
+    const startedAt = atTime(DATE, '10:30');
+    const running = withMain((item) => startMain(item, startedAt));
+    const mainEvents = (events: { type: string }[]) =>
+      events.filter((event) => event.type === 'main_activity_completed');
+    expect(mainEvents(advanceDay(running, atTime(DATE, '10:49'), context).events)).toEqual([]);
+
+    const { plan: advanced, events } = advanceDay(running, atTime(DATE, '10:55'), context);
+    expect(mainOf(advanced)).toMatchObject({
+      status: 'completed',
+      completedAt: atTime(DATE, '10:50'),
+      elapsedSec: 20 * 60,
+    });
+    expect(mainEvents(events)).toEqual([
+      { type: 'main_activity_completed', activityId: main.id, at: atTime(DATE, '10:50') },
+    ]);
+  });
+
+  it('keeps the next pauses away from it', () => {
+    const startedAt = atTime(DATE, '10:30');
+    const running = withMain((item) => startMain(item, startedAt));
+    const { plan: advanced } = advanceDay(running, atTime(DATE, '10:55'), context);
+    const end = atTime(DATE, '10:50');
+    for (const pause of micros(advanced)) {
+      if (pause.currentScheduledAt <= atTime(DATE, '10:55')) continue;
+      expect(pause.currentScheduledAt - end).toBeGreaterThanOrEqual(35 * MIN);
+    }
   });
 });

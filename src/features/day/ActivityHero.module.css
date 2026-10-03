@@ -1,0 +1,25 @@
+.hero {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.hero > :first-child {
+  justify-self: stretch;
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font-size: var(--text-3xl);
+}
+
+.name {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-black);
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

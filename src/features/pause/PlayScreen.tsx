@@ -5,6 +5,7 @@ import type { ScheduledActivity } from '@/domain/types';
 import { contentName } from '@/features/day/contentName';
 import { contentItems, suggestsStanding } from '@/features/day/contentItems';
 import { ExerciseDetails } from '@/features/day/ExerciseDetails';
+import { TimerRing } from '@/features/day/TimerRing';
 import { useT } from '@/i18n/useT';
 import { activityDate, selectActivity } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
@@ -12,7 +13,6 @@ import { Button } from '@/ui/components/Button/Button';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
-import { ProgressRing } from '@/ui/components/ProgressRing/ProgressRing';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedProgress';
 import { Tag } from '@/ui/components/Tag/Tag';
@@ -95,13 +95,14 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
     >
       {multi && <SegmentedProgress done={timer.index} total={items.length} label={stepLabel} />}
       <AvatarStage phase={DEMO_PHASE} pose="demo" label={t('pause.demo')} />
-      <div className={styles.timer}>
-        {/* A fresh ring per move, so it doesn't sweep back between moves. */}
-        <ProgressRing key={timer.index} progress={timer.progress} label={t('pause.timer')}>
-          <span className={styles.time}>{formatTimer(timer.remainingSec)}</span>
-          {!timer.running && <span className={styles.muted}>{t('pause.play.paused')}</span>}
-        </ProgressRing>
-      </div>
+      {/* A fresh ring per move, so it doesn't sweep back between moves. */}
+      <TimerRing
+        key={timer.index}
+        progress={timer.progress}
+        label={t('pause.timer')}
+        seconds={timer.remainingSec}
+        caption={timer.running ? undefined : t('pause.play.paused')}
+      />
       <div className={styles.pills}>
         {current.exercise.areas.map((area) => (
           <Tag key={area} icon={AREA_ICONS[area]}>
@@ -120,10 +121,4 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
       )}
     </FlowLayout>
   );
-}
-
-/** '0:40', '1:30'. */
-function formatTimer(seconds: number): string {
-  const total = Math.max(0, Math.round(seconds));
-  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }

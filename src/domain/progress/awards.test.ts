@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createActivity } from '../planner/activities';
 import { atTime } from '../time';
 import type { ScheduledActivity } from '../types';
-import { pauseCompletionXp, withAwards } from './awards';
+import { completionXp, mainCompletionXp, pauseCompletionXp, withAwards } from './awards';
 
 const DATE = '2026-10-05';
 const AT = atTime(DATE, '10:00');
@@ -56,6 +56,49 @@ describe('pauseCompletionXp', () => {
 
   it('gives nothing for pauses not completed', () => {
     expect(pauseCompletionXp(done({ status: 'missed' }), { returnBonus: false }, AT)).toEqual([]);
+  });
+});
+
+describe('mainCompletionXp', () => {
+  const main = (patch: Partial<ScheduledActivity> = {}): ScheduledActivity => ({
+    ...createActivity({
+      id: `${DATE}:main`,
+      kind: 'main',
+      content: { kind: 'main', activityId: 'walk_outside' },
+      slot: 'break',
+      durationSec: 20 * 60,
+      completionMode: 'continuous',
+      at: AT,
+    }),
+    status: 'completed',
+    completedAt: AT + 20 * 60_000,
+    ...patch,
+  });
+
+  it('gives +300, once per day', () => {
+    expect(mainCompletionXp(main(), { returnBonus: false }, AT)).toEqual([
+      { key: `main:${DATE}`, amount: 300, at: AT, date: DATE, reason: 'main_activity' },
+    ]);
+  });
+
+  it('multiplies it on the return day', () => {
+    expect(amounts(mainCompletionXp(main(), { returnBonus: true }, AT))).toEqual({
+      [`main:${DATE}`]: 450,
+    });
+  });
+
+  it('gives nothing until it is done', () => {
+    expect(mainCompletionXp(main({ status: 'pending' }), { returnBonus: false }, AT)).toEqual([]);
+    expect(mainCompletionXp(done(), { returnBonus: false }, AT)).toEqual([]);
+  });
+
+  it('is what any completion of the main activity earns', () => {
+    expect(completionXp(main(), { returnBonus: false }, AT)).toEqual(
+      mainCompletionXp(main(), { returnBonus: false }, AT),
+    );
+    expect(completionXp(done(), { returnBonus: false }, AT)).toEqual(
+      pauseCompletionXp(done(), { returnBonus: false }, AT),
+    );
   });
 });
 

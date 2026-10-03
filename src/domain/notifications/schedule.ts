@@ -5,7 +5,7 @@ import type { DateKey, DayRecord, DaySchedule, Instant, NotificationPrefs } from
 
 const MINUTE = 60_000;
 
-export type NotificationKind = 'pause' | 'pause_reminder' | 'day_start';
+export type NotificationKind = 'pause' | 'pause_reminder' | 'day_start' | 'main' | 'main_done';
 
 /**
  * A reminder the app should show at `at`. Ids are deterministic, so a delivery channel
@@ -36,7 +36,9 @@ export interface ScheduleInput {
  * - the start of the workday, while the day hasn't been started;
  * - each open microbreak when its (possibly postponed) time comes;
  * - a reminder every 10 min while it gets no answer ("Vamos", postpone or discard) and its
- *   window is open. Just opening the screen is not an answer.
+ *   window is open. Just opening the screen is not an answer;
+ * - the main activity at its time, while it hasn't started, and once a session completes
+ *   on its own (a walk with the phone away). Both follow the pauses preference.
  */
 export function buildNotificationSchedule({
   date,
@@ -78,6 +80,29 @@ export function buildNotificationSchedule({
           activityId: item.id,
         });
       }
+    }
+
+    const main = record.plan.activities.find((item) => item.kind === 'main');
+    if (main && isOpen(main) && main.startedAt === undefined) {
+      planned.push({
+        // A new time is a new reminder.
+        id: `main:${main.id}:${main.currentScheduledAt}`,
+        kind: 'main',
+        at: main.currentScheduledAt,
+        date,
+        tag: `main:${main.id}`,
+        activityId: main.id,
+      });
+    }
+    if (main?.status === 'completed' && main.startedAt !== undefined && main.completedAt) {
+      planned.push({
+        id: `main-done:${main.id}`,
+        kind: 'main_done',
+        at: main.completedAt,
+        date,
+        tag: `main:${main.id}`,
+        activityId: main.id,
+      });
     }
   }
 

@@ -4,6 +4,7 @@ import { pausePlayPath, ROUTES } from '@/app/routes';
 import { XP } from '@/domain/config';
 import { isAwaitingAnswer, isDue, isOpen, postponeOptions, windowEnd } from '@/domain/pause/window';
 import type { ScheduledActivity, SkipReason } from '@/domain/types';
+import { ActivityHero } from '@/features/day/ActivityHero';
 import { contentItems, suggestsStanding } from '@/features/day/contentItems';
 import { contentName } from '@/features/day/contentName';
 import { PauseContentView } from '@/features/day/PauseContentView';
@@ -99,14 +100,12 @@ function Decision({
         </IconButton>
       }
       header={
-        <header className={styles.hero}>
-          <AvatarStage phase={phase} pose="cheer" label={t('pause.stage')} />
-          <h1 className={styles.title}>{t('pause.title')}</h1>
-          <p className={styles.name}>
-            {contentName(activity.content, locale)} · {formatSeconds(activity.durationSec)}
-          </p>
-          {hint && <p className={styles.hint}>{t(hint)}</p>}
-        </header>
+        <ActivityHero
+          stage={<AvatarStage phase={phase} pose="cheer" label={t('pause.stage')} />}
+          title={t('pause.title')}
+          name={`${contentName(activity.content, locale)} · ${formatSeconds(activity.durationSec)}`}
+          hint={hint && t(hint)}
+        />
       }
     >
       <Button

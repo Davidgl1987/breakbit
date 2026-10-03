@@ -24,6 +24,16 @@ export function pauseDonePath(id: string): string {
   return `${pausePath(id)}/done`;
 }
 
+/** Today's main activity: what it is, then its session once started. */
+export function mainPath(id: string): string {
+  return `/main/${encodeURIComponent(id)}`;
+}
+
+/** The celebration once the main activity is done. */
+export function mainDonePath(id: string): string {
+  return `${mainPath(id)}/done`;
+}
+
 /** Whether `pathname` is inside the section rooted at `to`. */
 export function isRouteActive(pathname: string, to: string): boolean {
   if (to === '/') return pathname === '/';

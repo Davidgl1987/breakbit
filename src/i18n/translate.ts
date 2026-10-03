@@ -99,6 +99,12 @@ export function formatDuration(minutes: number): string {
   return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
 }
 
+/** A countdown or stopwatch: '0:40', '1:30', '20:00'. */
+export function formatTimer(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}
+
 /** '40 s', '1 min 30 s', '2 min'. */
 export function formatSeconds(seconds: number): string {
   const total = Math.max(0, Math.round(seconds));
