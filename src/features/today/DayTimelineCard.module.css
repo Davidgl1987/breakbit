@@ -1,0 +1,96 @@
+.card {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-md);
+}
+
+.list {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  --dot: var(--color-border-strong);
+  position: relative;
+  display: grid;
+  grid-template-columns: 3rem 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 36px;
+  font-size: var(--text-sm);
+}
+
+/* The line joining the dots. */
+.item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  bottom: -50%;
+  left: calc(3rem + var(--space-3) + 5px);
+  width: 2px;
+  background: var(--color-border-strong);
+}
+
+.time {
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.dot {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--dot);
+  box-shadow: 0 0 0 1px var(--dot);
+}
+
+.label {
+  font-weight: var(--weight-semibold);
+}
+
+.pause {
+  --dot: var(--color-primary);
+}
+
+.main {
+  --dot: var(--color-extra);
+}
+
+.main .label {
+  font-weight: var(--weight-black);
+}
+
+.break,
+.lunch {
+  --dot: var(--color-warning);
+}
+
+.meeting {
+  --dot: var(--color-text-subtle);
+}
+
+.past {
+  opacity: 0.55;
+}
+
+.next .label,
+.next .time {
+  color: var(--color-text);
+  font-weight: var(--weight-black);
+}
+
+.next .dot {
+  width: 14px;
+  height: 14px;
+  justify-self: center;
+}

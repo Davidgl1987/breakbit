@@ -230,3 +230,56 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   el móvil. Por `http` a una IP el navegador no da un contexto seguro: las notificaciones no estarán
   disponibles ahí (se verá el estado "no admite avisos"); por eso los ids de eventos usan
   `crypto.getRandomValues` y no `randomUUID`.
+
+## Inicio de jornada y Hoy (Fase 6)
+
+- **El día se crea al empezarlo**: un día laborable no tiene plan hasta pulsar `Empezar jornada`
+  en "Tu día" (`/day/start`). Antes solo se muestra una previsión calculada al vuelo (horario,
+  pausas previstas, interrupción estimada) que no se guarda; el plan con sus ids, horas y
+  actividades definitivas se persiste al confirmar. El aviso de inicio de jornada (Fase 7) llevará
+  a esa misma pantalla.
+- **"Tu día"** sirve para empezar y para ajustar un día ya empezado (`Ajusta tu día`, desde
+  "Te quedan X de jornada"). Muestra racha, pausas e interrupción calculadas con el planificador
+  real; horario de hoy (mismo formulario que el onboarding), actividad principal, reuniones,
+  material del día y `Hoy no trabajo`. Nada se guarda hasta `Empezar jornada` / `Guardar cambios`.
+- **El horario de hoy** cambia solo ese día: se guarda como excepción de calendario únicamente si
+  difiere de la plantilla (y desaparece si se vuelve a la habitual). Empezar un día no laborable lo
+  convierte en laborable.
+- **Replanificar no reescribe el pasado** (`domain/day/planDay`): lo hecho, en curso o ya vencido se
+  conserva; el resto del día se planifica desde ahora y las pausas nuevas guardan la distancia con
+  las ya hechas. Antes de empezar, la propuesta se rehace entera con cada cambio.
+- **Cambiar la actividad** con el día en marcha mueve solo la actividad y las pausas que chocan con
+  ella (las demás no cambian de hora ni de contenido). Una actividad ya empezada o hecha no se
+  cambia. Se elige de una lista filtrada estrictamente por el material del usuario (con
+  `equipment: []` solo aparecen las que no necesitan nada) y con hora libre dentro de la jornada; si coincide con la comida o con una reunión se avisa sin bloquear. En la comida cuenta
+  como tiempo fuera del trabajo (no suma interrupción).
+- **Reuniones**: inicio, fin y "Puedo moverme durante esta reunión". Deben solaparse con la jornada
+  y terminar después de empezar.
+- **`Hoy no trabajo`** (con confirmación) en Hoy y en "Tu día", también con el día empezado: el
+  registro pasa a día libre y se puede deshacer conservando el plan.
+- **Catálogo**: se elimina "Trabajo de pie improvisado"; "Trabajo de pie" solo se propone con
+  escritorio elevable (lo garantizan el filtro y un test de propiedades del planificador).
+- **"Ver ejercicio"** en Hoy es solo una vista previa en una hoja: no cambia el estado de la pausa,
+  no marca `startedAt`, no da XP ni cuenta como empezarla. El ejercicio de verdad, tras `Vamos`,
+  tendrá su pantalla en la fase del ciclo de la pausa.
+- **"A mano hoy"** solo aparece si el plan necesita material, y solo con ese material. Sin material,
+  Hoy no la muestra y "Tu día" lo dice en una línea discreta. Criterio general: no se pintan cards
+  que no aporten información o una acción.
+- **Estimaciones con texto explícito**: "5 pausas previstas", "~4 min de interrupción", para que no
+  parezcan datos ya realizados (también en el ritmo del onboarding).
+- **Hoy** según el estado del día: sin empezar, en marcha, horario terminado, descanso, día libre.
+  En marcha: tiempo restante, próxima pausa (con "Ver ejercicio", paso a paso), actividad del día,
+  "A mano hoy" (si hace falta material), progreso (pausas, interrupción real, actividad)
+  y la línea de tiempo completa con lo pasado atenuado y la próxima pausa destacada.
+- **Avatar en Hoy** con protagonismo, en su fase real, con racha, XP de hoy y nivel con su barra.
+- **Racha** (`domain/progress/streak`): jornadas buenas consecutivas desde el onboarding; los días
+  libres y no laborables no cuentan ni rompen; un laborable sin abrir o no bueno la rompe; hoy suma
+  solo cuando ya es bueno. **Día bueno** (`domain/day/progress`): ≥70 % de las pausas planificadas
+  (recuperadas incluidas, extras no) y la actividad principal; un día sin nada planificado no es
+  bueno. Ambas reglas están listas para el cierre de jornada (Fase 11).
+- **Próxima pausa**: la primera sin hacer cuya ventana de 30 min sigue abierta. Los estados reales
+  (avisada, aplazada, perdida…) llegan con el ciclo de vida de la Fase 7.
+- **Design system**: `OptionList` (selección única con icono y descripción; servirá también para
+  "Tengo un hueco"), `FlowLayout` (pantallas de flujo con la acción fija abajo, usado por el
+  onboarding y "Tu día") y `AvatarCard`.
+- Las horas se muestran en formato 24 h en los dos idiomas, igual que el usuario las escribe.

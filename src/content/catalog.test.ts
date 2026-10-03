@@ -134,4 +134,10 @@ describe('content catalog', () => {
     const walk = mainActivities.find((activity) => activity.id === 'walk_outside');
     expect(walk?.equipment).toEqual([]);
   });
+
+  it('keeps standing work for users with a standing desk', () => {
+    const standing = mainActivities.filter((activity) => activity.id.startsWith('standing_work'));
+    expect(standing.map((activity) => activity.id)).toEqual(['standing_work']);
+    expect(standing[0]?.equipment).toEqual(['standing_desk']);
+  });
 });

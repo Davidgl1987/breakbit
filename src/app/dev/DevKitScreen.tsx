@@ -11,6 +11,7 @@ import { MultiChipGroup } from '@/ui/components/ChipGroup/MultiChipGroup';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { MetricTile } from '@/ui/components/MetricTile/MetricTile';
+import { OptionList } from '@/ui/components/OptionList/OptionList';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { SegmentedControl } from '@/ui/components/SegmentedControl/SegmentedControl';
@@ -22,6 +23,7 @@ import { Tag } from '@/ui/components/Tag/Tag';
 import { TimeField } from '@/ui/components/TimeField/TimeField';
 import { Toggle } from '@/ui/components/Toggle/Toggle';
 import { Avatar } from '@/ui/game/Avatar/Avatar';
+import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
 import { EvolutionStrip } from '@/ui/game/EvolutionStrip/EvolutionStrip';
 import type { ButtonVariant } from '@/ui/components/Button/buttonStyles';
 import { ICON_NAMES } from '@/ui/icons/iconNames';
@@ -93,6 +95,7 @@ export function DevKitScreen() {
   const [eyes, setEyes] = useState(4);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [workDays, setWorkDays] = useState<(typeof WEEKDAYS)[number][]>(['1', '2', '3', '4', '5']);
+  const [gap, setGap] = useState<'s30' | 'm1' | 'm3'>('m1');
   const [iconSize, setIconSize] = useState<(typeof ICON_SIZES)[number]>('32');
 
   return (
@@ -214,6 +217,17 @@ export function DevKitScreen() {
             { value: '3m', label: t('common.minutes', { count: 3 }) },
             { value: '10m', label: `${t('common.minutes', { count: 10 })}+` },
           ]}
+        />
+        <OptionList
+          label={t('gap.subtitle')}
+          value={gap}
+          onChange={setGap}
+          options={(['s30', 'm1', 'm3'] as const).map((value) => ({
+            value,
+            label: t(`gap.options.${value}.title`),
+            description: t(`gap.options.${value}.body`),
+            icon: value === 's30' ? 'gap' : value === 'm1' ? 'stretch' : 'exercise',
+          }))}
         />
         <MultiChipGroup
           label={t('onboarding.schedule.workDays')}
@@ -366,6 +380,12 @@ export function DevKitScreen() {
           <Avatar phase={5} pose="thumbs_up" size="lg" highlighted />
         </div>
         <EvolutionStrip />
+        <AvatarCard
+          phase={3}
+          streak={7}
+          xpToday={120}
+          level={{ level: 3, current: 320, needed: 1000 }}
+        />
       </Section>
 
       <Section title={t('kit.sections.lists')}>

@@ -22,14 +22,14 @@ import { AREA_ICONS, EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
+import { rangeFromBlock } from '@/features/schedule/timeRange';
 import { useOnboardingDraft } from '../draftContext';
 import { clearOnboardingDraft } from '../draftStorage';
 import { estimateDay } from '../estimate';
 import common from '../onboarding.module.css';
 import { OnboardingStep } from '../OnboardingStep';
-import { scheduleIssueMessages } from '../scheduleIssues';
 import { onboardingPath, type OnboardingStepId } from '../steps';
-import { rangeFromBlock } from '../timeRange';
 import styles from './SummaryStep.module.css';
 
 /** Step 6: the whole setup at a glance, reminders on request, and start. */
@@ -137,7 +137,7 @@ export function SummaryStep() {
           <p className={styles.pace}>
             {t('onboarding.summary.paceValue', {
               intensity: t(`intensity.${draft.intensity}`),
-              pauses: t('common.pauses', { count: estimate.pauses }),
+              pauses: t('common.pausesPlanned', { count: estimate.pauses }),
               minutes: t('common.minutes', { count: estimate.interruptionMin }),
             })}
           </p>

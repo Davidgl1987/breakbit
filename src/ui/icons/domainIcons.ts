@@ -26,3 +26,20 @@ export const PHASE_PLACEHOLDER_ICONS: Record<EvolutionPhase, IconName> = {
   4: 'stretch',
   5: 'exercise',
 };
+
+/** Main activities by id; anything new falls back to a generic movement icon. */
+const MAIN_ACTIVITY_ICONS: Partial<Record<string, IconName>> = {
+  walk_outside: 'outside',
+  walk_indoors: 'walk',
+  walking_meeting: 'call',
+  mobility_routine: 'stretch',
+  standing_work: 'desk',
+  pullup_block: 'pullup_bar',
+  dumbbell_block: 'dumbbell',
+  kettlebell_block: 'kettlebell',
+  mat_mobility: 'mat',
+};
+
+export function mainActivityIcon(activityId: string): IconName {
+  return MAIN_ACTIVITY_ICONS[activityId] ?? 'exercise';
+}

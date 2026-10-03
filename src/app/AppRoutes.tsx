@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { DayEndScreen } from '@/features/day-end/DayEndScreen';
+import { DayStartScreen } from '@/features/day-start/DayStartScreen';
 import { GapScreen } from '@/features/gap/GapScreen';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
@@ -27,6 +28,7 @@ export function AppRoutes() {
           <Route path="gap" element={<GapScreen />} />
         </Route>
         <Route element={<FullscreenLayout />}>
+          <Route path="day/start" element={<DayStartScreen />} />
           <Route path="day/end" element={<DayEndScreen />} />
         </Route>
       </Route>

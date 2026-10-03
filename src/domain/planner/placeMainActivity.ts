@@ -5,6 +5,7 @@ import type { ActivitySlot, EquipmentId, HHmm, MainActivity } from '../types';
 import { roundTo } from './distribute';
 import { pickMainActivity } from './selectMainActivity';
 import {
+  contains,
   intervalLength,
   overlaps,
   slotAt,
@@ -98,7 +99,10 @@ export function placeMainActivity(
   return { ...pick, start, slot: 'work' };
 }
 
-/** Honours the user's choice; the slot follows from where it falls. */
+/**
+ * Honours the user's choice; the slot follows from where it falls. Lunch is time off
+ * work, like a break (a walk after eating doesn't interrupt work).
+ */
 export function placeChosenMainActivity(
   timeline: DayTimeline,
   activities: readonly MainActivity[],
@@ -107,5 +111,7 @@ export function placeChosenMainActivity(
   const activity = activities.find((item) => item.id === choice.activityId);
   if (!activity) return undefined;
   const start = toMinutes(choice.start);
-  return { activity, start, durationMin: choice.durationMin, slot: slotAt(timeline, start) };
+  const inLunch = timeline.lunch !== undefined && contains(timeline.lunch, start);
+  const slot = inLunch ? 'break' : slotAt(timeline, start);
+  return { activity, start, durationMin: choice.durationMin, slot };
 }

@@ -4,6 +4,7 @@ export const ROUTES = {
   progress: '/progress',
   settings: '/settings',
   gap: '/gap',
+  dayStart: '/day/start',
   dayEnd: '/day/end',
   devKit: '/dev/kit',
 } as const;

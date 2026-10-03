@@ -84,6 +84,14 @@ describe('placeChosenMainActivity', () => {
       durationMin: 15,
     });
     expect(placement).toMatchObject({ start: at(11), durationMin: 15, slot: 'break' });
+    // Lunch is time off work too.
+    expect(
+      placeChosenMainActivity(timeline, CATALOG.mainActivities, {
+        activityId: 'walk_outside',
+        start: '14:15',
+        durationMin: 20,
+      })?.slot,
+    ).toBe('break');
     expect(
       placeChosenMainActivity(timeline, CATALOG.mainActivities, {
         activityId: 'nope',

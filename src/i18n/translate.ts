@@ -1,4 +1,5 @@
-import type { LocaleCode } from '@/domain/types';
+import { fromMinutes, minutesOfDay } from '@/domain/time';
+import type { DateKey, Instant, LocaleCode } from '@/domain/types';
 import { en } from './en';
 import { es, type Messages } from './es';
 
@@ -84,6 +85,26 @@ export function weekdayName(
   return new Intl.DateTimeFormat(locale, { weekday: width }).format(new Date(2026, 9, 4 + weekday));
 }
 
-export function formatTime(locale: Locale, date: Date): string {
-  return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(date);
+/** 'HH:mm' for an instant, like the hours the user types (24 h in every language). */
+export function formatClock(instant: Instant): string {
+  return fromMinutes(minutesOfDay(instant));
+}
+
+/** '4 h 20 min', '45 min', '2 h'. */
+export function formatDuration(minutes: number): string {
+  const total = Math.max(0, Math.round(minutes));
+  const hours = Math.floor(total / 60);
+  const rest = total % 60;
+  if (hours === 0) return `${rest} min`;
+  return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
+}
+
+/** 'lunes, 5 de octubre' / 'Monday, 5 October'. */
+export function formatLongDate(locale: Locale, date: DateKey): string {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date(year!, month! - 1, day));
 }
