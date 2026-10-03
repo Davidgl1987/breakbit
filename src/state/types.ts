@@ -116,6 +116,14 @@ export interface GapActions {
   takeGap: (date: DateKey, option: GapOption, proposal: GapProposal) => string | undefined;
 }
 
+/** The avatar's evolution, week by week. The rules live in domain/progress/weekly. */
+export interface ProgressActions {
+  /** Judges every week that has ended since the last time (lazily, on opening the app). */
+  evaluateWeeks: (now: Instant) => void;
+  /** The weekly result has been seen: Today stops showing it. */
+  markWeekSeen: (week: string) => void;
+}
+
 export interface DataActions {
   /** Clears everything except appearance and language preferences. */
   resetData: () => void;
@@ -131,4 +139,5 @@ export type AppState = PersistedState &
   PauseActions &
   MainActions &
   GapActions &
+  ProgressActions &
   DataActions;

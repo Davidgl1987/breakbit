@@ -506,3 +506,50 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - Accesibilidad: un grupo de opciones sin elegir sigue siendo alcanzable con el tabulador (el
   primero recibe el foco).
 - DevPanel: atajo "Fin de jornada" (10 min antes del final).
+
+## Evaluación semanal (Fase 12)
+
+- **Nivel y fase no se mezclan**: el **nivel** depende solo del XP (curva de `config.ts`) y la
+  semana nunca lo toca; la **fase** (evolución del avatar) depende solo del resultado semanal.
+- **Cuándo**: cada semana (lunes a domingo, id ISO `2026-W41`) se evalúa una sola vez, la
+  primera vez que se abre la app después de que termine, justo después del cierre perezoso de
+  los días (así los días de esa semana ya están cerrados o ausentes). La semana del onboarding es
+  la primera.
+- **Varias semanas pendientes** (vuelta tras días sin abrir la app): se evalúan en orden
+  cronológico; cada una parte de la fase que dejó la anterior y los desbloqueos de habitación se
+  aplican en ese mismo orden.
+- **Qué cuenta**: las jornadas laborables planificadas desde el onboarding. Los días libres y
+  los anteriores al onboarding no cuentan; una laborable no empezada cuenta como planificada y no
+  buena, salvo el propio día del onboarding.
+- **Resultado** (`config.ts`): menos de 3 jornadas planificadas, semana neutral (no mueve la
+  fase); ≥70 % de días buenos, buena (sube una fase); 40–69 %, "Semana estable" (se mantiene);
+  <40 %, con menos movimiento (baja una fase). Siempre entre la fase 1 y la 5. Sin cooldown: una
+  semana buena posterior recupera la fase de inmediato. En la fase 1 una semana floja no castiga
+  más.
+- **Habitación**: con el avatar ya en la fase 5, cada semana buena desbloquea el siguiente objeto.
+  El orden vive en `content/roomItems.ts` (la lista de master §30.8, con lo más grande al final);
+  la lógica semanal solo recibe esa lista. Pasar de la 4 a la 5 es evolución, no objeto: el
+  primero llega con la siguiente semana buena estando ya en la 5. Los objetos nunca se pierden,
+  aunque el avatar involucione. Los iconos pixel existentes son el placeholder del arte de la habitación
+  (`RoomScene`, en `/dev/kit`).
+- **Racha de semanas**: semanas buenas seguidas; las neutrales ni suman ni la rompen.
+- **Se muestra una vez**: Hoy enseña la tarjeta "Tu semana · ¡Semana buena! · 4 de 5 días
+  buenos · Ver mi semana" hasta que se ve. `/week/:semana` (pantalla completa) cuenta el
+  resultado con el avatar en su nueva fase (celebrando si sube), la tira de evolución, la racha
+  de semanas si son 2 o más y, si toca, "Tu habitación estrena: Planta". `Seguir` la marca como
+  vista (`lastSeenWeek`).
+- **Copy sin castigo**: "¡Semana buena! · Tu avatar evoluciona a Erguido", "Semana estable · Tu
+  avatar se mantiene", "Semana con menos movimiento · Tu avatar vuelve a Erguido. Con una semana
+  buena, lo recupera" (o "Tu avatar sigue en Encorvado" en la fase 1) y "Semana corta · Menos de
+  3 jornadas: no cuenta para la evolución".
+- El resultado guarda también su lunes, la fase anterior y el objeto desbloqueado, para que el
+  historial (Fase 13) no tenga que recalcularlo.
+- La pantalla celebra cuando sube la fase o llega un objeto nuevo; tiene la `X` de las pantallas
+  completas (cerrar no la marca como vista). En la habitación, el objeto recién llegado lleva una
+  etiqueta pequeña "Nuevo" además del marco.
+- Tira de evolución: 12 px entre fases y cada nombre puede usar la mitad del hueco a cada lado,
+  así caben en una línea sin pegarse en un móvil de 375 px (en español y en inglés).
+- DevPanel: salto "+1 semana" y "Escenarios de prueba" (solo en desarrollo): semana buena que
+  evoluciona (Sedentario → Activo, segunda semana buena seguida), semana estable (3 de 5) y semana
+  buena ya en la fase 5 que trae la lámpara. Sustituyen los datos por una semana de ejemplo y la
+  evalúa el flujo real.

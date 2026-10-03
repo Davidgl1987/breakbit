@@ -1,6 +1,6 @@
 /* Five equal columns that always fit the width; small arrows sit in the gaps. */
 .strip {
-  --gap: 6px;
+  --gap: var(--space-3);
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--gap);
@@ -29,14 +29,17 @@
 }
 
 .caption {
-  max-width: 100%;
+  /* Names may use half the gap on each side, so they fit on one line without crowding. */
+  justify-self: stretch;
+  margin-inline: calc(var(--gap) / -2);
   overflow: hidden;
   font-size: 0.625rem;
   font-weight: var(--weight-bold);
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--color-text-muted);
   text-align: center;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .current .caption {

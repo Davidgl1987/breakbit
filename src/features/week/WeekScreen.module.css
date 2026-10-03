@@ -1,0 +1,48 @@
+.header {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.label {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-black);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.title {
+  font-size: var(--text-3xl);
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.summary {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.tally {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-semibold);
+}
+
+.room {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.roomTitle {
+  font-size: var(--text-md);
+}

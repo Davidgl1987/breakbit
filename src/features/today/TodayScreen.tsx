@@ -1,5 +1,6 @@
 import { ROUTES } from '@/app/routes';
 import { useToday } from '@/features/day/useToday';
+import { WeekResultCard } from '@/features/week/WeekResultCard';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { selectXpOn, useLevel, useStreak } from '@/state/selectors';
@@ -32,6 +33,7 @@ export function TodayScreen() {
       </header>
 
       <AvatarCard phase={phase} streak={streak} xpToday={xpToday} level={level} />
+      <WeekResultCard />
 
       {state.kind === 'active' && <ActiveDay plan={state.plan} over={state.over} now={now} />}
       {state.kind === 'not_started' && (

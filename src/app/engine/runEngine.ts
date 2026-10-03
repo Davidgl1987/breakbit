@@ -17,6 +17,8 @@ export function runEngine(now: Instant, scheduler: NotificationScheduler): void 
   useAppStore.getState().reconcile(now);
   // Yesterday (or longer ago) left open, or workdays nobody started: settled now.
   useAppStore.getState().closePastDays(now);
+  // …and, once a week is over, how it went: the avatar evolves (or not).
+  useAppStore.getState().evaluateWeeks(now);
   const state = useAppStore.getState();
   const date = toDateKey(now);
   const record = state.days[date];

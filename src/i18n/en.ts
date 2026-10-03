@@ -475,6 +475,34 @@ export const en: Messages = {
     pullup_bar: 'Pull-up bar',
     standing_desk: 'Standing desk',
   },
+  week: {
+    label: 'Your week',
+    stage: 'Your avatar after the week',
+    results: {
+      good: {
+        title: 'Good week!',
+        body: 'Your avatar evolves to {phase}.',
+        top: 'Your avatar stays at its best: {phase}.',
+      },
+      regular: { title: 'Steady week', body: 'Your avatar stays at {phase}.' },
+      bad: {
+        title: 'A week with less movement',
+        body: 'Your avatar goes back to {phase}. A good week brings it back.',
+        floor: 'Your avatar stays at {phase}.',
+      },
+      neutral: {
+        title: 'Short week',
+        body: "Fewer than 3 workdays: it doesn't count towards evolution. Your avatar stays at {phase}.",
+      },
+    },
+    tally: '{good} of {planned} good days',
+    unlocked: 'New in your room: {item}',
+    room: 'Your room',
+    new: 'New',
+    streak: '{count} good weeks in a row',
+    see: 'See my week',
+    continue: 'Continue',
+  },
   evolution: {
     title: 'Your evolution',
     caption: 'Your avatar evolves with your good weeks.',
@@ -578,6 +606,7 @@ export const en: Messages = {
     simulated: 'Simulated: {offset}',
     plusHour: '+1 h',
     plusDay: '+1 day',
+    plusWeek: '+1 week',
     nextPause: 'Next break',
     dayEnd: 'End of day',
     goTo: 'Go to date and time',
@@ -592,6 +621,12 @@ export const en: Messages = {
     reset: 'Delete data',
     confirmReset: 'Tap again to delete everything',
     designSystem: 'Design system',
+    scenarios: 'Test scenarios',
+    scenariosHint:
+      'They replace your data with a sample week and judge it. Export first if you want to keep it.',
+    scenarioEvolve: 'Good week · evolves',
+    scenarioStable: 'Steady week',
+    scenarioRoom: 'Phase 5 · room',
   },
   kit: {
     title: 'Design system',
