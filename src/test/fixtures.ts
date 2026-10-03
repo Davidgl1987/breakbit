@@ -62,7 +62,17 @@ export function fullState(): PersistedState {
       progress: {
         evolutionPhase: 2,
         lastEvaluatedWeek: '2026-W40',
-        weeklyResults: [{ week: '2026-W40', planned: 5, good: 4, result: 'good', phaseAfter: 2 }],
+        weeklyResults: [
+          {
+            week: '2026-W40',
+            start: '2026-09-28',
+            planned: 5,
+            good: 4,
+            result: 'good',
+            phaseBefore: 1,
+            phaseAfter: 2,
+          },
+        ],
         unlockedRoomItems: [],
       },
       xpLedger: [

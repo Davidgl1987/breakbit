@@ -11,6 +11,7 @@ import { gapActions } from './slices/gap';
 import { mainActions } from './slices/main';
 import { pauseActions } from './slices/pause';
 import { prefsActions } from './slices/prefs';
+import { progressActions } from './slices/progress';
 import { settingsActions } from './slices/settings';
 import type { AppState, PersistedState } from './types';
 
@@ -32,6 +33,7 @@ export const useAppStore = create<AppState>()(
       ...pauseActions(set, get),
       ...mainActions(set, get),
       ...gapActions(set, get),
+      ...progressActions(set, get),
       ...dataActions(set),
     }),
     {

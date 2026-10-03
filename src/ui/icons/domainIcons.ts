@@ -27,6 +27,32 @@ export const PHASE_PLACEHOLDER_ICONS: Record<EvolutionPhase, IconName> = {
   5: 'exercise',
 };
 
+/** Room items by id (placeholders until the room has its own art). */
+const ROOM_ITEM_ICONS: Partial<Record<string, IconName>> = {
+  plant: 'plant',
+  picture: 'picture',
+  lamp: 'lamp',
+  rug: 'rug',
+  mug: 'mug',
+  bookshelf: 'bookshelf',
+  headphones: 'headphones',
+  speaker: 'speaker',
+  ball: 'ball',
+  skates: 'skates',
+  skate: 'skate',
+  mat: 'mat',
+  kettlebell: 'kettlebell',
+  pullup_bar: 'pullup_bar',
+  wall_decor: 'plant_decor',
+  monitor: 'monitor',
+  standing_desk: 'desk',
+  treadmill: 'treadmill',
+};
+
+export function roomItemIcon(itemId: string): IconName {
+  return ROOM_ITEM_ICONS[itemId] ?? 'reward';
+}
+
 /** Main activities by id; anything new falls back to a generic movement icon. */
 const MAIN_ACTIVITY_ICONS: Partial<Record<string, IconName>> = {
   walk_outside: 'outside',

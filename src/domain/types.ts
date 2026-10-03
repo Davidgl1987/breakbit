@@ -264,15 +264,22 @@ export type WeekResult = 'good' | 'regular' | 'bad' | 'neutral';
 export interface WeeklyResult {
   /** ISO week id, e.g. '2026-W40'. */
   week: string;
+  /** Its Monday. */
+  start: DateKey;
   planned: number;
   good: number;
   result: WeekResult;
+  phaseBefore: EvolutionPhase;
   phaseAfter: EvolutionPhase;
+  /** Room item a good week at the top phase unlocked. */
+  unlocked?: string;
 }
 
 export interface ProgressState {
   evolutionPhase: EvolutionPhase;
   lastEvaluatedWeek?: string;
+  /** Last weekly result the user has seen (it is shown once, on Today). */
+  lastSeenWeek?: string;
   weeklyResults: WeeklyResult[];
   unlockedRoomItems: string[];
 }

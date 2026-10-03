@@ -39,6 +39,11 @@ export function gapPath(option: string): string {
   return `${ROUTES.gap}/${option}`;
 }
 
+/** A weekly result: how the week went and what it did to the avatar. */
+export function weekPath(week: string): string {
+  return `/week/${encodeURIComponent(week)}`;
+}
+
 /** Whether `pathname` is inside the section rooted at `to`. */
 export function isRouteActive(pathname: string, to: string): boolean {
   if (to === '/') return pathname === '/';

@@ -41,16 +41,21 @@ export function validatePersistedState(value: unknown): string[] {
   if (v.record(value.progress, 'progress')) {
     const { progress } = value;
     v.integer(progress.evolutionPhase, 'progress.evolutionPhase', 1, 5);
-    v.optional(progress.lastEvaluatedWeek, 'progress.lastEvaluatedWeek', (item, path) =>
-      v.string(item, path),
-    );
+    for (const key of ['lastEvaluatedWeek', 'lastSeenWeek'] as const) {
+      v.optional(progress[key], `progress.${key}`, (item, path) => v.string(item, path));
+    }
     v.array(progress.weeklyResults, 'progress.weeklyResults', (item, path) => {
       if (!v.record(item, path)) return;
       v.string(item.week, `${path}.week`);
+      v.date(item.start, `${path}.start`);
       v.integer(item.planned, `${path}.planned`, 0);
       v.integer(item.good, `${path}.good`, 0);
       v.oneOf(item.result, ['good', 'regular', 'bad', 'neutral'], `${path}.result`);
+      v.integer(item.phaseBefore, `${path}.phaseBefore`, 1, 5);
       v.integer(item.phaseAfter, `${path}.phaseAfter`, 1, 5);
+      v.optional(item.unlocked, `${path}.unlocked`, (value, valuePath) =>
+        v.string(value, valuePath),
+      );
     });
     v.array(progress.unlockedRoomItems, 'progress.unlockedRoomItems', (item, path) =>
       v.string(item, path),

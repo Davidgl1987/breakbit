@@ -28,6 +28,9 @@ import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { Celebration } from '@/ui/game/Celebration/Celebration';
+import { RoomScene } from '@/ui/game/RoomScene/RoomScene';
+import { roomItemIcon } from '@/ui/icons/domainIcons';
+import { ROOM_ITEMS } from '@/content/roomItems';
 import { EvolutionStrip } from '@/ui/game/EvolutionStrip/EvolutionStrip';
 import type { ButtonVariant } from '@/ui/components/Button/buttonStyles';
 import { ICON_NAMES } from '@/ui/icons/iconNames';
@@ -417,6 +420,17 @@ export function DevKitScreen() {
           streak={7}
           xpToday={120}
           level={{ level: 3, current: 320, needed: 1000 }}
+        />
+        <RoomScene
+          label={t('week.room')}
+          items={ROOM_ITEMS.slice(0, 4).map((item) => ({
+            id: item.id,
+            name: item.name[locale],
+            icon: roomItemIcon(item.id),
+          }))}
+          capacity={ROOM_ITEMS.length}
+          highlight={ROOM_ITEMS[3]?.id}
+          newLabel={t('week.new')}
         />
       </Section>
 

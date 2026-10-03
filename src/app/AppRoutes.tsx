@@ -13,6 +13,7 @@ import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { TodayScreen } from '@/features/today/TodayScreen';
+import { WeekScreen } from '@/features/week/WeekScreen';
 import { FullscreenLayout } from './layouts/FullscreenLayout';
 import { TabsLayout } from './layouts/TabsLayout';
 import { RequireOnboarding, RequirePendingOnboarding } from './OnboardingGate';
@@ -42,6 +43,7 @@ export function AppRoutes() {
           <Route path="main/:id" element={<MainScreen />} />
           <Route path="main/:id/done" element={<MainDoneScreen />} />
           <Route path="day/end" element={<DayEndScreen />} />
+          <Route path="week/:week" element={<WeekScreen />} />
         </Route>
       </Route>
 

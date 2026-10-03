@@ -490,6 +490,34 @@ export const es = {
     pullup_bar: 'Barra de dominadas',
     standing_desk: 'Escritorio elevable',
   },
+  week: {
+    label: 'Tu semana',
+    stage: 'Tu avatar tras la semana',
+    results: {
+      good: {
+        title: '¡Semana buena!',
+        body: 'Tu avatar evoluciona a {phase}.',
+        top: 'Tu avatar sigue en su mejor fase: {phase}.',
+      },
+      regular: { title: 'Semana estable', body: 'Tu avatar se mantiene: {phase}.' },
+      bad: {
+        title: 'Semana con menos movimiento',
+        body: 'Tu avatar vuelve a {phase}. Con una semana buena, lo recupera.',
+        floor: 'Tu avatar sigue en {phase}.',
+      },
+      neutral: {
+        title: 'Semana corta',
+        body: 'Menos de 3 jornadas: no cuenta para la evolución. Tu avatar sigue en {phase}.',
+      },
+    },
+    tally: '{good} de {planned} días buenos',
+    unlocked: 'Tu habitación estrena: {item}',
+    room: 'Tu habitación',
+    new: 'Nuevo',
+    streak: '{count} semanas buenas seguidas',
+    see: 'Ver mi semana',
+    continue: 'Seguir',
+  },
   evolution: {
     title: 'Tu evolución',
     caption: 'Tu avatar evoluciona con tus semanas buenas.',
@@ -592,6 +620,7 @@ export const es = {
     simulated: 'Simulado: {offset}',
     plusHour: '+1 h',
     plusDay: '+1 día',
+    plusWeek: '+1 semana',
     nextPause: 'Próxima pausa',
     dayEnd: 'Fin de jornada',
     goTo: 'Ir a fecha y hora',
@@ -606,6 +635,12 @@ export const es = {
     reset: 'Borrar datos',
     confirmReset: 'Pulsa otra vez para borrar todo',
     designSystem: 'Design system',
+    scenarios: 'Escenarios de prueba',
+    scenariosHint:
+      'Sustituyen tus datos por una semana de ejemplo y la evalúan. Exporta antes si quieres conservarlos.',
+    scenarioEvolve: 'Semana buena · evoluciona',
+    scenarioStable: 'Semana estable',
+    scenarioRoom: 'Fase 5 · habitación',
   },
   kit: {
     title: 'Design system',

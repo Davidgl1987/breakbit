@@ -1,0 +1,68 @@
+/* A small room: a wall, a floor line, and a shelf of slots for what's been unlocked. */
+.room {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-primary-soft-border);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(to top, var(--color-primary-soft-border) 0 6px, transparent 6px),
+    var(--color-primary-soft);
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.locked {
+  border: 1px dashed var(--color-border-strong);
+  background: transparent;
+  opacity: 0.5;
+}
+
+.highlighted {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* "Nuevo": a small tag over the item that just arrived. */
+.badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 0.625rem;
+  font-weight: var(--weight-black);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .highlighted {
+    animation: arrive 600ms ease-out;
+  }
+
+  @keyframes arrive {
+    from {
+      transform: scale(0.6);
+    }
+  }
+}

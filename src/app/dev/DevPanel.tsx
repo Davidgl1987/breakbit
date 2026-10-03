@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useShallow } from 'zustand/react/shallow';
 import { DAY_END_LEAD_MIN } from '@/domain/config';
 import { isOpen } from '@/domain/pause/window';
@@ -15,9 +15,19 @@ import { Button } from '@/ui/components/Button/Button';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { cx } from '@/ui/cx';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
-import { ROUTES } from '../routes';
+import { ROUTES, weekPath } from '../routes';
 import styles from './DevPanel.module.css';
 import { formatOffset, toDateTimeLocal } from './devFormat';
+import { SCENARIO_NOW, SCENARIO_WEEK, weekScenarioState, type WeekScenario } from './weekScenarios';
+
+const SCENARIOS: {
+  scenario: WeekScenario;
+  labelKey: 'dev.scenarioEvolve' | 'dev.scenarioStable' | 'dev.scenarioRoom';
+}[] = [
+  { scenario: 'evolve', labelKey: 'dev.scenarioEvolve' },
+  { scenario: 'stable', labelKey: 'dev.scenarioStable' },
+  { scenario: 'room', labelKey: 'dev.scenarioRoom' },
+];
 
 const MINUTE = 60_000;
 const JUMPS = [
@@ -25,6 +35,7 @@ const JUMPS = [
   { minutes: 15, label: '+15 min' },
   { minutes: 60, labelKey: 'dev.plusHour' },
   { minutes: 1440, labelKey: 'dev.plusDay' },
+  { minutes: 10_080, labelKey: 'dev.plusWeek' },
 ] as const;
 
 /**
@@ -84,6 +95,17 @@ export function DevPanel() {
   const close = () => {
     setOpen(false);
     setConfirmReset(false);
+  };
+
+  // Sample data for the weekly result, judged by the real engine on the Monday after.
+  const navigate = useNavigate();
+  const loadScenario = (scenario: WeekScenario) => {
+    const state = useAppStore.getState();
+    state.replaceData(weekScenarioState(scenario, state));
+    clock.travelTo(SCENARIO_NOW);
+    useAppStore.getState().evaluateWeeks(SCENARIO_NOW);
+    close();
+    navigate(weekPath(SCENARIO_WEEK));
   };
 
   const download = async () => {
@@ -226,6 +248,24 @@ export function DevPanel() {
           >
             {t('dev.designSystem')}
           </Link>
+        </section>
+
+        <section className={styles.section} aria-label={t('dev.scenarios')}>
+          <h3 className={styles.heading}>{t('dev.scenarios')}</h3>
+          <p className={styles.muted}>{t('dev.scenariosHint')}</p>
+          <div className={styles.row}>
+            {SCENARIOS.map(({ scenario, labelKey }) => (
+              <Button
+                key={scenario}
+                variant="secondary"
+                size="sm"
+                shape="pill"
+                onClick={() => loadScenario(scenario)}
+              >
+                {t(labelKey)}
+              </Button>
+            ))}
+          </div>
         </section>
       </BottomSheet>
     </>
