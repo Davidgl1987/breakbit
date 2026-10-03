@@ -6,14 +6,14 @@ import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import type { HHmm } from '@/domain/types';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
-import { GAP_DATE as DATE, gapAt as at, gapDay } from '@/test/gapDay';
+import { SAMPLE_DATE as DATE, sampleAt as at, sampleDay } from '@/test/sampleDay';
 import { renderWithRouter } from '@/test/render';
 
 const store = () => useAppStore.getState();
 const ui = (route: string) => renderWithRouter(<AppRoutes />, { route });
 function setUp(time: HHmm, { started = true } = {}) {
   store().completeOnboarding(DEFAULT_SETTINGS);
-  if (started) store().startDay(gapDay());
+  if (started) store().startDay(sampleDay());
   clock.travelTo(at(time));
 }
 
@@ -130,7 +130,7 @@ describe('Tengo un hueco', () => {
   it('only suggests the main activity when it can be done now', () => {
     // A kettlebell block, but no kettlebell in the settings.
     store().completeOnboarding({ ...DEFAULT_SETTINGS, equipment: [] });
-    const plan = gapDay();
+    const plan = sampleDay();
     store().startDay({
       ...plan,
       activities: plan.activities.map((item) =>

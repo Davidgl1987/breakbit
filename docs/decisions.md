@@ -459,3 +459,50 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   extra" y se cuentan aparte en el progreso de Hoy y en la pantalla final ("+1 pausa extra").
 - Evento `spontaneous_break` con la opción elegida y el resultado (`due`, `advance`, `extra`).
 - Dev: el servidor de desarrollo ignora `coverage/`, que recargaba la app en cada informe.
+
+## Cierre de jornada (Fase 11)
+
+- **Entrada**: desde 10 min antes del fin de jornada, Hoy muestra "Tu jornada termina a las
+  17:00 · Cerrar jornada" (y "Jornada terminada" después), y llega un aviso a esa hora si los
+  avisos de fin de jornada están activos. `/day/end` es pantalla completa, sin navegación
+  inferior (resolución del conflicto con la referencia, que la muestra).
+- **Pantalla** (sigue `day_end_reference`): avatar celebrando si el día es bueno, XP del día con
+  el de día bueno/perfecto ya incluido ("+200 día bueno · +100 día perfecto"), veredicto
+  ("¡Día perfecto!", "¡Día bueno!") y, si el día no fue bueno, un texto neutro, sin dramatizar
+  ("Así ha ido tu día · Hoy te has movido menos de lo previsto") y los datos; objetivo diario con
+  la racha o con lo que falta ("Te faltan 2 pausas · Te falta la actividad principal"), y fichas: pausas y perdidas, a la primera, aplazadas ("No pasa nada"), actividad
+  principal, interrupción real y movimiento, más la frase "Hoy has conseguido X de movimiento
+  con solo Y de interrupción real". En un día flojo no se muestran un "+0 XP" ni fichas a cero.
+- **Recuperación**: si hay alguna pausa planificada perdida, "Recupera una pausa" ofrece la más
+  reciente, una sola por día; si con ella el día pasaría a bueno, lo dice. Se reproduce como
+  cualquier pausa, queda como `origin: 'recovery'` conservando `missReason`, cuenta para el 70 %
+  y da +100 sin "a la primera" ni multiplicador. Al terminar se vuelve al cierre, que lo recalcula
+  todo a partir del plan: día bueno/perfecto, XP de cierre, fichas, resumen y racha.
+- **Actividad principal pendiente**: "Hacerla ahora" (o "Continuar") y, solo si la actividad
+  declara una versión corta en el catálogo (`shortVersionMin`: el paseo por la calle y el trabajo
+  de pie, 10 min), "Versión corta · 10 min" antes de empezar (la alternativa breve del backlog).
+  Nunca se acorta una actividad que no la declare. No se "recupera" como las pausas.
+- **Cerrar antes del fin de jornada** pide confirmación con lo que queda ("¿Cerrar ya la
+  jornada? Quedan 1 h 10 min de jornada. Aún tienes 1 pausa por hacer. Tu actividad principal
+  sigue pendiente. Lo que quede pendiente no contará para hoy."); después se puede cerrar.
+- **Valoración** ("¿Cómo terminas hoy?": Muy bien, Bien, Cargado, Bastante mal), opcional, solo
+  para la tendencia personal.
+- **Próxima jornada**: "¿Mañana tienes el mismo horario?" (o "¿El lunes…?" si la siguiente no es
+  mañana). `Sí` repite el horario de hoy en esa fecha; `Cambiar` abre el editor de horario solo
+  para esa jornada; `No trabajo` pregunta "¿Cuándo vuelves?" (7 días, por defecto el siguiente
+  laboral) y marca libres los días intermedios. La plantilla semanal nunca cambia. Todo se aplica
+  al pulsar `Cerrar jornada`; sin respuesta, el calendario se queda como está.
+- **Al cerrar**: lo que seguía abierto (pausas, actividad o una sesión a medias) queda perdido
+  con `day_closed`, se apunta +200 si el día es bueno y +100 más si es perfecto (nunca
+  multiplicados) y se guarda el resumen (`summary`) con el XP total del día. Hoy muestra "Día
+  cerrado · Día perfecto · 3/3 pausas · +300 XP"; si no fue bueno, solo los datos ("1/3 pausas ·
+  +100 XP").
+- **Cierre perezoso**: al abrir la app, los días anteriores que quedaron en marcha se cierran
+  igual (con su XP de día bueno/perfecto) y las jornadas laborables que nadie empezó quedan
+  `absent` (no buenas). El día del onboarding nunca cuenta como ausente ni rompe la racha.
+- **Bonus de regreso**: al empezar una jornada, si mirando hacia atrás aparece una laborable
+  sin trabajar antes que una trabajada, ese día lleva ×1,5 en el XP base. Solo una vez por
+  ausencia: al día siguiente ya hay una trabajada en medio.
+- Accesibilidad: un grupo de opciones sin elegir sigue siendo alcanzable con el tabulador (el
+  primero recibe el foco).
+- DevPanel: atajo "Fin de jornada" (10 min antes del final).

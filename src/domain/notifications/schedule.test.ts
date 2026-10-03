@@ -104,7 +104,11 @@ describe('buildNotificationSchedule', () => {
   it('follows the preferences and days off', () => {
     expect(schedule({ dayOff: true })).toEqual([]);
     expect(schedule({ prefs: { ...settings.notifications, enabled: false } })).toEqual([]);
-    expect(schedule({ prefs: { ...settings.notifications, microbreaks: false } })).toEqual([]);
+    expect(
+      schedule({ prefs: { ...settings.notifications, microbreaks: false } }).map(
+        (item) => item.kind,
+      ),
+    ).toEqual(['day_end']);
     expect(
       schedule({ record: undefined, prefs: { ...settings.notifications, dayStart: false } }),
     ).toEqual([]);
@@ -160,5 +164,26 @@ describe('main activity reminders', () => {
 
   it('follows the pauses preference', () => {
     expect(forMain({ prefs: { ...settings.notifications, microbreaks: false } })).toEqual([]);
+  });
+});
+
+describe('end of the workday', () => {
+  it('reminds 10 minutes before it ends, while the day is under way', () => {
+    const end = schedule().filter((item) => item.kind === 'day_end');
+    expect(end).toEqual([
+      {
+        id: `day-end:${DATE}`,
+        kind: 'day_end',
+        at: atTime(DATE, settings.schedule.workEnd) - 10 * MIN,
+        date: DATE,
+        tag: 'day-end',
+      },
+    ]);
+  });
+
+  it('stays quiet when turned off, or once the day is closed', () => {
+    const kinds = (input: Partial<ScheduleInput>) => schedule(input).map((item) => item.kind);
+    expect(kinds({ prefs: { ...settings.notifications, dayEnd: false } })).not.toContain('day_end');
+    expect(kinds({ record: { ...record(), status: 'closed' } })).not.toContain('day_end');
   });
 });

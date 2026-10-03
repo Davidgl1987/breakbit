@@ -15,6 +15,8 @@ const BASE_TITLE = 'Breakbit';
  */
 export function runEngine(now: Instant, scheduler: NotificationScheduler): void {
   useAppStore.getState().reconcile(now);
+  // Yesterday (or longer ago) left open, or workdays nobody started: settled now.
+  useAppStore.getState().closePastDays(now);
   const state = useAppStore.getState();
   const date = toDateKey(now);
   const record = state.days[date];

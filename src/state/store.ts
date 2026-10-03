@@ -28,7 +28,7 @@ export const useAppStore = create<AppState>()(
       ...prefsActions(set),
       ...settingsActions(set),
       ...calendarActions(set),
-      ...dayActions(set),
+      ...dayActions(set, get),
       ...pauseActions(set, get),
       ...mainActions(set, get),
       ...gapActions(set, get),

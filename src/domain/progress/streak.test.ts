@@ -68,4 +68,11 @@ describe('currentStreak', () => {
       1,
     );
   });
+
+  it('treats the onboarding day as neutral when it was not worked', () => {
+    expect(
+      streak({ '2026-10-08': record('2026-10-08', 'closed') }, { since: '2026-10-07' as DateKey }),
+    ).toBe(1);
+    expect(streak({}, { since: '2026-10-07' as DateKey })).toBe(0);
+  });
 });

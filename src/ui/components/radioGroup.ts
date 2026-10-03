@@ -41,6 +41,7 @@ export function useRadioGroup<T extends string>(
     refs.current[next]?.focus();
   };
 
+  const hasValue = options.some((option) => option.value === value);
   const itemProps = (option: RadioOption<T>, index: number) => ({
     ref: (element: HTMLButtonElement | null) => {
       refs.current[index] = element;
@@ -48,7 +49,8 @@ export function useRadioGroup<T extends string>(
     type: 'button' as const,
     role: 'radio' as const,
     'aria-checked': option.value === value,
-    tabIndex: option.value === value ? 0 : -1,
+    // With nothing chosen yet, the first option takes the focus (WAI-ARIA radio group).
+    tabIndex: option.value === value || (index === 0 && !hasValue) ? 0 : -1,
     onClick: () => onChange(option.value),
     onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => onKeyDown(event, index),
   });

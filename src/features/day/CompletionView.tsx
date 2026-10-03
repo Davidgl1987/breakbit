@@ -52,7 +52,8 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
   const back = () => {
     // Opened from a notification: try to give the screen back to whatever was there.
     if (fromNotification) window.close();
-    navigate(ROUTES.today, { replace: true });
+    // A pause recovered at the end of the day leads back to closing it.
+    navigate(activity.origin === 'recovery' ? ROUTES.dayEnd : ROUTES.today, { replace: true });
     if (fromNotification) showToast(t('toasts.backToWork'), 'success');
   };
 

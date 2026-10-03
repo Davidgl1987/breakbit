@@ -113,6 +113,11 @@ export function formatSeconds(seconds: number): string {
   return rest === 0 ? `${total / 60} min` : `${Math.floor(total / 60)} min ${rest} s`;
 }
 
+/** Time moved or away from work: seconds under a minute (a single pause), then minutes. */
+export function formatActiveTime(seconds: number): string {
+  return seconds > 0 && seconds < 60 ? formatSeconds(seconds) : formatDuration(seconds / 60);
+}
+
 /** 'lunes, 5 de octubre' / 'Monday, 5 October'. */
 export function formatLongDate(locale: Locale, date: DateKey): string {
   const [year, month, day] = date.split('-').map(Number);

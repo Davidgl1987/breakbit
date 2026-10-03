@@ -17,6 +17,7 @@ const ICONS = {
   pause: '/icons/48/stretch.png',
   day: '/icons/48/sun.png',
   main: '/icons/48/goal.png',
+  dayEnd: '/icons/48/moon.png',
 } as const;
 
 /** Localised text and link for a planned notification, from the current state. */
@@ -26,6 +27,14 @@ export function notificationContent(
 ): NotificationContent | undefined {
   const t = (key: MessageKey, params?: MessageParams) => translate(state.prefs.locale, key, params);
 
+  if (notification.kind === 'day_end') {
+    return {
+      title: t('notifications.dayEnd.title'),
+      body: t('notifications.dayEnd.body'),
+      url: `${ROUTES.dayEnd}?src=notif`,
+      icon: ICONS.dayEnd,
+    };
+  }
   if (notification.kind === 'day_start') {
     return {
       title: t('notifications.dayStart.title'),

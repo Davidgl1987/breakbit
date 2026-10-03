@@ -6,6 +6,8 @@ import type {
   DayRecord,
   DaySchedule,
   Instant,
+  Mood,
+  NextDayDecision,
   ProgressState,
   SkipReason,
   UserSettings,
@@ -67,6 +69,15 @@ export interface DayActions {
   updateDayPlan: (plan: DayPlan) => void;
   /** "Hoy sí trabajo" after "Hoy no trabajo": a day under way goes on with its plan. */
   undoDayOff: (date: DateKey) => void;
+  /**
+   * "Cerrar jornada": what's still open is missed, the good/perfect day XP is earned and
+   * the summary is kept, with how the user ends the day and what tomorrow looks like.
+   */
+  closeDay: (date: DateKey, answers?: { mood?: Mood; nextDay?: NextDayDecision }) => void;
+  /** Lazily settles the past: days left under way close, unstarted workdays are absent. */
+  closePastDays: (now: Instant) => void;
+  /** Recovers the day's latest missed pause (once a day); returns it, started, to play. */
+  recoverPause: (date: DateKey) => string | undefined;
 }
 
 export interface PauseActions {
@@ -92,6 +103,8 @@ export interface MainActions {
   pauseMain: (date: DateKey, id: string) => void;
   /** Done: the time added up, "Terminar", or "Ya la he hecho" (without a session). */
   completeMain: (date: DateKey, id: string) => void;
+  /** "Versión corta": the activity's shortest length, before it starts. */
+  shortenMain: (date: DateKey, id: string) => void;
 }
 
 /** "Tengo un hueco". The rules live in domain/gap. */

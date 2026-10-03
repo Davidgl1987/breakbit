@@ -120,6 +120,11 @@ export interface MainActivity {
   steps: Localized[];
   equipment: EquipmentId[];
   durationMin: { min: number; max: number };
+  /**
+   * A short version that still makes sense ("versión corta" at the end of the day), in
+   * minutes. Only activities that declare one offer it.
+   */
+  shortVersionMin?: number;
   completionMode: CompletionMode;
   /**
    * Where it fits: 'break' (going out, floor work…), 'work' (any time at the desk),

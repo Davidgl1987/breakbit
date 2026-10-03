@@ -5,7 +5,7 @@ import { proposeGap, type GapOption } from '@/domain/gap/gap';
 import type { HHmm, ScheduledActivity } from '@/domain/types';
 import { clock } from '@/services/clock';
 import { clearEvents, readEvents } from '@/services/eventLog';
-import { GAP_DATE as DATE, gapAt as at, gapDay } from '@/test/gapDay';
+import { SAMPLE_DATE as DATE, sampleAt as at, sampleDay } from '@/test/sampleDay';
 import { useAppStore } from '../store';
 
 const store = () => useAppStore.getState();
@@ -34,7 +34,7 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 beforeEach(async () => {
   await clearEvents();
   store().completeOnboarding(DEFAULT_SETTINGS);
-  store().startDay(gapDay());
+  store().startDay(sampleDay());
 });
 afterEach(() => clock.setOffset(0));
 

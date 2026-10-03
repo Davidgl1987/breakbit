@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { CATALOG } from '@/content/catalog';
+import { DAY_END_LEAD_MIN } from '@/domain/config';
 import { dayProgress } from '@/domain/day/progress';
 import { equipmentInPlan, nextPause, workEnd } from '@/domain/day/today';
 import { atTime } from '@/domain/time';
@@ -12,6 +14,7 @@ import { formatDuration } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { useAppStore } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
+import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
@@ -34,16 +37,27 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
   const gear = equipmentInPlan(plan, CATALOG);
   const start = atTime(plan.date, plan.schedule.workStart);
   const minutesLeft = (workEnd(plan) - now) / 60_000;
+  // From 10 min before the end, the way to close the day.
+  const endingSoon = minutesLeft <= DAY_END_LEAD_MIN;
 
   return (
     <>
-      {over ? (
-        <Card as="section" className={styles.stateCard}>
-          <PixelIcon name="good_day" size={48} />
+      {over || endingSoon ? (
+        <Card as="section" variant="tinted" className={styles.stateCard}>
+          <PixelIcon name="moon" size={48} />
           <div className={styles.stateTexts}>
-            <h2 className={styles.stateTitle}>{t('today.states.over')}</h2>
-            <p className={styles.muted}>{t('today.states.overBody')}</p>
+            <h2 className={styles.stateTitle}>
+              {over
+                ? t('today.states.over')
+                : t('today.states.endingSoon', { time: plan.schedule.workEnd })}
+            </h2>
+            <p className={styles.muted}>
+              {over ? t('today.states.overBody') : t('today.states.endingSoonBody')}
+            </p>
           </div>
+          <Link to={ROUTES.dayEnd} className={buttonClassName({ size: 'lg', fullWidth: true })}>
+            {t('today.states.closeDay')}
+          </Link>
         </Card>
       ) : (
         <ListRow
