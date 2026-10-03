@@ -27,7 +27,8 @@
 .fill {
   stroke: var(--color-primary);
   stroke-linecap: round;
-  transition: stroke-dashoffset var(--duration-base) linear;
+  /* The timer moves every second: glide between ticks. */
+  transition: stroke-dashoffset 1s linear;
 }
 
 .center {

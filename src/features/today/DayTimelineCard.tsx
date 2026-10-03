@@ -63,7 +63,13 @@ export function DayTimelineCard({ plan, now, nextId }: DayTimelineCardProps) {
               <span className={styles.time}>{formatClock(item.at)}</span>
               <span className={styles.dot} aria-hidden="true" />
               <span className={styles.label}>{label(item)}</span>
-              {status === 'completed' && <StatusBadge status="completed" />}
+              {status === 'completed' && (
+                <StatusBadge
+                  status={
+                    'activity' in item && item.activity.firstPrompt ? 'firstTry' : 'completed'
+                  }
+                />
+              )}
               {status === 'missed' && <StatusBadge status="missed" />}
               {status === 'skipped' && <StatusBadge status="skipped" />}
               {status === 'postponed' && <StatusBadge status="postponed" />}

@@ -50,6 +50,24 @@ export function start(item: ScheduledActivity, now: Instant): ScheduledActivity 
   };
 }
 
+/**
+ * The exercise was finished. Only a pause that was started can be completed; it may be
+ * finished after its window, since "Vamos" came in time.
+ */
+export function complete(
+  item: ScheduledActivity,
+  now: Instant,
+  elapsedSec: number,
+): ScheduledActivity {
+  if (item.kind !== 'micro' || !isOpen(item) || item.startedAt === undefined) return item;
+  return {
+    ...item,
+    status: 'completed',
+    completedAt: now,
+    elapsedSec: Math.max(0, Math.round(elapsedSec)),
+  };
+}
+
 /** "Descartar pausa": skipped for good, with an optional reason. */
 export function discard(item: ScheduledActivity, reason?: SkipReason): ScheduledActivity {
   if (item.kind !== 'micro' || !isOpen(item) || item.startedAt !== undefined) return item;

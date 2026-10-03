@@ -1,4 +1,6 @@
 .stage {
+  position: relative;
+  overflow: hidden;
   display: grid;
   place-items: center;
   min-height: 184px;

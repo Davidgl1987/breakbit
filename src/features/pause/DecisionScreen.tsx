@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { pausePlayPath, ROUTES } from '@/app/routes';
-import { CATALOG } from '@/content/catalog';
 import { XP } from '@/domain/config';
 import { isAwaitingAnswer, isDue, isOpen, postponeOptions, windowEnd } from '@/domain/pause/window';
-import { contentExerciseIds } from '@/domain/planner/pauseContent';
 import type { ScheduledActivity, SkipReason } from '@/domain/types';
+import { contentItems, suggestsStanding } from '@/features/day/contentItems';
 import { contentName } from '@/features/day/contentName';
 import { PauseContentView } from '@/features/day/PauseContentView';
 import { formatClock, formatSeconds } from '@/i18n/translate';
@@ -13,6 +12,7 @@ import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
 import { activityDate, selectActivity } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
+import { showToast } from '@/state/toasts';
 import { useNow } from '@/state/useNow';
 import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Button } from '@/ui/components/Button/Button';
@@ -61,10 +61,19 @@ export function DecisionScreen() {
     return <Navigate to={pausePlayPath(id)} replace />;
   }
   if (!isAwaitingAnswer(activity, now)) return <PauseStatus activity={activity} />;
-  return <Decision activity={activity} now={now} />;
+  return <Decision activity={activity} now={now} search={location.search} />;
 }
 
-function Decision({ activity, now }: { activity: ScheduledActivity; now: number }) {
+function Decision({
+  activity,
+  now,
+  search,
+}: {
+  activity: ScheduledActivity;
+  now: number;
+  /** Kept along the way, so the end knows the pause came from a notification. */
+  search: string;
+}) {
   const { t, locale } = useT();
   const navigate = useNavigate();
   const phase = useAppStore((state) => state.progress.evolutionPhase);
@@ -105,7 +114,7 @@ function Decision({ activity, now }: { activity: ScheduledActivity; now: number 
         fullWidth
         onClick={() => {
           startPause(date, activity.id);
-          navigate(pausePlayPath(activity.id), { replace: true });
+          navigate(`${pausePlayPath(activity.id)}${search}`, { replace: true });
         }}
       >
         {t('pause.go')}
@@ -128,6 +137,9 @@ function Decision({ activity, now }: { activity: ScheduledActivity; now: number 
                 onClick={() => {
                   postponePause(date, activity.id, minutes);
                   navigate(ROUTES.today, { replace: true });
+                  showToast(
+                    t('toasts.postponed', { time: formatClock(clock.now() + minutes * 60_000) }),
+                  );
                 }}
               >
                 {t('pause.postpone', { minutes })}
@@ -169,6 +181,7 @@ function Decision({ activity, now }: { activity: ScheduledActivity; now: number 
                 onClick={() => {
                   discardPause(date, activity.id, reason);
                   navigate(ROUTES.today, { replace: true });
+                  showToast(t('toasts.discarded'), 'warning');
                 }}
               >
                 {t('pause.discardSheet.confirm')}
@@ -212,10 +225,8 @@ function Decision({ activity, now }: { activity: ScheduledActivity; now: number 
 /** Discreet in a meeting; otherwise "better standing" when the moves allow it. */
 function pauseHint(activity: ScheduledActivity): 'pause.meeting' | 'pause.standing' | undefined {
   if (activity.slot === 'meeting') return 'pause.meeting';
-  const either = contentExerciseIds(activity.content, CATALOG).some(
-    (id) => CATALOG.exercises.find((exercise) => exercise.id === id)?.posture === 'either',
-  );
-  return either ? 'pause.standing' : undefined;
+  const exercises = contentItems(activity.content).map((item) => item.exercise);
+  return suggestsStanding(exercises, activity.slot) ? 'pause.standing' : undefined;
 }
 
 /** A pause that isn't waiting for an answer: upcoming, done, discarded or missed. */

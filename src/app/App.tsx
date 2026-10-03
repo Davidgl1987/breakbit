@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router';
 import { AppRoutes } from './AppRoutes';
 import { Engine } from './engine/Engine';
 import { HydrationGate } from './providers/HydrationGate';
+import { ToastHost } from './ToastHost';
 import { ThemeController } from './providers/ThemeController';
 
 // Dev-only tools; the dynamic import is dropped from production builds.
@@ -17,6 +18,7 @@ export function App() {
       <HydrationGate>
         <Engine />
         <AppRoutes />
+        <ToastHost />
         {DevPanel && (
           <Suspense fallback={null}>
             <DevPanel />

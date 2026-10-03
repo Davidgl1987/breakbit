@@ -348,3 +348,35 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   igual; el resumen lo dice como "Nada extra: tus pausas serán movimientos suaves sin material", y
   "Tu día" usa "Hoy no hace falta material" (en Hoy no se muestra nada).
 - DevPanel: atajo "Próxima pausa" para saltar a la hora del siguiente aviso.
+
+## Reproductor, pausa hecha y XP (Fase 8)
+
+- **Reproductor** (`/pause/:id/play`): tras `Vamos` el temporizador arranca solo. Avatar en su
+  fase más evolucionada mostrando el movimiento, anillo con el tiempo restante, zona trabajada
+  (categoría), descripción y pasos. Controles fijos abajo: `Pausar`/`Seguir` y `Siguiente`/`Hecho`.
+  Las rutinas y los resets combinados van movimiento a movimiento ("Movimiento 2 de 4", con
+  "Después: …"); cada uno pasa solo al acabar su tiempo. Al terminar el último (o con `Hecho`) la
+  pausa queda completada.
+- **Rutinas, un movimiento por toque**: `Siguiente` avanza exactamente un movimiento y `Hecho`
+  solo aparece en el último, así que terminar antes un movimiento nunca cierra la rutina. Los
+  toques en los 800 ms siguientes a un cambio de movimiento se ignoran: un doble toque, o un toque
+  justo cuando se acaba el tiempo, pertenecen al movimiento que termina y no saltan el siguiente
+  (ni completan la rutina cuando `Siguiente` se convierte en `Hecho` bajo el dedo).
+- **El tiempo se mide con marcas de tiempo**, no con contadores, así que no se desvía con la
+  pestaña en segundo plano. `elapsedSec` guarda lo que de verdad se movió (sin las pausas del
+  temporizador) y alimenta el tiempo real de interrupción y de movimiento.
+- **`Hecho` antes de tiempo cuenta** como completada en un ejercicio suelto o en el último
+  movimiento: la app confía en el usuario (busca el hábito, no vigilar). Cerrar el reproductor deja la pausa en curso; `Continuar` la empieza de nuevo.
+- **XP de una pausa** (`domain/progress/awards`), con claves únicas para no contar dos veces:
+  +100 por pausa planificada (×1,5 solo sobre esa base el día de regreso tras una ausencia), +20 si
+  fue a la primera (nunca multiplicado); una pausa recuperada da +100 sin bonus. Los XP de
+  actividad principal, día bueno/perfecto y pausas extra llegan en sus fases.
+- **Pausa hecha** (`/pause/:id/done`): celebración pequeña sobre el avatar (sin animación si el
+  sistema pide reducir movimiento), el nombre de la pausa (sin la duración real, que se guarda para
+  las estadísticas), el XP ganado con su desglose en una línea ("+100 pausa · +20 a la primera"),
+  progreso del día y del nivel, y `Volver a lo mío`. Si la pausa llegó desde un aviso, intenta
+  cerrar la pestaña; si el navegador no lo permite, vuelve a Hoy con "Listo. Vuelve a lo tuyo.".
+- **Toasts**: confirmaciones breves en la parte superior, de una en una y durante 4 s (aplazada con
+  su nueva hora, descartada con −50 XP, vuelta al trabajo). No se guardan.
+- Línea de tiempo: las pausas hechas a la primera muestran esa insignia.
+- Design system: `Toast` y `Celebration`, en `/dev/kit`.

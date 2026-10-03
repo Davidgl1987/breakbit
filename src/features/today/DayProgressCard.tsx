@@ -1,5 +1,5 @@
 import type { DayProgress } from '@/domain/day/progress';
-import { formatDuration } from '@/i18n/translate';
+import { formatDuration, formatSeconds } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { Card } from '@/ui/components/Card/Card';
 import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedProgress';
@@ -23,7 +23,7 @@ export function DayProgressCard({ progress }: { progress: DayProgress }) {
         </li>
         <li>
           <PixelIcon name="clock" size={24} />
-          {t('today.interruption', { time: formatDuration(progress.interruptionSec / 60) })}
+          {t('today.interruption', { time: formatInterruption(progress.interruptionSec) })}
         </li>
         {progress.hasMain && (
           <li>
@@ -34,4 +34,9 @@ export function DayProgressCard({ progress }: { progress: DayProgress }) {
       </ul>
     </Card>
   );
+}
+
+/** Seconds while under a minute (a single pause), then minutes. */
+function formatInterruption(seconds: number): string {
+  return seconds > 0 && seconds < 60 ? formatSeconds(seconds) : formatDuration(seconds / 60);
 }
