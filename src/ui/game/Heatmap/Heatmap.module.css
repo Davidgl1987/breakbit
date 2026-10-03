@@ -1,0 +1,76 @@
+/* GitHub-style grid: one column per week, Monday on top; weekday labels on the left. */
+.heatmap {
+  display: grid;
+  grid-template-columns: max-content repeat(var(--weeks), minmax(0, 1fr));
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+  gap: 3px;
+}
+
+.dayLabel {
+  padding-right: var(--space-1);
+  font-size: 0.625rem;
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--color-text-muted);
+  align-self: center;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+}
+
+/* Shades of the accent, from no activity to a good day. */
+.l0 {
+  background: var(--color-heat-empty);
+}
+
+.l1 {
+  background: color-mix(in srgb, var(--color-primary) 30%, var(--color-heat-empty));
+}
+
+.l2 {
+  background: color-mix(in srgb, var(--color-primary) 55%, var(--color-heat-empty));
+}
+
+.l3 {
+  background: color-mix(in srgb, var(--color-primary) 78%, var(--color-heat-empty));
+}
+
+.l4 {
+  background: var(--color-primary);
+}
+
+/* Days off look different: they neither count nor break anything. */
+.off {
+  border: 1px dashed var(--color-border-strong);
+  background: transparent;
+}
+
+/* Outside the history (before it started, or still to come): just the grid. */
+.blank {
+  background: color-mix(in srgb, var(--color-track) 35%, transparent);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.scale {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}

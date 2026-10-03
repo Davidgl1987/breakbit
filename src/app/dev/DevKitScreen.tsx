@@ -28,6 +28,7 @@ import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { Celebration } from '@/ui/game/Celebration/Celebration';
+import { Heatmap } from '@/ui/game/Heatmap/Heatmap';
 import { RoomScene } from '@/ui/game/RoomScene/RoomScene';
 import { roomItemIcon } from '@/ui/icons/domainIcons';
 import { ROOM_ITEMS } from '@/content/roomItems';
@@ -420,6 +421,22 @@ export function DevKitScreen() {
           streak={7}
           xpToday={120}
           level={{ level: 3, current: 320, needed: 1000 }}
+        />
+        <Heatmap
+          label={t('progress.heatmap.title')}
+          dayLabels={['L', '', 'X', '', 'V', '', '']}
+          weeks={Array.from({ length: 12 }, (_, week) => ({
+            key: `w${week}`,
+            days: Array.from({ length: 7 }, (_, day) => ({
+              key: `w${week}d${day}`,
+              level: day >= 5 ? ('off' as const) : (((week + day) % 5) as 0 | 1 | 2 | 3 | 4),
+            })),
+          }))}
+          legend={{
+            less: t('progress.heatmap.less'),
+            more: t('progress.heatmap.more'),
+            off: t('progress.heatmap.off'),
+          }}
         />
         <RoomScene
           label={t('week.room')}

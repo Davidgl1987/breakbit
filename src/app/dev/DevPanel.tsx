@@ -18,15 +18,18 @@ import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ROUTES, weekPath } from '../routes';
 import styles from './DevPanel.module.css';
 import { formatOffset, toDateTimeLocal } from './devFormat';
+import { HISTORY_NOW, historyScenarioState } from './historyScenario';
 import { SCENARIO_NOW, SCENARIO_WEEK, weekScenarioState, type WeekScenario } from './weekScenarios';
 
 const SCENARIOS: {
-  scenario: WeekScenario;
-  labelKey: 'dev.scenarioEvolve' | 'dev.scenarioStable' | 'dev.scenarioRoom';
+  scenario: WeekScenario | 'history';
+  labelKey:
+    'dev.scenarioEvolve' | 'dev.scenarioStable' | 'dev.scenarioRoom' | 'dev.scenarioHistory';
 }[] = [
   { scenario: 'evolve', labelKey: 'dev.scenarioEvolve' },
   { scenario: 'stable', labelKey: 'dev.scenarioStable' },
   { scenario: 'room', labelKey: 'dev.scenarioRoom' },
+  { scenario: 'history', labelKey: 'dev.scenarioHistory' },
 ];
 
 const MINUTE = 60_000;
@@ -99,8 +102,15 @@ export function DevPanel() {
 
   // Sample data for the weekly result, judged by the real engine on the Monday after.
   const navigate = useNavigate();
-  const loadScenario = (scenario: WeekScenario) => {
+  const loadScenario = (scenario: WeekScenario | 'history') => {
     const state = useAppStore.getState();
+    if (scenario === 'history') {
+      state.replaceData(historyScenarioState(state));
+      clock.travelTo(HISTORY_NOW);
+      close();
+      navigate(ROUTES.progress);
+      return;
+    }
     state.replaceData(weekScenarioState(scenario, state));
     clock.travelTo(SCENARIO_NOW);
     useAppStore.getState().evaluateWeeks(SCENARIO_NOW);

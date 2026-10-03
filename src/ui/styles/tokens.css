@@ -97,6 +97,8 @@
   --color-pending-soft: #ece9e1;
 
   --color-track: #e4dccb;
+  /* Heatmap: a workday with no activity, clearly apart from days outside the history. */
+  --color-heat-empty: #e4dccb;
   --color-control-track: #e6dcc6;
   --color-nav: #fbf8ef;
   --color-focus: #2a8a5966;
@@ -146,6 +148,7 @@
   --color-pending-soft: #233c35;
 
   --color-track: #23443b;
+  --color-heat-empty: #2f5d51;
   --color-control-track: #1f4239;
   --color-nav: #143029;
   --color-focus: #4cc98566;
