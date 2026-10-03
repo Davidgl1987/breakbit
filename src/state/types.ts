@@ -1,6 +1,7 @@
 import type {
   DateKey,
   DayOverrides,
+  DayPlan,
   DayRecord,
   DaySchedule,
   Instant,
@@ -46,7 +47,7 @@ export interface SettingsActions {
 }
 
 export interface CalendarActions {
-  /** "Hoy no trabajo" (also once the day has started). */
+  /** "Hoy no trabajo" (also once the day has started: its record becomes a day off). */
   markDayOff: (date: DateKey) => void;
   /** "No, cambiar horario" for one date. */
   setCustomSchedule: (date: DateKey, schedule: DaySchedule) => void;
@@ -55,6 +56,15 @@ export interface CalendarActions {
   /** "No trabajo mañana" + chosen next workday. */
   skipUntil: (from: DateKey, next: DateKey, schedule?: DaySchedule) => void;
   clearOverride: (date: DateKey) => void;
+}
+
+export interface DayActions {
+  /** "Empezar jornada": saves today's plan; its hours become that day's calendar entry. */
+  startDay: (plan: DayPlan) => void;
+  /** Saves a re-planned day (new hours, meetings or main activity). */
+  updateDayPlan: (plan: DayPlan) => void;
+  /** "Hoy sí trabajo" after "Hoy no trabajo": a day under way goes on with its plan. */
+  undoDayOff: (date: DateKey) => void;
 }
 
 export interface DataActions {
@@ -68,4 +78,5 @@ export type AppState = PersistedState &
   PrefsActions &
   SettingsActions &
   CalendarActions &
+  DayActions &
   DataActions;

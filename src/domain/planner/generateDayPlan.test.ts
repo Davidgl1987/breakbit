@@ -286,4 +286,26 @@ describe('generateDayPlan (properties)', () => {
       { numRuns: 50 },
     );
   });
+
+  it('only proposes main activities the user has the equipment for', () => {
+    fc.assert(
+      fc.property(inputArb, (input) => {
+        const result = generateDayPlan({
+          date: DATE,
+          schedule: input.schedule,
+          meetings: input.meetings,
+          settings: input,
+          catalog: CATALOG,
+          rerollCount: input.rerollCount,
+        });
+        const main = mainOf(result);
+        if (main?.content.kind !== 'main') return;
+        const activityId = main.content.activityId;
+        const activity = CATALOG.mainActivities.find((item) => item.id === activityId)!;
+        for (const item of activity.equipment) expect(input.equipment).toContain(item);
+        if (activityId === 'standing_work') expect(input.equipment).toContain('standing_desk');
+      }),
+      { numRuns: 300 },
+    );
+  });
 });

@@ -47,9 +47,7 @@ describe('summarizePlan', () => {
 
   it('counts a main activity in work time unless it is done while working', () => {
     expect(summarizePlan(plan([main('walk_indoors', 'work')]), CATALOG).interruptionSec).toBe(900);
-    expect(
-      summarizePlan(plan([main('standing_work_improvised', 'work')]), CATALOG).interruptionSec,
-    ).toBe(0);
+    expect(summarizePlan(plan([main('standing_work', 'work')]), CATALOG).interruptionSec).toBe(0);
     expect(summarizePlan(plan([main('walk_outside', 'break')]), CATALOG).interruptionSec).toBe(0);
   });
 

@@ -84,29 +84,6 @@ export const MAIN_ACTIVITIES: MainActivity[] = [
     routineId: 'mobility_5',
   },
   {
-    id: 'standing_work_improvised',
-    name: l('Trabajo de pie improvisado', 'Improvised standing work'),
-    description: l(
-      'Eleva el portátil y trabaja de pie, solo si la postura es cómoda.',
-      'Raise your laptop and work standing, only if it feels comfortable.',
-    ),
-    steps: [
-      l(
-        'Busca una superficie alta donde la pantalla quede a la altura de los ojos.',
-        'Find a high surface that puts your screen at eye level.',
-      ),
-      l(
-        'Trabaja de pie en bloques de 5 minutos o más.',
-        'Work standing in blocks of 5 minutes or more.',
-      ),
-    ],
-    equipment: [],
-    durationMin: { min: 10, max: 20 },
-    completionMode: 'accumulated',
-    slots: ['work', 'meeting'],
-    whileWorking: true,
-  },
-  {
     id: 'standing_work',
     name: l('Trabajo de pie', 'Standing work'),
     description: l(

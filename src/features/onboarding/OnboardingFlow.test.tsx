@@ -69,7 +69,7 @@ describe('onboarding', () => {
     expect(screen.getByText('Descanso 11:00–11:30')).toBeInTheDocument();
     expect(screen.getByText('Cuello')).toBeInTheDocument();
     expect(screen.getByText('Mancuernas')).toBeInTheDocument();
-    expect(screen.getByText(/^Activo · \d+ pausas · ~\d+ min$/)).toBeInTheDocument();
+    expect(screen.getByText(/^Activo · \d+ pausas previstas · ~\d+ min$/)).toBeInTheDocument();
     expect(useAppStore.getState().onboardedAt).toBeUndefined();
 
     await user.click(screen.getByRole('button', { name: 'Empezar' }));

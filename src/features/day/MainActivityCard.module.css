@@ -1,0 +1,44 @@
+.card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-md);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.texts {
+  display: grid;
+  min-width: 0;
+}
+
+.name {
+  font-weight: var(--weight-black);
+}
+
+.when {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Half-width card on Today: stack the parts and push the button to the bottom. */
+.card[data-compact] {
+  grid-template-rows: auto 1fr auto;
+}
+
+.card[data-compact] .content {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.card:not([data-compact]) > button {
+  justify-self: start;
+}

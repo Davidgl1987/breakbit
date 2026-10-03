@@ -1,0 +1,36 @@
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: calc(100dvh - var(--space-8));
+}
+
+/* The content takes the free space, so a short page keeps the action at the bottom. */
+.body {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+}
+
+/* A field focused near the bottom scrolls clear of the sticky action. */
+.body :focus {
+  scroll-margin-bottom: calc(var(--space-8) * 3 + var(--safe-bottom));
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) 0 calc(var(--space-4) + var(--safe-bottom));
+  background: linear-gradient(to bottom, transparent, var(--color-bg) var(--space-4));
+}

@@ -6,6 +6,7 @@ import { initialState, pickPersisted } from './initialState';
 import { migrateState, STATE_VERSION } from './migrations';
 import { calendarActions } from './slices/calendar';
 import { dataActions } from './slices/data';
+import { dayActions } from './slices/day';
 import { prefsActions } from './slices/prefs';
 import { settingsActions } from './slices/settings';
 import type { AppState, PersistedState } from './types';
@@ -24,6 +25,7 @@ export const useAppStore = create<AppState>()(
       ...prefsActions(set),
       ...settingsActions(set),
       ...calendarActions(set),
+      ...dayActions(set),
       ...dataActions(set),
     }),
     {

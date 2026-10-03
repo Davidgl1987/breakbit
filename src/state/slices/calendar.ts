@@ -8,7 +8,12 @@ import { assertValidSchedule } from './settings';
 export function calendarActions(set: StoreApi<AppState>['setState']): CalendarActions {
   return {
     markDayOff: (date) => {
-      set((state) => ({ dayOverrides: overrides.markDayOff(state.dayOverrides, date) }));
+      set((state) => {
+        const dayOverrides = overrides.markDayOff(state.dayOverrides, date);
+        const record = state.days[date];
+        if (record?.status !== 'active') return { dayOverrides };
+        return { dayOverrides, days: { ...state.days, [date]: { ...record, status: 'day_off' } } };
+      });
       void logEvent('day_off_marked', { data: { date } }).catch(() => {});
     },
     setCustomSchedule: (date, schedule) => {

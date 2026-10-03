@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useT } from '@/i18n/useT';
 import { Button } from '@/ui/components/Button/Button';
+import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { Stepper } from '@/ui/components/Stepper/Stepper';
@@ -36,24 +37,27 @@ export function OnboardingStep({
   const { t } = useT();
   const back = previousStep(step);
   return (
-    <div className={styles.step}>
-      <div className={styles.top}>
-        {back && (
-          <IconButton label={t('common.back')} to={onboardingPath(back)}>
-            <LineIcon name="chevron-left" size={24} />
-          </IconButton>
-        )}
-        <div className={styles.progress}>
-          <Stepper current={stepIndex(step) + 1} total={ONBOARDING_STEPS.length} />
-        </div>
-      </div>
-      <ScreenHeader title={title} subtitle={subtitle} trailing={trailing} />
-      <div className={styles.body}>{children}</div>
-      <div className={styles.footer}>
+    <FlowLayout
+      top={
+        <>
+          {back && (
+            <IconButton label={t('common.back')} to={onboardingPath(back)}>
+              <LineIcon name="chevron-left" size={24} />
+            </IconButton>
+          )}
+          <div className={styles.progress}>
+            <Stepper current={stepIndex(step) + 1} total={ONBOARDING_STEPS.length} />
+          </div>
+        </>
+      }
+      header={<ScreenHeader title={title} subtitle={subtitle} trailing={trailing} />}
+      footer={
         <Button size="lg" fullWidth disabled={action.disabled} onClick={action.onClick}>
           {action.label}
         </Button>
-      </div>
-    </div>
+      }
+    >
+      {children}
+    </FlowLayout>
   );
 }
