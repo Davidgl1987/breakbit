@@ -13,6 +13,7 @@ import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { MetricTile } from '@/ui/components/MetricTile/MetricTile';
 import { OptionList } from '@/ui/components/OptionList/OptionList';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
+import { ProgressRing } from '@/ui/components/ProgressRing/ProgressRing';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { SegmentedControl } from '@/ui/components/SegmentedControl/SegmentedControl';
 import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedProgress';
@@ -24,6 +25,7 @@ import { TimeField } from '@/ui/components/TimeField/TimeField';
 import { Toggle } from '@/ui/components/Toggle/Toggle';
 import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
+import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { EvolutionStrip } from '@/ui/game/EvolutionStrip/EvolutionStrip';
 import type { ButtonVariant } from '@/ui/components/Button/buttonStyles';
 import { ICON_NAMES } from '@/ui/icons/iconNames';
@@ -57,7 +59,15 @@ const VARIANT_LABEL = {
   destructive: 'discardPause',
 } as const;
 const POSTPONE = [5, 10, 15];
-const BADGES: BadgeStatus[] = ['pending', 'completed', 'postponed', 'missed', 'firstTry', 'extra'];
+const BADGES: BadgeStatus[] = [
+  'pending',
+  'completed',
+  'postponed',
+  'missed',
+  'skipped',
+  'firstTry',
+  'extra',
+];
 const LINE_ICONS: LineIconName[] = [
   'chevron-left',
   'chevron-right',
@@ -353,6 +363,11 @@ export function DevKitScreen() {
           <span className={styles.muted}>{t('common.pausesOf', { done: 6, total: 8 })}</span>
         </div>
         <Stepper current={1} total={5} />
+        <div className={styles.row}>
+          <ProgressRing progress={0.35} label={t('pause.timer')} size={140}>
+            <strong>0:26</strong>
+          </ProgressRing>
+        </div>
         <div className={styles.badges}>
           {BADGES.map((status) => (
             <StatusBadge key={status} status={status} />
@@ -380,6 +395,7 @@ export function DevKitScreen() {
           <Avatar phase={5} pose="thumbs_up" size="lg" highlighted />
         </div>
         <EvolutionStrip />
+        <AvatarStage phase={5} pose="demo" label={t('pause.demo')} />
         <AvatarCard
           phase={3}
           streak={7}

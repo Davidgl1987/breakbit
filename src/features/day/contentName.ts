@@ -1,14 +1,20 @@
 import { CATALOG } from '@/content/catalog';
 import type { ActivityContent, LocaleCode } from '@/domain/types';
+import { translate } from '@/i18n/translate';
 
-/** What a pause or activity is called: an exercise, "A + B", a routine or a main activity. */
+/**
+ * What a pause or activity is called: an exercise, "3 movimientos seguidos" for a combined
+ * reset (each move is listed inside), a routine or a main activity.
+ */
 export function contentName(content: ActivityContent, locale: LocaleCode): string {
   switch (content.kind) {
-    case 'exercises':
-      return content.exerciseIds
-        .map((id) => CATALOG.exercises.find((exercise) => exercise.id === id)?.name[locale])
-        .filter(Boolean)
-        .join(' + ');
+    case 'exercises': {
+      if (content.exerciseIds.length > 1) {
+        return translate(locale, 'pause.combined', { count: content.exerciseIds.length });
+      }
+      const [id] = content.exerciseIds;
+      return CATALOG.exercises.find((exercise) => exercise.id === id)?.name[locale] ?? '';
+    }
     case 'routine': {
       const routineId = content.routineId;
       return CATALOG.routines.find((routine) => routine.id === routineId)?.name[locale] ?? '';

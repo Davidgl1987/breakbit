@@ -4,13 +4,15 @@ import type { IconName } from '@/ui/icons/iconNames';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './StatusBadge.module.css';
 
-export type BadgeStatus = 'pending' | 'postponed' | 'completed' | 'missed' | 'firstTry' | 'extra';
+export type BadgeStatus =
+  'pending' | 'postponed' | 'completed' | 'missed' | 'skipped' | 'firstTry' | 'extra';
 
 const ICONS: Record<BadgeStatus, IconName> = {
   pending: 'pending',
   postponed: 'postponed',
   completed: 'completed',
   missed: 'missed',
+  skipped: 'close',
   firstTry: 'first_try',
   extra: 'extra',
 };

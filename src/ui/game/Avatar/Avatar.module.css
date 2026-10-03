@@ -47,3 +47,8 @@
   object-fit: contain;
   image-rendering: pixelated;
 }
+
+.bare {
+  border: 0;
+  background: transparent;
+}

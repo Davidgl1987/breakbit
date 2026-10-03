@@ -7,13 +7,13 @@ interface FlowLayoutProps {
   header: ReactNode;
   children: ReactNode;
   /** The main action, kept at the bottom of the screen. */
-  footer: ReactNode;
+  footer?: ReactNode;
 }
 
 /**
- * Full-screen flow (onboarding, start of the day…): header, content and a main action
- * that stays on screen on long pages. At the end of the page the action sits below the
- * content, so it never covers a field.
+ * Full-screen flow (onboarding, start of the day…): header, content and, optionally, a
+ * main action that stays on screen on long pages. At the end of the page the action sits
+ * below the content, so it never covers a field.
  */
 export function FlowLayout({ top, header, children, footer }: FlowLayoutProps) {
   return (
@@ -21,7 +21,7 @@ export function FlowLayout({ top, header, children, footer }: FlowLayoutProps) {
       {top && <div className={styles.top}>{top}</div>}
       {header}
       <div className={styles.body}>{children}</div>
-      <div className={styles.footer}>{footer}</div>
+      {footer && <div className={styles.footer}>{footer}</div>}
     </div>
   );
 }

@@ -80,7 +80,7 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
       )}
 
       {sheet === 'pause' && next && (
-        <PauseSheet content={next.content} onClose={() => setSheet(null)} />
+        <PauseSheet content={next.content} slot={next.slot} onClose={() => setSheet(null)} />
       )}
       {sheet === 'main' && (
         <MainActivitySheet

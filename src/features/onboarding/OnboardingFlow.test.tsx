@@ -194,7 +194,9 @@ describe('onboarding: equipment', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(5);
     expect(screen.queryByRole('checkbox', { name: /Ninguno/ })).not.toBeInTheDocument();
     expect(
-      screen.getByText('Los movimientos sin material y caminar siempre estarán disponibles.'),
+      screen.getByText(
+        'Si no tienes nada, déjalo así: Breakbit funciona igual de bien sin material.',
+      ),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole('checkbox', { name: /Esterilla/ }));
@@ -208,7 +210,9 @@ describe('onboarding: equipment', () => {
 
   it('shows an empty selection in the summary as gear-free moves', () => {
     renderWithRouter(<AppRoutes />, { route: '/onboarding/summary' });
-    expect(screen.getByText('Sin material: movimientos suaves y caminar')).toBeInTheDocument();
+    expect(
+      screen.getByText('Nada extra: tus pausas serán movimientos suaves sin material.'),
+    ).toBeInTheDocument();
   });
 });
 
