@@ -5,7 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f6f1e4" />
     <meta name="color-scheme" content="light dark" />
-    <link rel="icon" type="image/png" href="/icons/32/gap.png" />
+    <meta
+      name="description"
+      content="Pausas cortas para moverte durante tu jornada, sin salir de tu día."
+    />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- The mark in dark green for light browser chrome, in mint for dark. -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/app-icons/favicon-32.png"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/app-icons/favicon-dark-32.png"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link rel="apple-touch-icon" href="/app-icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Breakbit" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>Breakbit</title>
     <script>
       // Apply the last resolved theme before first paint (ThemeController keeps it in sync).

@@ -71,15 +71,18 @@
   --color-border-strong: #d3c7ac;
   --color-text: #1d2b26;
   --color-text-muted: #56645d;
-  --color-text-subtle: #8a918a;
+  --color-text-subtle: #6e756f;
   --color-text-inverse: #ffffff;
 
-  --color-primary: #2a8a59;
-  --color-primary-hover: #237a4e;
+  /* White on the primary green reaches 4.5:1 (WCAG AA, see tokens.test.ts). */
+  --color-primary: #268254;
+  --color-primary-hover: #1f7246;
   --color-primary-pressed: #1b6640;
   --color-primary-soft: #dcefdf;
   --color-primary-soft-border: #b7dcc1;
   --color-on-primary: #ffffff;
+  /* Green text on light surfaces (the fill green is too light for small text). */
+  --color-primary-text: #1b6640;
 
   /* Muted brick red, closer to the sand palette than a pure red. */
   --color-danger: #b9574c;
@@ -91,9 +94,10 @@
 
   --color-warning: #c98a0e;
   --color-warning-soft: #fbefcf;
+  --color-warning-text: #8a5a00;
   --color-extra: #2f6aa8;
   --color-extra-soft: #e2ecf7;
-  --color-pending: #78807a;
+  --color-pending: #646b66;
   --color-pending-soft: #ece9e1;
 
   --color-track: #e4dccb;
@@ -101,9 +105,9 @@
   --color-heat-empty: #e4dccb;
   --color-control-track: #e6dcc6;
   --color-nav: #fbf8ef;
-  --color-focus: #2a8a5966;
+  --color-focus: #268254;
 
-  --fab-gradient: linear-gradient(180deg, #2fa171 0%, #1c8159 100%);
+  --fab-gradient: linear-gradient(180deg, #22895b 0%, #166f49 100%);
   --fab-ring: #8fdcb6;
   --shadow-sm: 0 1px 2px rgb(60 50 20 / 6%), 0 1px 1px rgb(60 50 20 / 4%);
   --shadow-md: 0 4px 14px rgb(60 50 20 / 9%), 0 1px 3px rgb(60 50 20 / 6%);
@@ -123,7 +127,7 @@
   --color-border-strong: #2f5d51;
   --color-text: #eaf4ee;
   --color-text-muted: #a6bcb2;
-  --color-text-subtle: #7b948a;
+  --color-text-subtle: #86a095;
   --color-text-inverse: #0b1f1a;
 
   --color-primary: #4cc985;
@@ -132,6 +136,7 @@
   --color-primary-soft: #1c4a3a;
   --color-primary-soft-border: #2b6a52;
   --color-on-primary: #08201a;
+  --color-primary-text: #4cc985;
 
   --color-danger: #e07b6d;
   --color-danger-pressed: #c96a5d;
@@ -142,6 +147,7 @@
 
   --color-warning: #e8b33e;
   --color-warning-soft: #4a3b18;
+  --color-warning-text: #e8b33e;
   --color-extra: #84b6ee;
   --color-extra-soft: #1d3552;
   --color-pending: #9fb0a8;
@@ -151,9 +157,9 @@
   --color-heat-empty: #2f5d51;
   --color-control-track: #1f4239;
   --color-nav: #143029;
-  --color-focus: #4cc98566;
+  --color-focus: #4cc985;
 
-  --fab-gradient: linear-gradient(180deg, #33b07b 0%, #1d8b60 100%);
+  --fab-gradient: linear-gradient(180deg, #238f5f 0%, #17744c 100%);
   --fab-ring: #5fe0a4;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
   --shadow-md: 0 4px 16px rgb(0 0 0 / 35%), 0 1px 3px rgb(0 0 0 / 30%);

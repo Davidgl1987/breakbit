@@ -424,7 +424,8 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 
 ## Tengo un hueco (Fase 10)
 
-- **Dos pantallas**, con la navegación visible y la pastilla activa: `/gap` pregunta cuánto
+- **Dos pantallas** (desde la Fase 15, un modal a pantalla completa que nace del botón; ver
+  "Movimiento"): `/gap` pregunta cuánto
   tiempo hay (30 s, 1 min, 3 min, 10+ min) con el avatar y su bocadillo; `/gap/:opción` muestra
   la propuesta ("Propuesta de 1 minuto"), cómo se hace, qué gana y qué cambia, con `Empezar
   ahora` y `Otra propuesta`. Sin jornada en marcha se explica (y, si no ha empezado, se ofrece
@@ -644,3 +645,92 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - **Acerca de**: versión, qué es Breakbit, que no es una herramienta médica ni sustituye a un
   profesional, y que los datos no salen del dispositivo.
 - La descarga del JSON es un servicio compartido con el DevPanel (`services/download`).
+
+## PWA, accesibilidad y repaso visual (Fase 15)
+
+- **Manifest e iconos**: `manifest.webmanifest` con nombre Breakbit, `display: standalone`,
+  `start_url`/`scope`/`id` en `/`, colores de los tokens (crema `#f6f1e4`) e iconos 192, 512 y
+  512 maskable. Metaetiquetas para iOS (`apple-touch-icon`, título y barra de estado).
+- **Marca** (logo pack v2, originales en `docs/brand/`; `scripts/gen-brand-assets.py` genera
+  todo lo publicado):
+  - El wordmark sustituye al brote pixel + texto: verde oscuro en el tema claro y menta en el
+    oscuro; los dos están en la página y el CSS muestra el del tema de la app (no el del
+    sistema). 132 px de alto y 256 colores (~10 KB, igual a la vista).
+  - Iconos de instalación y de pantalla de inicio: la "B" sobre crema (algunas plataformas
+    rellenan la transparencia de negro), al 62,5 % del ancho como en el pack; la maskable, dentro
+    de la zona segura.
+  - Favicon: la "B" verde oscuro para navegadores claros y menta para oscuros (según el sistema,
+    que es lo que decide el color de la pestaña), más `favicon.ico`.
+  - Todo entra en la carcasa sin conexión.
+- **Sin conexión**: el service worker propio (`public/sw.js`) guarda la "carcasa" de la versión:
+  página, JS y CSS construidos, fuentes, manifest, iconos de la app y los 360 iconos pixel
+  (~370 KB; se ven desde la primera pantalla, antes de que el worker exista). La lista y la
+  versión las rellena el plugin `build/swPrecache.ts` al terminar el build (hash del contenido:
+  cualquier cambio crea una versión nueva y borra la anterior). Navegación: red primero y, sin
+  red, la página guardada; el resto, caché primero. Se ignora `Vary` al buscar en caché (los
+  scripts de módulo llevan `Origin` y el servidor responde con `Vary`). En desarrollo no se
+  guarda nada.
+- **Instalación**: Ajustes muestra "Instalar Breakbit" mientras no esté instalada: botón con el
+  diálogo del navegador cuando lo ofrece (`beforeinstallprompt`), instrucciones para iOS
+  (Compartir → Añadir a pantalla de inicio) o para el menú del navegador en otro caso. Al
+  instalar se vuelve a pedir `storage.persist()`.
+- **`storage.persist()`**: se pide al terminar el onboarding y al instalar. "Tus datos" dice si
+  el almacenamiento está protegido y, si no, ofrece "Proteger tus datos".
+- **Build**: dependencias en un chunk `vendor` aparte (sin el aviso de tamaño).
+- **E2E (Playwright, `pnpm e2e`)**: contra el build de producción (`vite preview`), con el reloj
+  de la página controlado (`page.clock`), en móvil táctil a 375 px y en escritorio. Cubren: una
+  jornada entera (onboarding, empezar, pausa con +120 XP, hueco, cierre), que los datos
+  sobreviven a una recarga, abrir sin conexión (iconos incluidos), manifest instalable y el tipo
+  de cada transición (y que no hay ninguna con "reducir movimiento").
+- **Accesibilidad**:
+  - axe (WCAG 2.2 A y AA) en ~20 pantallas de una jornada, en claro y oscuro, sin violaciones.
+    El mismo recorrido exige objetivos táctiles ≥44 px y ningún scroll horizontal. Excepción: los
+    siete días de la semana comparten fila y a 375 px miden ~41 px de ancho (44 de alto; el
+    mínimo AA de 24 px se cumple de sobra).
+  - Contraste: `tokens.test.ts` comprueba todos los pares de color que usan los componentes en
+    los dos temas (4,5:1 texto, 3:1 foco y contornos). Para cumplirlo: el verde primario claro
+    pasa de `#2a8a59` a `#268254` (blanco encima: 4,3 → 4,8:1), hay tokens de texto verde y ámbar
+    (`--color-primary-text`, `--color-warning-text`; la etiqueta "aplazada" no llegaba a 3:1), el
+    gris de pendiente y el gris sutil se oscurecen un poco, y el degradado de "Tengo un hueco"
+    baja de tono para que el blanco se lea (en oscuro estaba en 2,75:1).
+  - Objetivos táctiles: chips, segmentos y botones pequeños miden 44 px (antes 40, 36 y 38).
+  - Foco: anillo sólido del color primario (antes verde al 40 %). Tras navegar, el foco pasa al
+    título de la pantalla nueva (`ScreenStart`), así el teclado y el lector de pantalla empiezan
+    ahí y no en el enlace que se pulsó. Un test recorre Hoy y Ajustes con Tab y exige anillo
+    visible en cada control.
+- **Repaso visual** (capturas a 375 px en claro y oscuro de todas las pantallas frente a
+  `references/`): los chips en columnas iguales nunca son más estrechos que su texto ("Bastante
+  mal" se salía y daba 2 px de scroll horizontal en el cierre) y, si no caben, pasan a otra
+  línea. La fecha de la cabecera empieza en mayúscula también en "Buenos días".
+- **Misma cabecera en las pantallas de actividad** (revisión): "Es hora de moverte", el
+  ejercicio, "¡Pausa hecha!", la actividad principal (y su final) y "Tengo un hueco" empiezan
+  igual: botón de cerrar arriba, la imagen del avatar y el título debajo (`ActivityHero`). En
+  "¡Pausa hecha!" la X hace lo mismo que "Volver a lo mío"; en una rutina, el progreso de los
+  movimientos va junto a la X; la propuesta del hueco lleva ← (vuelve a las opciones) y su
+  etiqueta entre la imagen y el título.
+- **"Tengo un hueco" como modal**: sale de las pestañas a pantalla completa (sin barra), crece
+  desde el botón y, al cerrar con la X, se encoge de vuelta en él y regresa a la pantalla desde
+  la que se abrió (o a Hoy si se entró directamente).
+- **Movimiento** (View Transitions API del navegador, sin librerías):
+  - El router sigue en modo declarativo: `<Routes location>` muestra la pantalla anterior hasta
+    que el navegador tiene su imagen y luego cambia (`useScreenLocation`). `BrowserRouter`
+    actualiza de forma síncrona (`useTransitions={false}`) para que el cambio quepa en la
+    transición.
+  - Cada cambio tiene su tipo (`transitionKind`): las pestañas y los pasos del onboarding se
+    deslizan de lado en el orden de la barra; ir más adentro (una pausa, el inicio de jornada,
+    una sección) hace subir la pantalla nueva y volver la deja caer; "Tengo un hueco" crece y se
+    encoge desde su botón; lo demás funde. La barra inferior se queda quieta entre pestañas y
+    baja o sube al entrar o salir de un flujo a pantalla completa.
+  - Las acciones que guardan y navegan a la vez (Vamos, Hecho, aplazar, descartar, empezar o
+    cerrar la jornada, empezar el hueco, guardar ajustes…) arrancan la transición antes de
+    guardar (`runScreenTransition`), para que la imagen de salida sea lo que se estaba viendo.
+  - Las hojas inferiores suben desde abajo y bajan al cerrarse, se cierren como se cierren; los
+    avisos caen y se van hacia arriba (una copia inerte hace la salida: `useLeaveAnimation`).
+    Filas y chips se hunden un poco al pulsarlos.
+  - Con "reducir movimiento" no hay transiciones. Sin soporte del navegador, los cambios son
+    instantáneos como antes.
+  - El botón de cerrar de los avisos pasa a un objetivo de 44 px.
+- **Limitaciones conocidas**: las horas usan el selector nativo del navegador, que las muestra
+  en el formato del idioma del navegador (un Chrome en inglés enseña 9:00 AM aunque la app esté
+  en español). En móvil los avisos solo llegan con la app abierta (sin backend; Web Push es
+  trabajo futuro).

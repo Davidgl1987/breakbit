@@ -18,6 +18,7 @@ import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { DayProgressCard } from './DayProgressCard';
 import { DayTimelineCard } from './DayTimelineCard';
 import { MainActivityTodayCard } from './MainActivityTodayCard';
@@ -94,10 +95,12 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
       {sheet === 'dayOff' && (
         <DayOffSheet
           onClose={() => setSheet(null)}
-          onConfirm={() => {
-            markDayOff(plan.date);
-            setSheet(null);
-          }}
+          onConfirm={() =>
+            runScreenTransition(() => {
+              markDayOff(plan.date);
+              setSheet(null);
+            })
+          }
         />
       )}
     </>

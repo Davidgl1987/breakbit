@@ -22,6 +22,11 @@
   color: var(--color-text-muted);
 }
 
+/* A date ("lunes, 5 de octubre") opens the line like a sentence, as on Today. */
+.subtitle::first-letter {
+  text-transform: uppercase;
+}
+
 .bar {
   display: grid;
   grid-template-columns: var(--tap-min) 1fr var(--tap-min);

@@ -43,14 +43,9 @@ export function TodayScreen() {
       {state.kind === 'day_off' && <DayOffCard date={date} />}
       {state.kind === 'closed' && <RestCard date={date} closed />}
 
-      {import.meta.env.DEV && (
+      {/* Development shortcut: close the day at any time, only while there is one. */}
+      {import.meta.env.DEV && state.kind === 'active' && (
         <div className={styles.devLinks}>
-          <ListRow
-            leading={<PixelIcon name="edit" size={24} />}
-            title={t('kit.title')}
-            subtitle={t('kit.subtitle')}
-            to={ROUTES.devKit}
-          />
           <ListRow
             leading={<PixelIcon name="moon" size={24} />}
             title={t('dayEnd.title')}

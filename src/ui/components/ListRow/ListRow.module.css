@@ -11,6 +11,16 @@
   color: inherit;
   text-align: left;
   text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+/* A small press, so a tap is felt before the next screen comes in. */
+a.row:active,
+button.row:active {
+  transform: scale(0.985);
 }
 
 a.row:hover,

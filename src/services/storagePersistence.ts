@@ -9,3 +9,12 @@ export async function requestPersistentStorage(): Promise<boolean> {
     return false;
   }
 }
+
+/** Whether the browser already keeps our data under storage pressure; undefined if unknown. */
+export async function isStoragePersisted(): Promise<boolean | undefined> {
+  try {
+    return (await navigator.storage?.persisted?.()) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}

@@ -6,7 +6,8 @@
   align-items: flex-end;
   justify-content: center;
   background: rgb(10 20 15 / 45%);
-  animation: fade-in var(--duration-base) var(--ease-out);
+  /* The backdrop's color fades, not its opacity: the sheet inside stays solid. */
+  animation: dim-in 240ms var(--ease-out);
 }
 
 .sheet {
@@ -19,7 +20,17 @@
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   background: var(--color-surface);
   box-shadow: var(--shadow-md);
-  animation: slide-up var(--duration-base) var(--ease-out);
+  animation: slide-up 320ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+/* The copy left behind while it closes (useLeaveAnimation). */
+.leaving {
+  pointer-events: none;
+  animation: dim-out 220ms ease-in both;
+}
+
+.leaving .sheet {
+  animation: slide-down 220ms ease-in both;
 }
 
 .sheet:focus {
@@ -50,15 +61,26 @@
   margin-top: var(--space-2);
 }
 
-@keyframes fade-in {
+@keyframes dim-in {
   from {
-    opacity: 0;
+    background-color: transparent;
   }
 }
 
 @keyframes slide-up {
   from {
-    transform: translateY(24px);
-    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes dim-out {
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes slide-down {
+  to {
+    transform: translateY(100%);
   }
 }

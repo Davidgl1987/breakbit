@@ -48,6 +48,7 @@ describe('onboarding', () => {
 
     // 3. Discomfort
     expect(screen.getByRole('heading', { level: 1, name: 'Tus molestias' })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('slider', { name: 'Hombros' }), { target: { value: '2' } });
     fireEvent.change(screen.getByRole('slider', { name: 'Cuello' }), { target: { value: '4' } });
     await next(user);
 
@@ -67,7 +68,13 @@ describe('onboarding', () => {
     expect(screen.getByText('lun · mar · mié · jue · vie · sáb')).toBeInTheDocument();
     expect(screen.getByText('09:00–18:00')).toBeInTheDocument();
     expect(screen.getByText('Descanso 11:00–11:30')).toBeInTheDocument();
-    expect(screen.getByText('Cuello')).toBeInTheDocument();
+    // Most bothersome first, each with its value.
+    const areas = screen.getByText('Molestias prioritarias').closest('section')!;
+    expect(
+      within(areas)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Cuello4nivel 4 de 5', 'Hombros2nivel 2 de 5']);
     expect(screen.getByText('Mancuernas')).toBeInTheDocument();
     expect(screen.getByText(/^Activo · \d+ pausas previstas · ~\d+ min$/)).toBeInTheDocument();
     expect(useAppStore.getState().onboardedAt).toBeUndefined();

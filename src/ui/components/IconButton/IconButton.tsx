@@ -8,6 +8,8 @@ interface IconButtonProps {
   label: string;
   children: ReactNode;
   to?: string;
+  /** Router state for the link (e.g. where a modal flow returns to). */
+  state?: unknown;
   onClick?: () => void;
   /** Only for buttons (a link can't be disabled). */
   disabled?: boolean;
@@ -19,6 +21,7 @@ export function IconButton({
   label,
   children,
   to,
+  state,
   onClick,
   disabled = false,
   variant = 'plain',
@@ -27,7 +30,7 @@ export function IconButton({
   const classes = cx(styles.iconButton, styles[variant], className);
   if (to) {
     return (
-      <Link to={to} aria-label={label} className={classes}>
+      <Link to={to} state={state} aria-label={label} className={classes}>
         {children}
       </Link>
     );

@@ -10,6 +10,8 @@ interface ListRowProps {
   /** Short value shown before the chevron (e.g. the current language). */
   trailing?: ReactNode;
   to?: string;
+  /** Router state for the link. */
+  state?: unknown;
   onClick?: () => void;
   chevron?: boolean;
 }
@@ -20,6 +22,7 @@ export function ListRow({
   leading,
   trailing,
   to,
+  state,
   onClick,
   chevron,
 }: ListRowProps) {
@@ -38,7 +41,7 @@ export function ListRow({
 
   if (to) {
     return (
-      <Link to={to} className={styles.row}>
+      <Link to={to} state={state} className={styles.row}>
         {content}
       </Link>
     );

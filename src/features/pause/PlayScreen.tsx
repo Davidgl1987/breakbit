@@ -2,6 +2,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { pauseDonePath, pausePath, ROUTES } from '@/app/routes';
 import { isOpen } from '@/domain/pause/window';
 import type { ScheduledActivity } from '@/domain/types';
+import { ActivityHero } from '@/features/day/ActivityHero';
 import { contentName } from '@/features/day/contentName';
 import { contentItems, suggestsStanding } from '@/features/day/contentItems';
 import { ExerciseDetails } from '@/features/day/ExerciseDetails';
@@ -13,12 +14,12 @@ import { Button } from '@/ui/components/Button/Button';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
-import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedProgress';
 import { Tag } from '@/ui/components/Tag/Tag';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { AREA_ICONS } from '@/ui/icons/domainIcons';
 import { LineIcon } from '@/ui/icons/LineIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './pause.module.css';
 import { useStepTimer } from './useStepTimer';
 
@@ -52,10 +53,11 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
   const items = contentItems(activity.content);
   const timer = useStepTimer(
     items.map((item) => item.seconds),
-    (elapsedSec) => {
-      completePause(activityDate(activity.id), activity.id, elapsedSec);
-      navigate(`${pauseDonePath(activity.id)}${search}`, { replace: true });
-    },
+    (elapsedSec) =>
+      runScreenTransition(() => {
+        completePause(activityDate(activity.id), activity.id, elapsedSec);
+        navigate(`${pauseDonePath(activity.id)}${search}`, { replace: true });
+      }),
   );
   const current = items[timer.index];
   if (!current) return <Navigate to={ROUTES.today} replace />;
@@ -73,11 +75,24 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
   return (
     <FlowLayout
       top={
-        <IconButton label={t('common.close')} to={ROUTES.today}>
-          <LineIcon name="close" size={22} />
-        </IconButton>
+        <>
+          <IconButton label={t('common.close')} to={ROUTES.today}>
+            <LineIcon name="close" size={22} />
+          </IconButton>
+          {multi && (
+            <div className={styles.topProgress}>
+              <SegmentedProgress done={timer.index} total={items.length} label={stepLabel} />
+            </div>
+          )}
+        </>
       }
-      header={<ScreenHeader title={current.exercise.name[locale]} subtitle={subtitle} />}
+      header={
+        <ActivityHero
+          stage={<AvatarStage phase={DEMO_PHASE} pose="demo" label={t('pause.demo')} />}
+          title={current.exercise.name[locale]}
+          name={subtitle}
+        />
+      }
       footer={
         <div className={styles.controls}>
           <Button
@@ -93,8 +108,6 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
         </div>
       }
     >
-      {multi && <SegmentedProgress done={timer.index} total={items.length} label={stepLabel} />}
-      <AvatarStage phase={DEMO_PHASE} pose="demo" label={t('pause.demo')} />
       {/* A fresh ring per move, so it doesn't sweep back between moves. */}
       <TimerRing
         key={timer.index}

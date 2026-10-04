@@ -31,7 +31,8 @@
 
 /* Sizes */
 .sm {
-  min-height: 38px;
+  /* Smaller text and padding, never a smaller target. */
+  min-height: var(--tap-min);
   padding: 0 var(--space-4);
   font-size: var(--text-sm);
   border-radius: var(--radius-sm);

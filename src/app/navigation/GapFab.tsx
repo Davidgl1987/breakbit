@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
+import type { GapState } from '@/features/gap/gapReturn';
 import { useT } from '@/i18n/useT';
-import { cx } from '@/ui/cx';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ROUTES } from '../routes';
 import styles from './GapFab.module.css';
@@ -19,10 +19,12 @@ const INITIAL: Measure = { width: 220, height: 52, options: { pad: 6, fillet: 14
 /**
  * Central floating "Tengo un hueco" action. The bottom bar's outline rises over it like
  * a wave; the wave is sized from the button's real size so it adapts to the locale and
- * to the user's font size.
+ * to the user's font size. "Tengo un hueco" opens as a modal growing out of the button
+ * (it's the transition's origin) and returns here when closed.
  */
-export function GapFab({ active }: { active: boolean }) {
+export function GapFab() {
   const { t } = useT();
+  const { pathname } = useLocation();
   const slotRef = useRef<HTMLDivElement>(null);
   const fabRef = useRef<HTMLAnchorElement>(null);
   const [measure, setMeasure] = useState(INITIAL);
@@ -73,8 +75,9 @@ export function GapFab({ active }: { active: boolean }) {
       <Link
         ref={fabRef}
         to={ROUTES.gap}
-        aria-current={active ? 'page' : undefined}
-        className={cx(styles.fab, active && styles.active)}
+        state={{ from: pathname } satisfies GapState}
+        data-transition-origin=""
+        className={styles.fab}
         style={{ top: -wave.fabLift }}
       >
         <PixelIcon name="gap" size={24} />

@@ -24,6 +24,7 @@ import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { LineIcon } from '@/ui/icons/LineIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './pause.module.css';
 
 const REASONS: SkipReason[] = [
@@ -111,10 +112,12 @@ function Decision({
       <Button
         size="lg"
         fullWidth
-        onClick={() => {
-          startPause(date, activity.id);
-          navigate(`${pausePlayPath(activity.id)}${search}`, { replace: true });
-        }}
+        onClick={() =>
+          runScreenTransition(() => {
+            startPause(date, activity.id);
+            navigate(`${pausePlayPath(activity.id)}${search}`, { replace: true });
+          })
+        }
       >
         {t('pause.go')}
       </Button>
@@ -133,13 +136,17 @@ function Decision({
                 variant="secondary"
                 shape="pill"
                 aria-label={t('pause.postponeLabel', { minutes })}
-                onClick={() => {
-                  postponePause(date, activity.id, minutes);
-                  navigate(ROUTES.today, { replace: true });
-                  showToast(
-                    t('toasts.postponed', { time: formatClock(clock.now() + minutes * 60_000) }),
-                  );
-                }}
+                onClick={() =>
+                  runScreenTransition(() => {
+                    postponePause(date, activity.id, minutes);
+                    navigate(ROUTES.today, { replace: true });
+                    showToast(
+                      t('toasts.postponed', {
+                        time: formatClock(clock.now() + minutes * 60_000),
+                      }),
+                    );
+                  })
+                }
               >
                 {t('pause.postpone', { minutes })}
               </Button>
@@ -177,11 +184,13 @@ function Decision({
               <Button
                 variant="destructive"
                 fullWidth
-                onClick={() => {
-                  discardPause(date, activity.id, reason);
-                  navigate(ROUTES.today, { replace: true });
-                  showToast(t('toasts.discarded'), 'warning');
-                }}
+                onClick={() =>
+                  runScreenTransition(() => {
+                    discardPause(date, activity.id, reason);
+                    navigate(ROUTES.today, { replace: true });
+                    showToast(t('toasts.discarded'), 'warning');
+                  })
+                }
               >
                 {t('pause.discardSheet.confirm')}
               </Button>
