@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useLeaveAnimation } from '@/ui/motion/useLeaveAnimation';
 import styles from './BottomSheet.module.css';
 
 interface BottomSheetProps {
@@ -11,10 +12,15 @@ interface BottomSheetProps {
   actions?: ReactNode;
 }
 
-/** Modal bottom sheet: closes on Escape or backdrop tap and restores focus. */
+/**
+ * Modal bottom sheet: rises from the bottom, closes on Escape or backdrop tap (sliding
+ * back down, however it's closed) and restores focus.
+ */
 export function BottomSheet({ open, onClose, title, children, actions }: BottomSheetProps) {
   const titleId = useId();
+  const backdropRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  useLeaveAnimation(backdropRef, styles.leaving!, open);
 
   useEffect(() => {
     if (!open) return;
@@ -37,6 +43,7 @@ export function BottomSheet({ open, onClose, title, children, actions }: BottomS
 
   return createPortal(
     <div
+      ref={backdropRef}
       className={styles.backdrop}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();

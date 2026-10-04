@@ -26,11 +26,7 @@
 .hint {
   border-color: var(--color-primary-soft-border);
   background: var(--color-primary-soft);
-  color: var(--color-primary-pressed);
-}
-
-:root[data-theme='dark'] .hint {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .danger {

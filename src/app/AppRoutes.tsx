@@ -18,56 +18,66 @@ import { WeekScreen } from '@/features/week/WeekScreen';
 import { FullscreenLayout } from './layouts/FullscreenLayout';
 import { TabsLayout } from './layouts/TabsLayout';
 import { RequireOnboarding, RequirePendingOnboarding } from './OnboardingGate';
+import { ScreenStart } from './ScreenStart';
+import { useScreenLocation } from './transitions/useScreenLocation';
 
 // Dev-only screen; the dynamic import is dropped from production builds.
 const DevKitScreen = import.meta.env.DEV
   ? lazy(() => import('./dev/DevKitScreen').then((module) => ({ default: module.DevKitScreen })))
   : null;
 
-/** URL → layout/screen. Declarative mode only: no loaders, actions or business logic. */
+/**
+ * URL → layout/screen. Declarative mode only: no loaders, actions or business logic. The
+ * screens follow the URL through a view transition (`useScreenLocation`).
+ */
 export function AppRoutes() {
+  const location = useScreenLocation();
   return (
-    <Routes>
-      <Route element={<RequireOnboarding />}>
-        <Route element={<TabsLayout />}>
-          <Route index element={<TodayScreen />} />
-          <Route path="progress" element={<ProgressScreen />} />
-          <Route path="settings" element={<SettingsScreen />} />
-          <Route path="settings/:section" element={<SettingsSectionScreen />} />
-          <Route path="gap" element={<GapScreen />} />
-          <Route path="gap/:option" element={<GapProposalScreen />} />
+    <>
+      <ScreenStart pathname={location.pathname} />
+      <Routes location={location}>
+        <Route element={<RequireOnboarding />}>
+          <Route element={<TabsLayout />}>
+            <Route index element={<TodayScreen />} />
+            <Route path="progress" element={<ProgressScreen />} />
+            <Route path="settings" element={<SettingsScreen />} />
+            <Route path="settings/:section" element={<SettingsSectionScreen />} />
+          </Route>
+          <Route element={<FullscreenLayout />}>
+            <Route path="day/start" element={<DayStartScreen />} />
+            {/* A modal flow over the tabs: it grows out of its button (see motion.css). */}
+            <Route path="gap" element={<GapScreen />} />
+            <Route path="gap/:option" element={<GapProposalScreen />} />
+            <Route path="pause/:id" element={<DecisionScreen />} />
+            <Route path="pause/:id/play" element={<PlayScreen />} />
+            <Route path="pause/:id/done" element={<DoneScreen />} />
+            <Route path="main/:id" element={<MainScreen />} />
+            <Route path="main/:id/done" element={<MainDoneScreen />} />
+            <Route path="day/end" element={<DayEndScreen />} />
+            <Route path="week/:week" element={<WeekScreen />} />
+          </Route>
         </Route>
-        <Route element={<FullscreenLayout />}>
-          <Route path="day/start" element={<DayStartScreen />} />
-          <Route path="pause/:id" element={<DecisionScreen />} />
-          <Route path="pause/:id/play" element={<PlayScreen />} />
-          <Route path="pause/:id/done" element={<DoneScreen />} />
-          <Route path="main/:id" element={<MainScreen />} />
-          <Route path="main/:id/done" element={<MainDoneScreen />} />
-          <Route path="day/end" element={<DayEndScreen />} />
-          <Route path="week/:week" element={<WeekScreen />} />
-        </Route>
-      </Route>
 
-      <Route element={<RequirePendingOnboarding />}>
-        <Route element={<FullscreenLayout />}>
-          <Route path="onboarding/:step" element={<OnboardingFlow />} />
+        <Route element={<RequirePendingOnboarding />}>
+          <Route element={<FullscreenLayout />}>
+            <Route path="onboarding/:step" element={<OnboardingFlow />} />
+          </Route>
         </Route>
-      </Route>
 
-      {DevKitScreen && (
-        <Route element={<TabsLayout />}>
-          <Route
-            path="dev/kit"
-            element={
-              <Suspense fallback={null}>
-                <DevKitScreen />
-              </Suspense>
-            }
-          />
-        </Route>
-      )}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {DevKitScreen && (
+          <Route element={<TabsLayout />}>
+            <Route
+              path="dev/kit"
+              element={
+                <Suspense fallback={null}>
+                  <DevKitScreen />
+                </Suspense>
+              }
+            />
+          </Route>
+        )}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }

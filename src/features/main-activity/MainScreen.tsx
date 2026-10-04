@@ -22,11 +22,11 @@ import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Button } from '@/ui/components/Button/Button';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
-import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { Tag } from '@/ui/components/Tag/Tag';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import { LineIcon } from '@/ui/icons/LineIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './main.module.css';
 
 /** The most evolved avatar shows every activity (one set of art for all phases). */
@@ -99,7 +99,11 @@ function MainIntro({ activity, info }: MainViewProps) {
       }
       footer={
         <div className={styles.actions}>
-          <Button size="lg" fullWidth onClick={() => startMain(date, activity.id)}>
+          <Button
+            size="lg"
+            fullWidth
+            onClick={() => runScreenTransition(() => startMain(date, activity.id))}
+          >
             {accumulated ? t('main.startBlock') : t('main.start')}
           </Button>
           <Button variant="ghost" fullWidth onClick={() => setSheet('done')}>
@@ -143,7 +147,10 @@ function MainIntro({ activity, info }: MainViewProps) {
           title={t('main.doneSheet.title')}
           actions={
             <>
-              <Button fullWidth onClick={() => completeMain(date, activity.id)}>
+              <Button
+                fullWidth
+                onClick={() => runScreenTransition(() => completeMain(date, activity.id))}
+              >
                 {t('main.doneSheet.confirm')}
               </Button>
               <Button variant="ghost" fullWidth onClick={() => setSheet(null)}>
@@ -179,7 +186,7 @@ function MainSession({ activity, info }: MainViewProps) {
   const minutes = t('common.minutes', { count: target / 60 });
 
   useEffect(() => {
-    if (timeUp) completeMain(date, activity.id);
+    if (timeUp) runScreenTransition(() => completeMain(date, activity.id));
   }, [timeUp, date, activity.id, completeMain]);
 
   const moves = info.routineId ? contentItems({ kind: 'routine', routineId: info.routineId }) : [];
@@ -194,7 +201,13 @@ function MainSession({ activity, info }: MainViewProps) {
   return (
     <FlowLayout
       top={close(t('common.close'))}
-      header={<ScreenHeader title={info.name[locale]} subtitle={subtitle} />}
+      header={
+        <ActivityHero
+          stage={<AvatarStage phase={DEMO_PHASE} pose="demo" label={t('main.stage')} />}
+          title={info.name[locale]}
+          name={subtitle}
+        />
+      }
       footer={
         <div className={styles.controls}>
           <Button
@@ -214,7 +227,9 @@ function MainSession({ activity, info }: MainViewProps) {
             size="lg"
             onClick={() =>
               // Before its time, ask first: it can't be undone.
-              elapsed < target ? setConfirming(true) : completeMain(date, activity.id)
+              elapsed < target
+                ? setConfirming(true)
+                : runScreenTransition(() => completeMain(date, activity.id))
             }
           >
             {t('main.finish')}
@@ -222,7 +237,6 @@ function MainSession({ activity, info }: MainViewProps) {
         </div>
       }
     >
-      <AvatarStage phase={DEMO_PHASE} pose="demo" label={t('main.stage')} />
       {accumulated ? (
         <>
           <TimerRing
@@ -269,7 +283,10 @@ function MainSession({ activity, info }: MainViewProps) {
           title={t('main.finishSheet.title')}
           actions={
             <>
-              <Button fullWidth onClick={() => completeMain(date, activity.id)}>
+              <Button
+                fullWidth
+                onClick={() => runScreenTransition(() => completeMain(date, activity.id))}
+              >
                 {t('main.finishSheet.confirm')}
               </Button>
               <Button variant="ghost" fullWidth onClick={() => setConfirming(false)}>

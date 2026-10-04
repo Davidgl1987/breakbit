@@ -7,7 +7,7 @@ import { useAppStore } from '@/state/store';
 import { installMatchMedia, resetMatchMedia } from './matchMedia';
 
 installMatchMedia();
-// jsdom has no layout; ScrollToTop calls this on every navigation.
+// jsdom has no layout; ScreenStart calls this on every navigation.
 window.scrollTo = () => {};
 
 beforeEach(() => {

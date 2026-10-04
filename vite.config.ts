@@ -1,16 +1,25 @@
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
+import { swPrecache } from './build/swPrecache.ts';
 
-const PURE_TESTS = ['src/domain/**/*.test.ts', 'src/content/**/*.test.ts'];
+const PURE_TESTS = ['src/domain/**/*.test.ts', 'src/content/**/*.test.ts', 'build/**/*.test.ts'];
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), swPrecache()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   css: {
     modules: { localsConvention: 'camelCaseOnly' },
+  },
+  build: {
+    rolldownOptions: {
+      output: {
+        // Libraries apart from the app: they change less often, so they stay cached.
+        codeSplitting: { groups: [{ name: 'vendor', test: /node_modules/ }] },
+      },
+    },
   },
   // Reachable from other devices on the local network (e.g. a phone) for manual testing.
   // Coverage reports are written inside the project; they shouldn't reload the app.

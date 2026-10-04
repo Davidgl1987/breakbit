@@ -1,21 +1,29 @@
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { gapPath, ROUTES } from '@/app/routes';
 import { CATALOG } from '@/content/catalog';
 import { GAP_OPTIONS, gapMainActivity, slotNow } from '@/domain/gap/gap';
+import { ActivityHero } from '@/features/day/ActivityHero';
 import { useToday } from '@/features/day/useToday';
 import { useT } from '@/i18n/useT';
 import { useAppStore } from '@/state/store';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
+import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
+import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
-import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { gapReturnPath } from './gapReturn';
 import styles from './GapScreen.module.css';
 
-/** "/gap" — "Tengo un hueco": how much time there is, for a proposal that fits. */
+/**
+ * "/gap" — "Tengo un hueco": how much time there is, for a proposal that fits. A modal
+ * over the tabs (it grows out of its button); closing goes back to where it was opened.
+ */
 export function GapScreen() {
   const { t } = useT();
+  const { state: routerState } = useLocation();
   const { now, state } = useToday();
   const phase = useAppStore((store) => store.progress.evolutionPhase);
   const equipment = useAppStore((store) => store.settings.equipment);
@@ -26,12 +34,24 @@ export function GapScreen() {
       undefined;
 
   return (
-    <>
-      <ScreenHeader title={t('gap.title')} subtitle={t('gap.subtitle')} />
-      <AvatarStage phase={phase} pose="cheer" label={t('gap.stage')}>
-        <p className={styles.bubble}>{t('gap.bubble')}</p>
-      </AvatarStage>
-
+    <FlowLayout
+      top={
+        <IconButton label={t('common.close')} to={gapReturnPath(routerState)}>
+          <LineIcon name="close" size={22} />
+        </IconButton>
+      }
+      header={
+        <ActivityHero
+          stage={
+            <AvatarStage phase={phase} pose="cheer" label={t('gap.stage')}>
+              <p className={styles.bubble}>{t('gap.bubble')}</p>
+            </AvatarStage>
+          }
+          title={t('gap.title')}
+          name={t('gap.subtitle')}
+        />
+      }
+    >
       {state.kind === 'active' ? (
         <div className={styles.options}>
           {GAP_OPTIONS.map((option) => (
@@ -45,6 +65,7 @@ export function GapScreen() {
                   : t(`gap.options.${option}.body`)
               }
               to={gapPath(option)}
+              state={routerState}
             />
           ))}
         </div>
@@ -62,6 +83,6 @@ export function GapScreen() {
           <p className={styles.muted}>{t('gap.noDay.body')}</p>
         </Card>
       )}
-    </>
+    </FlowLayout>
   );
 }

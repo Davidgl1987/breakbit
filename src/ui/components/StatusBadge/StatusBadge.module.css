@@ -18,18 +18,13 @@
 
 .postponed {
   background: var(--color-warning-soft);
-  color: var(--color-warning);
+  color: var(--color-warning-text);
 }
 
 .completed,
 .firstTry {
   background: var(--color-primary-soft);
-  color: var(--color-primary-pressed);
-}
-
-:root[data-theme='dark'] .completed,
-:root[data-theme='dark'] .firstTry {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .missed {

@@ -1,5 +1,6 @@
 @import './fonts.css';
 @import './tokens.css';
+@import './motion.css';
 
 *,
 *::before,
@@ -82,6 +83,11 @@ a {
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/* A screen's title takes focus after a navigation (see ScreenStart); it isn't a control. */
+[tabindex='-1']:focus-visible {
+  outline: none;
 }
 
 img {

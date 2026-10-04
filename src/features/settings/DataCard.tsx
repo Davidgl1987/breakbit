@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { settingsPath } from '@/app/routes';
 import { toDateKey } from '@/domain/time';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
 import { downloadJson } from '@/services/download';
+import { isStoragePersisted, requestPersistentStorage } from '@/services/storagePersistence';
 import { BackupError, exportBackup, importBackup, parseBackup, resetAllData } from '@/state/backup';
 import { showToast } from '@/state/toasts';
 import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
@@ -23,6 +24,23 @@ export function DataCard() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<{ raw: unknown; date: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  // Whether the browser keeps the data under storage pressure; unknown until read.
+  const [persisted, setPersisted] = useState<boolean>();
+  useEffect(() => {
+    let active = true;
+    void isStoragePersisted().then((value) => active && setPersisted(value));
+    return () => {
+      active = false;
+    };
+  }, []);
+  const protect = async () => {
+    const granted = await requestPersistentStorage();
+    setPersisted(granted);
+    showToast(
+      granted ? t('settings.data.protectedNow') : t('settings.data.notProtected'),
+      granted ? 'success' : 'info',
+    );
+  };
 
   const exportCopy = async () => {
     downloadJson(`breakbit-${toDateKey(clock.now())}.json`, await exportBackup());
@@ -56,7 +74,16 @@ export function DataCard() {
           {t('settings.data.title')}
         </h2>
         <p className={styles.muted}>{t('settings.data.hint')}</p>
+        {persisted && <p className={styles.muted}>{t('settings.data.protected')}</p>}
       </div>
+      {persisted === false && (
+        <ListRow
+          leading={<PixelIcon name="success" size={24} />}
+          title={t('settings.data.protect')}
+          subtitle={t('settings.data.protectHint')}
+          onClick={() => void protect()}
+        />
+      )}
       <ListRow
         leading={<PixelIcon name="forward" size={24} />}
         title={t('settings.data.export')}

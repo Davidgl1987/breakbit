@@ -31,6 +31,7 @@ import { MetricTile } from '@/ui/components/MetricTile/MetricTile';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './DayEndScreen.module.css';
 
 const MOODS: Mood[] = ['great', 'good', 'loaded', 'bad'];
@@ -103,14 +104,15 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
 
   const [confirmingEarly, setConfirmingEarly] = useState(false);
   const minutesLeft = Math.ceil((workEnd(plan) - now) / 60_000);
-  const close = () => {
-    if (nextDate && next === 'repeat') repeatSchedule(nextDate, plan.schedule);
-    if (nextDate && next === 'change') setCustomSchedule(nextDate, hours);
-    if (nextDate && next === 'day_off' && backOn) skipUntil(nextDate, backOn);
-    closeDay(date, { mood: mood || undefined, nextDay: next || undefined });
-    navigate(ROUTES.today, { replace: true });
-    showToast(t('dayEnd.closed'), 'success');
-  };
+  const close = () =>
+    runScreenTransition(() => {
+      if (nextDate && next === 'repeat') repeatSchedule(nextDate, plan.schedule);
+      if (nextDate && next === 'change') setCustomSchedule(nextDate, hours);
+      if (nextDate && next === 'day_off' && backOn) skipUntil(nextDate, backOn);
+      closeDay(date, { mood: mood || undefined, nextDay: next || undefined });
+      navigate(ROUTES.today, { replace: true });
+      showToast(t('dayEnd.closed'), 'success');
+    });
 
   return (
     <FlowLayout
@@ -261,10 +263,12 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
           <div className={styles.buttons}>
             <Button
               variant="secondary"
-              onClick={() => {
-                const id = recoverPause(date);
-                if (id) navigate(pausePlayPath(id));
-              }}
+              onClick={() =>
+                runScreenTransition(() => {
+                  const id = recoverPause(date);
+                  if (id) navigate(pausePlayPath(id));
+                })
+              }
             >
               {t('dayEnd.recovery.action')}
             </Button>
@@ -285,10 +289,12 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
               mainInfo.shortVersionMin * 60 < main.durationSec && (
                 <Button
                   variant="ghost"
-                  onClick={() => {
-                    shortenMain(date, main.id);
-                    navigate(mainPath(main.id));
-                  }}
+                  onClick={() =>
+                    runScreenTransition(() => {
+                      shortenMain(date, main.id);
+                      navigate(mainPath(main.id));
+                    })
+                  }
                 >
                   {t('dayEnd.main.short', {
                     minutes: t('common.minutes', { count: mainInfo.shortVersionMin }),

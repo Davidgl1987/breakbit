@@ -33,6 +33,7 @@ import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './DayStartScreen.module.css';
 
 interface DayDraft {
@@ -102,9 +103,11 @@ export function DayStartScreen() {
 
   const save = () => {
     if (!plan) return;
-    if (current) updateDayPlan(plan);
-    else startDay(plan);
-    navigate(ROUTES.today, { replace: true });
+    runScreenTransition(() => {
+      if (current) updateDayPlan(plan);
+      else startDay(plan);
+      navigate(ROUTES.today, { replace: true });
+    });
   };
 
   return (
@@ -226,10 +229,12 @@ export function DayStartScreen() {
       {sheet === 'dayOff' && (
         <DayOffSheet
           onClose={() => setSheet(null)}
-          onConfirm={() => {
-            markDayOff(date);
-            navigate(ROUTES.today, { replace: true });
-          }}
+          onConfirm={() =>
+            runScreenTransition(() => {
+              markDayOff(date);
+              navigate(ROUTES.today, { replace: true });
+            })
+          }
         />
       )}
     </FlowLayout>

@@ -13,7 +13,8 @@ const DevPanel = import.meta.env.DEV
 
 export function App() {
   return (
-    <BrowserRouter>
+    // Navigations update synchronously, so a view transition's update has the new screen.
+    <BrowserRouter useTransitions={false}>
       <ThemeController />
       <HydrationGate>
         <Engine />

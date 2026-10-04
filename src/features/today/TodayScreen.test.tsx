@@ -4,8 +4,11 @@ import { AppRoutes } from '@/app/AppRoutes';
 import { CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import { planDay } from '@/domain/day/planDay';
+import { nextPause } from '@/domain/day/today';
 import { atTime } from '@/domain/time';
 import type { DateKey } from '@/domain/types';
+import { contentAreas } from '@/features/day/contentItems';
+import { es } from '@/i18n/es';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
@@ -30,6 +33,21 @@ beforeEach(() => store().completeOnboarding(DEFAULT_SETTINGS));
 afterEach(() => clock.setOffset(0));
 
 describe('Today', () => {
+  it('only offers closing the day while there is one under way', () => {
+    travel(MONDAY, '08:40');
+    const { unmount } = renderWithRouter(<AppRoutes />);
+    expect(screen.queryByRole('link', { name: /Fin de jornada/ })).not.toBeInTheDocument();
+    unmount();
+
+    startMonday();
+    travel(MONDAY, '10:00');
+    renderWithRouter(<AppRoutes />);
+    expect(screen.getByRole('link', { name: /Fin de jornada/ })).toHaveAttribute(
+      'href',
+      '/day/end',
+    );
+  });
+
   it('offers to start a workday that has no plan yet', () => {
     travel(MONDAY, '08:40');
     renderWithRouter(<AppRoutes />);
@@ -49,6 +67,14 @@ describe('Today', () => {
     expect(screen.getByText('Te quedan 7 h 50 min de jornada')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();
     expect(screen.getByText(/^en \d+/)).toBeInTheDocument();
+    // The areas the next pause works, by name for screen readers.
+    const next = nextPause(store().days[MONDAY]!.plan!, clock.now())!;
+    const card = screen.getByRole('heading', { name: 'Próxima pausa' }).parentElement!;
+    const names = contentAreas(next.content).map((area) => es.areas[area]);
+    expect(names.length).toBeGreaterThan(0);
+    for (const name of names.slice(0, 3)) {
+      expect(within(card).getByRole('img', { name })).toBeInTheDocument();
+    }
     expect(screen.getByRole('heading', { name: 'Actividad de hoy' })).toBeInTheDocument();
     expect(screen.getByText('0/5 pausas')).toBeInTheDocument();
     const timeline = screen.getByRole('heading', { name: 'Tu jornada' }).parentElement!;

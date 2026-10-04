@@ -52,7 +52,17 @@ const domainBoundary = {
 };
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'node_modules', 'public', 'docs'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'node_modules',
+      'public',
+      'docs',
+      'test-results',
+      'playwright-report',
+    ],
+  },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],

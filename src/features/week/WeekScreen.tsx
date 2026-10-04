@@ -17,6 +17,7 @@ import { RoomScene } from '@/ui/game/RoomScene/RoomScene';
 import { roomItemIcon } from '@/ui/icons/domainIcons';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './WeekScreen.module.css';
 
 /**
@@ -62,10 +63,12 @@ function Week({ result, streak }: { result: WeeklyResult; streak: number }) {
         <Button
           size="lg"
           fullWidth
-          onClick={() => {
-            markWeekSeen(result.week);
-            navigate(ROUTES.today, { replace: true });
-          }}
+          onClick={() =>
+            runScreenTransition(() => {
+              markWeekSeen(result.week);
+              navigate(ROUTES.today, { replace: true });
+            })
+          }
         >
           {t('week.continue')}
         </Button>

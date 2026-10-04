@@ -15,6 +15,7 @@ import { Button } from '@/ui/components/Button/Button';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './TodayScreen.module.css';
 
 interface NotStartedCardProps {
@@ -75,10 +76,12 @@ export function NotStartedCard({ date, schedule, late, now }: NotStartedCardProp
       {confirmDayOff && (
         <DayOffSheet
           onClose={() => setConfirmDayOff(false)}
-          onConfirm={() => {
-            markDayOff(date);
-            setConfirmDayOff(false);
-          }}
+          onConfirm={() =>
+            runScreenTransition(() => {
+              markDayOff(date);
+              setConfirmDayOff(false);
+            })
+          }
         />
       )}
     </>

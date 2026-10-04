@@ -11,10 +11,12 @@ import { showToast } from '@/state/toasts';
 import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
+import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
 import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedProgress';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { Celebration } from '@/ui/game/Celebration/Celebration';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ActivityHero } from './ActivityHero';
 import { contentName } from './contentName';
@@ -59,6 +61,11 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
 
   return (
     <FlowLayout
+      top={
+        <IconButton label={t('common.close')} onClick={back}>
+          <LineIcon name="close" size={22} />
+        </IconButton>
+      }
       header={
         <ActivityHero
           stage={

@@ -1,5 +1,5 @@
 import { CATALOG } from '@/content/catalog';
-import type { ActivityContent, ActivitySlot, Exercise } from '@/domain/types';
+import type { ActivityContent, ActivitySlot, BodyArea, Exercise } from '@/domain/types';
 
 export interface ContentItem {
   exercise: Exercise;
@@ -26,6 +26,15 @@ export function contentItems(content: ActivityContent): ContentItem[] {
     );
   }
   return [];
+}
+
+/**
+ * What a pause is for: the main area of each move (the first the catalog lists), in order
+ * and each once. One exercise gives one; a routine, one per area its moves aim at.
+ */
+export function contentAreas(content: ActivityContent): BodyArea[] {
+  const main = contentItems(content).flatMap((item) => item.exercise.areas.slice(0, 1));
+  return [...new Set(main)];
 }
 
 /** "Si puedes, hazlo mejor de pie": moves that work seated too, outside meetings. */

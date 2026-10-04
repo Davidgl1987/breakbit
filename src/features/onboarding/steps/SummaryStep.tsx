@@ -13,7 +13,6 @@ import {
 import { requestPersistentStorage } from '@/services/storagePersistence';
 import { useAppStore } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
-import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { Tag } from '@/ui/components/Tag/Tag';
@@ -22,6 +21,7 @@ import { AREA_ICONS, EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
 import { rangeFromBlock } from '@/features/schedule/timeRange';
 import { useOnboardingDraft } from '../draftContext';
@@ -46,6 +46,7 @@ export function SummaryStep() {
     key: 'onboarding.summary.breakRange' | 'onboarding.summary.lunchRange',
     block: TimeBlock,
   ) => t(key, { ...rangeFromBlock(block) });
+  // Most bothersome first (ties keep the usual order), each with the value it was given.
   const priorities = BODY_AREAS.filter((area) => draft.discomfort[area] > 0).sort(
     (a, b) => draft.discomfort[b] - draft.discomfort[a],
   );
@@ -60,13 +61,15 @@ export function SummaryStep() {
   const enableNotifications = async () => setPermission(await requestNotificationPermission());
 
   const start = () => {
-    completeOnboarding({
-      ...draft,
-      notifications: { ...draft.notifications, enabled: permission === 'granted' },
+    runScreenTransition(() => {
+      completeOnboarding({
+        ...draft,
+        notifications: { ...draft.notifications, enabled: permission === 'granted' },
+      });
+      navigate('/', { replace: true });
     });
     clearOnboardingDraft();
     void requestPersistentStorage();
-    navigate('/', { replace: true });
   };
 
   return (
@@ -107,7 +110,19 @@ export function SummaryStep() {
           <ul className={styles.tags}>
             {priorities.map((area) => (
               <li key={area}>
-                <Tag icon={AREA_ICONS[area]}>{t(`areas.${area}`)}</Tag>
+                <Tag
+                  icon={AREA_ICONS[area]}
+                  trailing={
+                    <span className={styles.level}>
+                      <span aria-hidden="true">{draft.discomfort[area]}</span>
+                      <span className="visually-hidden">
+                        {t('onboarding.summary.level', { value: draft.discomfort[area] })}
+                      </span>
+                    </span>
+                  }
+                >
+                  {t(`areas.${area}`)}
+                </Tag>
               </li>
             ))}
           </ul>
@@ -196,7 +211,7 @@ function SectionHeader({ title, edit }: { title: string; edit: OnboardingStepId 
       <Link
         to={onboardingPath(edit)}
         aria-label={`${t('onboarding.summary.edit')}: ${title}`}
-        className={buttonClassName({ variant: 'ghost', size: 'sm' })}
+        className={styles.edit}
       >
         {t('onboarding.summary.edit')}
       </Link>

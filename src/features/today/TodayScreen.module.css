@@ -70,6 +70,12 @@
   gap: var(--space-1);
 }
 
+/* The areas the next pause works, where "Actividad de hoy" has its icon. */
+.areaIcons {
+  display: flex;
+  gap: var(--space-1);
+}
+
 .big {
   font-size: var(--text-xl);
   font-weight: var(--weight-black);

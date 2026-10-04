@@ -21,7 +21,7 @@ export function BottomNav() {
 
   return (
     <nav aria-label={t('nav.label')} className={styles.nav}>
-      <GapFab active={isRouteActive(pathname, ROUTES.gap)} />
+      <GapFab />
       <ul className={styles.tabs}>
         {TABS.map((tab) => {
           const active = isRouteActive(pathname, tab.to);

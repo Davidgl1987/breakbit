@@ -1,0 +1,242 @@
+/*
+ * Screen transitions (View Transitions API). `runScreenTransition` (ui/motion) sets
+ * <html data-transition> to the kind of change; the bottom bar and the toasts have their
+ * own names, so they stay put while the screen changes underneath.
+ */
+:root {
+  --vt-slide: min(28vw, 120px);
+  --vt-rise: 48px;
+  --vt-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: var(--vt-ease);
+}
+
+:root[data-transition]:not([data-transition='fade'])::view-transition-old(root),
+:root[data-transition]:not([data-transition='fade'])::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+/* Tabs and onboarding steps: side to side, in the order of the bar. */
+:root[data-transition='slide-forward']::view-transition-old(root) {
+  animation: 280ms var(--vt-ease) both vt-out-start;
+}
+
+:root[data-transition='slide-forward']::view-transition-new(root) {
+  animation: 280ms var(--vt-ease) both vt-in-end;
+}
+
+:root[data-transition='slide-back']::view-transition-old(root) {
+  animation: 280ms var(--vt-ease) both vt-out-end;
+}
+
+:root[data-transition='slide-back']::view-transition-new(root) {
+  animation: 280ms var(--vt-ease) both vt-in-start;
+}
+
+/* Deeper (a pause, the day's start, a section): the new screen rises over the old one. */
+:root[data-transition='push']::view-transition-old(root) {
+  animation: 160ms ease-in both vt-recede;
+}
+
+:root[data-transition='push']::view-transition-new(root) {
+  animation: 320ms var(--vt-ease) both vt-rise;
+}
+
+/* Back: the screen drops away and the one below comes forward. */
+:root[data-transition='pop']::view-transition-old(root) {
+  z-index: 1;
+  animation: 200ms ease-in both vt-drop;
+}
+
+:root[data-transition='pop']::view-transition-new(root) {
+  animation: 300ms var(--vt-ease) both vt-return;
+}
+
+/* "Tengo un hueco" grows out of its button over the screen… */
+:root[data-transition='gap-open']::view-transition-group(root) {
+  z-index: 1;
+}
+
+:root[data-transition='gap-open']::view-transition-old(root) {
+  animation: none;
+}
+
+:root[data-transition='gap-open']::view-transition-new(root) {
+  animation: 420ms cubic-bezier(0.25, 0.9, 0.25, 1) both vt-from-origin;
+}
+
+/* …and shrinks back into it. */
+:root[data-transition='gap-close']::view-transition-new(root) {
+  animation: none;
+}
+
+:root[data-transition='gap-close']::view-transition-old(root) {
+  z-index: 1;
+  animation: 340ms cubic-bezier(0.4, 0, 0.2, 1) both vt-to-origin;
+}
+
+/* The bottom bar slides away when a full-screen flow opens and comes back after. */
+:root[data-transition]::view-transition-old(bottom-nav):only-child {
+  animation: 200ms ease-in both vt-nav-out;
+}
+
+:root[data-transition]::view-transition-new(bottom-nav):only-child {
+  animation: 280ms var(--vt-ease) 60ms both vt-nav-in;
+}
+
+:root[data-transition='gap-open']::view-transition-old(bottom-nav):only-child {
+  animation: 160ms ease-in both vt-fade-out;
+}
+
+:root[data-transition='gap-close']::view-transition-new(bottom-nav):only-child {
+  animation: 220ms ease-out 180ms both vt-fade-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes vt-out-start {
+  60% {
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(calc(-1 * var(--vt-slide)));
+    opacity: 0;
+  }
+}
+
+@keyframes vt-in-end {
+  from {
+    transform: translateX(var(--vt-slide));
+    opacity: 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+}
+
+@keyframes vt-out-end {
+  60% {
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(var(--vt-slide));
+    opacity: 0;
+  }
+}
+
+@keyframes vt-in-start {
+  from {
+    transform: translateX(calc(-1 * var(--vt-slide)));
+    opacity: 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+}
+
+@keyframes vt-recede {
+  to {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+
+/* Solid by the middle, so the two screens don't linger see-through. */
+@keyframes vt-rise {
+  from {
+    transform: translateY(var(--vt-rise));
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 1;
+  }
+}
+
+@keyframes vt-drop {
+  50% {
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(var(--vt-rise));
+    opacity: 0;
+  }
+}
+
+@keyframes vt-return {
+  from {
+    transform: scale(0.96);
+    opacity: 0.5;
+  }
+}
+
+/* The insets of the button come from runScreenTransition; the fallbacks are its usual place. */
+@keyframes vt-from-origin {
+  from {
+    clip-path: inset(
+      var(--vt-origin-top, calc(100% - 120px)) var(--vt-origin-right, 25%)
+        var(--vt-origin-bottom, 68px) var(--vt-origin-left, 25%) round var(--vt-origin-radius, 26px)
+    );
+  }
+
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+  }
+}
+
+@keyframes vt-to-origin {
+  from {
+    clip-path: inset(0 0 0 0 round 0);
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  to {
+    clip-path: inset(
+      var(--vt-origin-top, calc(100% - 120px)) var(--vt-origin-right, 25%)
+        var(--vt-origin-bottom, 68px) var(--vt-origin-left, 25%) round var(--vt-origin-radius, 26px)
+    );
+    opacity: 0;
+  }
+}
+
+@keyframes vt-nav-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes vt-nav-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}

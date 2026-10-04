@@ -17,6 +17,7 @@ import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { DataCard } from './DataCard';
+import { InstallCard } from './InstallCard';
 import { NotificationsCard } from './NotificationsCard';
 import styles from './SettingsScreen.module.css';
 
@@ -163,6 +164,7 @@ export function SettingsScreen() {
         />
       </Card>
 
+      <InstallCard />
       <DataCard />
     </>
   );

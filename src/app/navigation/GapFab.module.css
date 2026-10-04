@@ -59,9 +59,3 @@
 .fab:active {
   transform: translate(-50%, calc(-50% + 1px)) scale(0.99);
 }
-
-.active {
-  box-shadow:
-    var(--shadow-fab),
-    0 0 0 4px var(--color-primary-soft);
-}

@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import { clock } from '@/services/clock';
@@ -28,11 +29,26 @@ describe('AppRoutes', () => {
   it.each([
     ['/progress', 'Progreso'],
     ['/settings', 'Ajustes'],
-    ['/gap', 'Tengo un hueco'],
   ])('renders %s inside the tabs layout', (route, heading) => {
     renderWithRouter(<AppRoutes />, { route });
     expect(screen.getByRole('heading', { level: 1, name: heading })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeInTheDocument();
+  });
+
+  it('opens "Tengo un hueco" as a modal over the tabs and closes back to where it was', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<AppRoutes />, { route: '/progress' });
+    await user.click(screen.getByRole('link', { name: 'Tengo un hueco' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Tengo un hueco' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('link', { name: 'Cerrar' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Progreso' })).toBeInTheDocument();
+  });
+
+  it('closes "Tengo un hueco" to Today when opened directly', () => {
+    renderWithRouter(<AppRoutes />, { route: '/gap' });
+    expect(screen.getByRole('link', { name: 'Cerrar' })).toHaveAttribute('href', '/');
   });
 
   it('renders the end of day full screen, without bottom navigation', () => {

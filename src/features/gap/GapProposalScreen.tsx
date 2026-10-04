@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { mainPath, pausePlayPath, ROUTES } from '@/app/routes';
 import { CATALOG } from '@/content/catalog';
 import { GAP, XP } from '@/domain/config';
 import { isGapOption, proposeGap, type GapOption, type GapProposal } from '@/domain/gap/gap';
 import { isMainRunning } from '@/domain/main/session';
 import type { DateKey, DayPlan } from '@/domain/types';
+import { ActivityHero } from '@/features/day/ActivityHero';
 import { contentName } from '@/features/day/contentName';
 import { ExerciseDetails } from '@/features/day/ExerciseDetails';
 import { mainActivityInfo } from '@/features/day/mainActivity';
@@ -17,12 +18,14 @@ import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
+import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { Tag } from '@/ui/components/Tag/Tag';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './GapScreen.module.css';
 
 /** The most evolved avatar shows every exercise (one set of art for all phases). */
@@ -36,8 +39,9 @@ const DEMO_PHASE = 5;
 export function GapProposalScreen() {
   const { option = '' } = useParams();
   const { date, state } = useToday();
+  const { state: routerState } = useLocation();
   if (!isGapOption(option) || state.kind !== 'active') {
-    return <Navigate to={ROUTES.gap} replace />;
+    return <Navigate to={ROUTES.gap} state={routerState} replace />;
   }
   return <Proposal option={option} plan={state.plan} date={date} />;
 }
@@ -45,6 +49,7 @@ export function GapProposalScreen() {
 function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; date: DateKey }) {
   const { t, locale } = useT();
   const navigate = useNavigate();
+  const { state: routerState } = useLocation();
   const settings = useAppStore((state) => state.settings);
   const ledger = useAppStore((state) => state.xpLedger);
   const returnBonus = useAppStore((state) => state.days[date]?.returnBonus ?? false);
@@ -71,16 +76,15 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
   );
 
   const back = (
-    <IconButton label={t('common.back')} to={ROUTES.gap}>
+    <IconButton label={t('common.back')} to={ROUTES.gap} state={routerState}>
       <LineIcon name="back" size={22} />
     </IconButton>
   );
   if (!proposal) {
     return (
-      <>
-        {back}
+      <FlowLayout top={back} header={null}>
         <p className={styles.muted}>{t('gap.none')}</p>
-      </>
+      </FlowLayout>
     );
   }
 
@@ -90,24 +94,28 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
   const name = main ? main.name[locale] : contentName(content.content, locale);
   const outcome = outcomeOf(proposal, returnBonus);
 
-  const start = () => {
-    if (proposal.kind === 'main') {
-      if (!isMainRunning(proposal.activity)) startMain(date, proposal.activity.id);
-      navigate(mainPath(proposal.activity.id));
-      return;
-    }
-    const id = takeGap(date, option, proposal);
-    if (id) navigate(pausePlayPath(id));
-  };
+  const start = () =>
+    runScreenTransition(() => {
+      if (proposal.kind === 'main') {
+        if (!isMainRunning(proposal.activity)) startMain(date, proposal.activity.id);
+        navigate(mainPath(proposal.activity.id));
+        return;
+      }
+      const id = takeGap(date, option, proposal);
+      if (id) navigate(pausePlayPath(id));
+    });
 
   return (
-    <>
-      {back}
-      <header className={styles.head}>
-        <Tag icon="clock">{t(`gap.options.${option}.proposal`)}</Tag>
-        <h1 className={styles.title}>{name}</h1>
-      </header>
-      <AvatarStage phase={DEMO_PHASE} pose="demo" label={t('pause.demo')} />
+    <FlowLayout
+      top={back}
+      header={
+        <ActivityHero
+          stage={<AvatarStage phase={DEMO_PHASE} pose="demo" label={t('pause.demo')} />}
+          eyebrow={<Tag icon="clock">{t(`gap.options.${option}.proposal`)}</Tag>}
+          title={name}
+        />
+      }
+    >
       {main ? (
         <ExerciseDetails exercise={main} />
       ) : (
@@ -160,7 +168,7 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
           </Button>
         )}
       </div>
-    </>
+    </FlowLayout>
   );
 }
 

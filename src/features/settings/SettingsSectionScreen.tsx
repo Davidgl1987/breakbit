@@ -19,6 +19,7 @@ import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { LineIcon } from '@/ui/icons/LineIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { AboutSection } from './AboutSection';
 import styles from './SettingsScreen.module.css';
 import { useSaveSettings } from './useSaveSettings';
@@ -67,16 +68,18 @@ function EditSection({ section }: { section: Exclude<SettingsSection, 'about'> }
           : section === 'equipment'
             ? { equipment: draft.equipment }
             : { intensity: draft.intensity };
-    const replanned = save(patch, { replanToday: section !== 'schedule' });
-    navigate(ROUTES.settings);
-    showToast(
-      replanned
-        ? t('settings.replanned')
-        : section === 'schedule' && dayStarted
-          ? t('settings.savedNextDay')
-          : t('settings.saved'),
-      'success',
-    );
+    runScreenTransition(() => {
+      const replanned = save(patch, { replanToday: section !== 'schedule' });
+      navigate(ROUTES.settings);
+      showToast(
+        replanned
+          ? t('settings.replanned')
+          : section === 'schedule' && dayStarted
+            ? t('settings.savedNextDay')
+            : t('settings.saved'),
+        'success',
+      );
+    });
   };
 
   return (

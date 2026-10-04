@@ -3,3 +3,5 @@ public
 docs
 coverage
 dist
+test-results
+playwright-report
