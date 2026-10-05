@@ -12,12 +12,12 @@ interface PixelIconProps {
 }
 
 function pixelIconUrl(name: IconName): string {
-  return `${import.meta.env.BASE_URL}icons/${name}.svg`;
+  return `${import.meta.env.BASE_URL}icons/${name}.png`;
 }
 
 /**
- * Pixel-art icon from the Breakbit set: a 16x16 grid drawn as an SVG with crisp edges
- * (scripts/pixel-icons), sharp at any of the sizes.
+ * Pixel-art icon from the Breakbit set: a 32x32 sprite (scripts/pixel-icons/import.py),
+ * scaled with crisp pixels.
  */
 export function PixelIcon({ name, size = 24, label, className }: PixelIconProps) {
   return (

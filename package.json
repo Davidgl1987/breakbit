@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "e2e": "playwright test",
-    "icons": "python3 scripts/pixel-icons/build.py",
+    "icons": "python3 scripts/pixel-icons/import.py",
     "avatar": "python3 scripts/pixel-avatar/import.py"
   },
   "dependencies": {
