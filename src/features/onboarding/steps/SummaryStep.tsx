@@ -16,7 +16,6 @@ import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { Tag } from '@/ui/components/Tag/Tag';
-import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { AREA_ICONS, EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
@@ -77,7 +76,6 @@ export function SummaryStep() {
       step="summary"
       title={t('onboarding.summary.title')}
       subtitle={t('onboarding.summary.subtitle')}
-      trailing={<Avatar phase={5} pose="thumbs_up" size="sm" />}
       action={{ label: t('onboarding.summary.start'), onClick: start, disabled: !valid }}
     >
       <Card as="section" className={common.section}>

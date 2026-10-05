@@ -8,7 +8,7 @@ import styles from './Avatar.module.css';
 interface AvatarProps {
   phase: EvolutionPhase;
   pose?: AvatarPose;
-  /** 'fluid' fills its container up to 56px (strips that must fit any width). */
+  /** 'fluid' fills its container up to 64px (strips that must fit any width). */
   size?: 'fluid' | 'sm' | 'md' | 'lg';
   /** Accessible description; omit when a visible caption says the same. */
   label?: string;

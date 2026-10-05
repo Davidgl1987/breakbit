@@ -6,11 +6,16 @@ import { ICON_NAMES } from './iconNames';
 const iconsDir = join(process.cwd(), 'public/icons');
 
 describe('icon library', () => {
-  it.each(['16', '24', '32', '48'])('has every named icon at %spx', (size) => {
-    const files = readdirSync(join(iconsDir, size))
-      .filter((file) => file.endsWith('.png'))
-      .map((file) => file.replace(/\.png$/, ''))
+  it('has an SVG for every named icon, and no other', () => {
+    const files = readdirSync(iconsDir)
+      .filter((file) => file.endsWith('.svg'))
+      .map((file) => file.replace(/\.svg$/, ''))
       .sort();
     expect(files).toEqual([...ICON_NAMES].sort());
+  });
+
+  it('has the bitmaps notifications use', () => {
+    const files = readdirSync(join(iconsDir, 'notify')).sort();
+    expect(files).toEqual(['goal.png', 'moon.png', 'stretch.png', 'sun.png']);
   });
 });

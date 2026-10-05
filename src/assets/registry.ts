@@ -1,4 +1,5 @@
 import type { EvolutionPhase } from '@/domain/types';
+import { AVATAR_ART } from './avatarArt';
 
 /**
  * Stable entry point for art that doesn't exist yet. Components ask the registry and
@@ -7,7 +8,10 @@ import type { EvolutionPhase } from '@/domain/types';
  */
 export type AvatarPose = 'idle' | 'cheer' | 'celebrate' | 'thumbs_up' | 'demo';
 
-const AVATARS: Partial<Record<`${EvolutionPhase}:${AvatarPose}`, string>> = {};
+// Drawn in scripts/pixel-avatar: one 64x64 image per phase and pose.
+const AVATARS: Partial<Record<`${EvolutionPhase}:${AvatarPose}`, string>> = Object.fromEntries(
+  AVATAR_ART.map((key) => [key, `${import.meta.env.BASE_URL}avatar/${key.replace(':', '-')}.png`]),
+);
 
 /** Art for a phase and pose (falls back to the phase's idle pose), if any. */
 export function avatarAsset(phase: EvolutionPhase, pose: AvatarPose): string | undefined {
