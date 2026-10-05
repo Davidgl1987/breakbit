@@ -46,10 +46,9 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     // Network first, so a new version shows up at once; the kept shell when offline.
+    const shell = new URL('index.html', self.registration.scope).href;
     event.respondWith(
-      fetch(request).catch(
-        async () => (await caches.match('/index.html', MATCH)) ?? Response.error(),
-      ),
+      fetch(request).catch(async () => (await caches.match(shell, MATCH)) ?? Response.error()),
     );
     return;
   }
@@ -62,7 +61,9 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = new URL(event.notification.data?.url ?? '/', self.location.origin).href;
+  // `data.url` is an app route ('/pause/…'); the app may live under a sub-path (the scope).
+  const route = event.notification.data?.url ?? '/';
+  const url = new URL(route.replace(/^\//, ''), self.registration.scope).href;
   event.waitUntil(
     (async () => {
       const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
@@ -70,7 +71,7 @@ self.addEventListener('notificationclick', (event) => {
       if (open) {
         // The app is open: bring it to the front and let it navigate.
         await open.focus();
-        open.postMessage({ type: 'navigate', url });
+        open.postMessage({ type: 'navigate', url: route });
         return;
       }
       await self.clients.openWindow(url);

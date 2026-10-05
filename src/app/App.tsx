@@ -14,7 +14,9 @@ const DevPanel = import.meta.env.DEV
 export function App() {
   return (
     // Navigations update synchronously, so a view transition's update has the new screen.
-    <BrowserRouter useTransitions={false}>
+    // Routes are relative to where the app lives ('/', or '/breakbit/' on GitHub Pages); the
+    // trailing slash keeps Today at '/breakbit/', inside the service worker's scope.
+    <BrowserRouter basename={import.meta.env.BASE_URL} useTransitions={false}>
       <ThemeController />
       <HydrationGate>
         <Engine />

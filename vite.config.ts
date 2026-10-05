@@ -7,6 +7,8 @@ import { swPrecache } from './build/swPrecache.ts';
 const PURE_TESTS = ['src/domain/**/*.test.ts', 'src/content/**/*.test.ts', 'build/**/*.test.ts'];
 
 export default defineConfig({
+  // GitHub Pages serves the app under /breakbit/ (BASE_PATH in the deploy workflow).
+  base: process.env.BASE_PATH ?? '/',
   plugins: [catalogCheck(), react(), swPrecache()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

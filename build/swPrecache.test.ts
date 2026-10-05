@@ -34,4 +34,12 @@ describe('offline shell', () => {
       '/manifest.webmanifest',
     ]);
   });
+
+  it('lives under the base path when the app does (GitHub Pages)', () => {
+    expect(shellFiles(['index.html', 'assets/index-abc.js'], '/breakbit/')).toEqual([
+      '/breakbit/',
+      '/breakbit/assets/index-abc.js',
+      '/breakbit/index.html',
+    ]);
+  });
 });

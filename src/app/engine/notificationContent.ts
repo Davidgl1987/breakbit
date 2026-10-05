@@ -15,10 +15,10 @@ import type { AppState } from '@/state/store';
 
 // Bitmaps: notifications don't take SVG everywhere (scripts/pixel-icons builds these).
 const ICONS = {
-  pause: '/icons/notify/stretch.png',
-  day: '/icons/notify/sun.png',
-  main: '/icons/notify/goal.png',
-  dayEnd: '/icons/notify/moon.png',
+  pause: `${import.meta.env.BASE_URL}icons/notify/stretch.png`,
+  day: `${import.meta.env.BASE_URL}icons/notify/sun.png`,
+  main: `${import.meta.env.BASE_URL}icons/notify/goal.png`,
+  dayEnd: `${import.meta.env.BASE_URL}icons/notify/moon.png`,
 } as const;
 
 /** Localised text and link for a planned notification, from the current state. */
