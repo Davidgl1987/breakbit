@@ -78,20 +78,20 @@ export function DataCard() {
       </div>
       {persisted === false && (
         <ListRow
-          leading={<PixelIcon name="success" size={24} />}
+          leading={<PixelIcon name="shield" size={24} />}
           title={t('settings.data.protect')}
           subtitle={t('settings.data.protectHint')}
           onClick={() => void protect()}
         />
       )}
       <ListRow
-        leading={<PixelIcon name="forward" size={24} />}
+        leading={<PixelIcon name="export" size={24} />}
         title={t('settings.data.export')}
         subtitle={t('settings.data.exportHint')}
         onClick={() => void exportCopy()}
       />
       <ListRow
-        leading={<PixelIcon name="add" size={24} />}
+        leading={<PixelIcon name="import" size={24} />}
         title={t('settings.data.import')}
         subtitle={t('settings.data.importHint')}
         onClick={() => fileInput.current?.click()}
@@ -110,7 +110,7 @@ export function DataCard() {
         }}
       />
       <ListRow
-        leading={<PixelIcon name="warning" size={24} />}
+        leading={<PixelIcon name="trash" size={24} />}
         title={t('settings.data.reset')}
         subtitle={t('settings.data.resetHint')}
         onClick={() => setConfirmReset(true)}

@@ -13,11 +13,12 @@ import type { NotificationContent } from '@/services/notifications/scheduler';
 import { selectActivity } from '@/state/selectors';
 import type { AppState } from '@/state/store';
 
+// Bitmaps: notifications don't take SVG everywhere (scripts/pixel-icons builds these).
 const ICONS = {
-  pause: '/icons/48/stretch.png',
-  day: '/icons/48/sun.png',
-  main: '/icons/48/goal.png',
-  dayEnd: '/icons/48/moon.png',
+  pause: '/icons/notify/stretch.png',
+  day: '/icons/notify/sun.png',
+  main: '/icons/notify/goal.png',
+  dayEnd: '/icons/notify/moon.png',
 } as const;
 
 /** Localised text and link for a planned notification, from the current state. */

@@ -7,14 +7,15 @@
   background: var(--color-surface-muted);
 }
 
+/* The art is 64x64: these sizes keep its pixels whole on 2x screens. */
 .sm {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
 }
 
 .fluid {
   width: 100%;
-  max-width: 56px;
+  max-width: 64px;
   aspect-ratio: 1;
 }
 
@@ -25,8 +26,8 @@
 }
 
 .lg {
-  width: 144px;
-  height: 144px;
+  width: 160px;
+  height: 160px;
   border-radius: var(--radius-xl);
 }
 

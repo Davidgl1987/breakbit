@@ -11,15 +11,18 @@ interface PixelIconProps {
   className?: string;
 }
 
-function pixelIconUrl(name: IconName, size: PixelIconSize): string {
-  return `${import.meta.env.BASE_URL}icons/${size}/${name}.png`;
+function pixelIconUrl(name: IconName): string {
+  return `${import.meta.env.BASE_URL}icons/${name}.svg`;
 }
 
-/** Pixel-art icon from the Breakbit library, rendered crisp at its native size. */
+/**
+ * Pixel-art icon from the Breakbit set: a 16x16 grid drawn as an SVG with crisp edges
+ * (scripts/pixel-icons), sharp at any of the sizes.
+ */
 export function PixelIcon({ name, size = 24, label, className }: PixelIconProps) {
   return (
     <img
-      src={pixelIconUrl(name, size)}
+      src={pixelIconUrl(name)}
       width={size}
       height={size}
       alt={label ?? ''}

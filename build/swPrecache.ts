@@ -5,8 +5,8 @@ import type { Plugin } from 'vite';
 
 /**
  * What the offline shell keeps: the page, built code and styles, fonts, the manifest, app
- * icons and favicons, the wordmark and the pixel icons (small, ~370 KB in all, and shown
- * from the first screen).
+ * icons and favicons, the wordmark and the pixel icons (SVGs, ~150 KB in all, shown from
+ * the first screen, and the notification bitmaps).
  */
 export function shellFiles(files: readonly string[]): string[] {
   const keep = (file: string) =>
@@ -15,7 +15,8 @@ export function shellFiles(files: readonly string[]): string[] {
     file === 'favicon.ico' ||
     file.startsWith('app-icons/') ||
     file.startsWith('brand/') ||
-    (file.startsWith('icons/') && file.endsWith('.png')) ||
+    (file.startsWith('avatar/') && file.endsWith('.png')) ||
+    (file.startsWith('icons/') && /\.(svg|png)$/.test(file)) ||
     (file.startsWith('assets/') && /\.(js|css|woff2)$/.test(file));
   return [
     '/',

@@ -16,7 +16,8 @@ describe('offline shell', () => {
         'app-icons/icon-192.png',
         'brand/wordmark-light.png',
         'favicon.ico',
-        'icons/24/plant.png',
+        'icons/plant.svg',
+        'icons/notify/sun.png',
         'icons/manifest.json',
       ]),
     ).toEqual([
@@ -27,7 +28,8 @@ describe('offline shell', () => {
       '/assets/nunito-400.woff2',
       '/brand/wordmark-light.png',
       '/favicon.ico',
-      '/icons/24/plant.png',
+      '/icons/notify/sun.png',
+      '/icons/plant.svg',
       '/index.html',
       '/manifest.webmanifest',
     ]);

@@ -651,6 +651,41 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - **Manifest e iconos**: `manifest.webmanifest` con nombre Breakbit, `display: standalone`,
   `start_url`/`scope`/`id` en `/`, colores de los tokens (crema `#f6f1e4`) e iconos 192, 512 y
   512 maskable. Metaetiquetas para iOS (`apple-touch-icon`, título y barra de estado).
+- **Iconos pixel propios** (sustituyen a los del starter pack): 100 iconos dibujados en una
+  cuadrícula de 16×16 en `scripts/pixel-icons/icons/` (por categorías: cuerpo, material,
+  movimiento, estados, interfaz, jornada, habitación y nuevos), con una paleta común
+  (`palette.py`) y las mismas reglas: contorno oscuro de 1 px, luz desde arriba a la izquierda,
+  2–3 tonos por material, el mismo margen, coral solo para la zona que se trabaja y verde de
+  marca para la persona. `pnpm icons` (`build.py`) comprueba cada cuadrícula y genera un SVG
+  por icono (rectángulos con bordes nítidos: se ven bien a 16, 24, 32 y 48 px en cualquier
+  pantalla; ~100 KB en total frente a 1,4 MB de PNG), los PNG de las notificaciones y
+  `iconNames.ts`. `preview.py` saca una hoja de revisión.
+  - Las zonas del cuerpo son una familia: la misma figura con camiseta verde y la zona en coral
+    (cuello, hombros, columna de espaldas, muñeca), más el ojo y una persona sentada.
+  - Se acaban los duplicados (casa/"en este dispositivo", taza/descanso, reloj/pendiente,
+    portátil/trabajo, los dos rayos) y los iconos que no se entendían.
+  - Nuevos: caras para el ánimo del día, papelera, exportar, importar, amanecer, atardecer y
+    escudo; ya se usan en "Tus datos", en el horario de Ajustes y en los avisos.
+- **Avatar** (sustituye a los placeholders; 21 imágenes de 64×64 en `public/avatar/`, ~37 KB):
+  - Cinco fases, como la imagen de la evolución: un mono encorvado tecleando un portátil de piedra
+    sobre una roca; un cavernícola con barba y piel sentado en un tronco ante una "pantalla" de
+    piedra; el developer sedentario (camiseta azul, hundido en la silla, con café y ojos de
+    sueño); el developer activo (sudadera verde, erguido, con agua) y el optimizado, de pie en un
+    standing desk, con cinta, cascos al cuello y una planta.
+  - Poses: trabajando (de perfil, en su puesto: Hoy, tiras de evolución, inicio y cierre normal),
+    ánimo ("¡vamos!", puño arriba: "Es hora de moverte" y "Tengo un hueco"), celebración (brazos
+    arriba y confeti: pausa o actividad hecha, día y semana buenos) y pulgar arriba (onboarding);
+    las tres de frente y de cintura para arriba, con la cara grande. La fase 5 tiene además la
+    pose de demostración de los ejercicios.
+  - Onboarding: la bienvenida muestra la tira entera y cada paso siguiente una fase con el
+    pulgar arriba, de la 1 (paso 2) a la 5 ("Todo listo").
+  - Se dibujan en `scripts/pixel-avatar/` sobre un pequeño "rig": partes con forma (elipses,
+    polígonos, extremidades entre articulaciones) y material; el render sombrea cada parte (luz
+    arriba a la izquierda, cuatro tonos por material) y la contornea con su tono oscuro. Las
+    poses solo cambian articulaciones y expresión, así que las 21 comparten personaje y
+    proporciones. `pnpm icons` las regenera (PNG: el sombreado haría los SVG diez veces más
+    pesados; se escalan con píxeles nítidos). Tamaños de 64, 96 y 160 px, que conservan el
+    píxel entero en pantallas 2x.
 - **Marca** (logo pack v2, originales en `docs/brand/`; `scripts/gen-brand-assets.py` genera
   todo lo publicado):
   - El wordmark sustituye al brote pixel + texto: verde oscuro en el tema claro y menta en el
@@ -663,8 +698,8 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
     que es lo que decide el color de la pestaña), más `favicon.ico`.
   - Todo entra en la carcasa sin conexión.
 - **Sin conexión**: el service worker propio (`public/sw.js`) guarda la "carcasa" de la versión:
-  página, JS y CSS construidos, fuentes, manifest, iconos de la app y los 360 iconos pixel
-  (~370 KB; se ven desde la primera pantalla, antes de que el worker exista). La lista y la
+  página, JS y CSS construidos, fuentes, manifest, iconos de la app y los iconos pixel
+  (SVG, ~100 KB; se ven desde la primera pantalla, antes de que el worker exista). La lista y la
   versión las rellena el plugin `build/swPrecache.ts` al terminar el build (hash del contenido:
   cualquier cambio crea una versión nueva y borra la anterior). Navegación: red primero y, sin
   red, la página guardada; el resto, caché primero. Se ignora `Vary` al buscar en caché (los

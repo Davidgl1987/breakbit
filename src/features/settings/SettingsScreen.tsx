@@ -39,8 +39,8 @@ export function SettingsScreen() {
     .sort((a, b) => settings.discomfort[b] - settings.discomfort[a])
     .slice(0, 3);
   const times: { icon: IconName; label: string; value: string }[] = [
-    { icon: 'sun', label: t('settings.start'), value: schedule.workStart },
-    { icon: 'moon', label: t('settings.end'), value: schedule.workEnd },
+    { icon: 'sunrise', label: t('settings.start'), value: schedule.workStart },
+    { icon: 'sunset', label: t('settings.end'), value: schedule.workEnd },
     {
       icon: 'mug',
       label: t('settings.break'),

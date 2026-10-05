@@ -19,9 +19,9 @@ const ALERTS: {
   label: 'dayStart' | 'pauses' | 'dayEnd';
   icon: IconName;
 }[] = [
-  { key: 'dayStart', label: 'dayStart', icon: 'sun' },
+  { key: 'dayStart', label: 'dayStart', icon: 'sunrise' },
   { key: 'microbreaks', label: 'pauses', icon: 'stretch' },
-  { key: 'dayEnd', label: 'dayEnd', icon: 'moon' },
+  { key: 'dayEnd', label: 'dayEnd', icon: 'sunset' },
 ];
 
 /**
