@@ -663,12 +663,12 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
     portátil/trabajo, los dos rayos) y los iconos que no se entendían.
   - Nuevos: caras para el ánimo del día, papelera, exportar, importar, amanecer, atardecer y
     escudo; ya se usan en "Tus datos", en el horario de Ajustes y en los avisos.
-- **Avatar** (sustituye a los placeholders; 21 imágenes de 64×64 en `public/avatar/`, ~37 KB):
+- **Avatar** (sustituye a los placeholders; 21 sprites de 128×128 en `public/avatar/`, ~175 KB):
   - Cinco fases, como la imagen de la evolución: un mono encorvado tecleando un portátil de piedra
     sobre una roca; un cavernícola con barba y piel sentado en un tronco ante una "pantalla" de
-    piedra; el developer sedentario (camiseta azul, hundido en la silla, con café y ojos de
-    sueño); el developer activo (sudadera verde, erguido, con agua) y el optimizado, de pie en un
-    standing desk, con cinta, cascos al cuello y una planta.
+    piedra; el developer sedentario (camiseta azul, encorvado, con café); el developer activo
+    (sudadera verde, erguido, con agua) y el optimizado, de pie en un standing desk, con cinta,
+    cascos al cuello y una planta.
   - Poses: trabajando (de perfil, en su puesto: Hoy, tiras de evolución, inicio y cierre normal),
     ánimo ("¡vamos!", puño arriba: "Es hora de moverte" y "Tengo un hueco"), celebración (brazos
     arriba y confeti: pausa o actividad hecha, día y semana buenos) y pulgar arriba (onboarding);
@@ -676,13 +676,16 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
     pose de demostración de los ejercicios.
   - Onboarding: la bienvenida muestra la tira entera y cada paso siguiente una fase con el
     pulgar arriba, de la 1 (paso 2) a la 5 ("Todo listo").
-  - Se dibujan en `scripts/pixel-avatar/` sobre un pequeño "rig": partes con forma (elipses,
-    polígonos, extremidades entre articulaciones) y material; el render sombrea cada parte (luz
-    arriba a la izquierda, cuatro tonos por material) y la contornea con su tono oscuro. Las
-    poses solo cambian articulaciones y expresión, así que las 21 comparten personaje y
-    proporciones. `pnpm icons` las regenera (PNG: el sombreado haría los SVG diez veces más
-    pesados; se escalan con píxeles nítidos). Tamaños de 64, 96 y 160 px, que conservan el
-    píxel entero en pantallas 2x.
+  - El arte se generó con IA a partir de `docs/prompts-avatar.md` (1024×1024, "píxeles" de ~8 px).
+    `pnpm avatar <zip o carpeta>` (`scripts/pixel-avatar/import.py`) lo convierte: transparencia
+    dura (el original tenía rellenos al 95–99 % y halos), rejilla de 8 px con el desfase que más
+    bordes alinea y el color dominante de cada celda, 64 colores por imagen (máxima cobertura,
+    para que el confeti conserve sus colores) y encuadre: las poses de cuerpo entero sobre la
+    misma línea de suelo y centradas; las de medio cuerpo, cortadas en el borde inferior. Los
+    originales no se suben al repo (12 MB).
+  - Se muestran a 64, 96 y 160 px con píxeles nítidos; en pantallas 1x los tamaños que reducen
+    el sprite (64 y 96) se escalan suave. En los escenarios el arte se apoya en la línea de suelo.
+  - El avatar dibujado por código (64×64) se descartó por demasiado simple.
 - **Marca** (logo pack v2, originales en `docs/brand/`; `scripts/gen-brand-assets.py` genera
   todo lo publicado):
   - El wordmark sustituye al brote pixel + texto: verde oscuro en el tema claro y menta en el

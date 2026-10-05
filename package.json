@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "e2e": "playwright test",
-    "icons": "python3 scripts/pixel-icons/build.py && python3 scripts/pixel-avatar/build.py"
+    "icons": "python3 scripts/pixel-icons/build.py",
+    "avatar": "python3 scripts/pixel-avatar/import.py"
   },
   "dependencies": {
     "@fontsource/nunito": "^5.3.0",

@@ -7,7 +7,7 @@
   background: var(--color-surface-muted);
 }
 
-/* The art is 64x64: these sizes keep its pixels whole on 2x screens. */
+/* The art is 128x128: at 64 px a 2x screen shows it pixel for pixel. */
 .sm {
   width: 64px;
   height: 64px;
@@ -31,6 +31,14 @@
   border-radius: var(--radius-xl);
 }
 
+/* Twice the art: whole pixels at any screen density. */
+.xl {
+  width: 256px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-xl);
+}
+
 /* Integer scaling keeps the pixel art crisp. */
 .lg .placeholder {
   width: 96px;
@@ -47,6 +55,15 @@
   height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+/* On 1x screens the smaller boxes shrink the art: smooth scaling keeps every colour. */
+@media (max-resolution: 1.5dppx) {
+  .sm .art,
+  .fluid .art,
+  .md .art {
+    image-rendering: auto;
+  }
 }
 
 .bare {

@@ -8,8 +8,11 @@ import styles from './Avatar.module.css';
 interface AvatarProps {
   phase: EvolutionPhase;
   pose?: AvatarPose;
-  /** 'fluid' fills its container up to 64px (strips that must fit any width). */
-  size?: 'fluid' | 'sm' | 'md' | 'lg';
+  /**
+   * 'fluid' fills its container up to 64px (strips that must fit any width); 'xl' is the
+   * home hero (256px, twice the art, shrinking on narrow screens).
+   */
+  size?: 'fluid' | 'sm' | 'md' | 'lg' | 'xl';
   /** Accessible description; omit when a visible caption says the same. */
   label?: string;
   highlighted?: boolean;
