@@ -264,13 +264,13 @@ export function DevKitScreen() {
         <div className={styles.grid2}>
           <TimeField
             label={t('schedule.start')}
-            icon="play"
+            icon="sunrise"
             value={times.start}
             onChange={(start) => setTimes((current) => ({ ...current, start }))}
           />
           <TimeField
             label={t('schedule.end')}
-            icon="stop"
+            icon="sunset"
             value={times.end}
             onChange={(end) => setTimes((current) => ({ ...current, end }))}
           />

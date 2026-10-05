@@ -6,10 +6,10 @@ import { ICON_NAMES } from './iconNames';
 const iconsDir = join(process.cwd(), 'public/icons');
 
 describe('icon library', () => {
-  it('has an SVG for every named icon, and no other', () => {
+  it('has a sprite for every named icon, and no other', () => {
     const files = readdirSync(iconsDir)
-      .filter((file) => file.endsWith('.svg'))
-      .map((file) => file.replace(/\.svg$/, ''))
+      .filter((file) => file.endsWith('.png'))
+      .map((file) => file.replace(/\.png$/, ''))
       .sort();
     expect(files).toEqual([...ICON_NAMES].sort());
   });

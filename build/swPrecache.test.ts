@@ -16,7 +16,7 @@ describe('offline shell', () => {
         'app-icons/icon-192.png',
         'brand/wordmark-light.png',
         'favicon.ico',
-        'icons/plant.svg',
+        'icons/plant.png',
         'icons/notify/sun.png',
         'icons/manifest.json',
       ]),
@@ -29,7 +29,7 @@ describe('offline shell', () => {
       '/brand/wordmark-light.png',
       '/favicon.ico',
       '/icons/notify/sun.png',
-      '/icons/plant.svg',
+      '/icons/plant.png',
       '/index.html',
       '/manifest.webmanifest',
     ]);
