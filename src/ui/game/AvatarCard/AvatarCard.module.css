@@ -1,25 +1,46 @@
 .card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-3) var(--space-4);
-  align-items: center;
+  gap: var(--space-3);
+  /* Clips the stage to the card's corners. */
+  overflow: hidden;
 }
 
-.avatar {
+/* The avatar's stage, edge to edge across the card's top (over its padding): the art
+   stands on its floor. */
+.stage {
+  position: relative;
   display: grid;
-  justify-items: center;
-  gap: var(--space-1);
-  margin: 0;
+  place-items: end center;
+  margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0;
+  padding: var(--space-2) var(--space-4) 0;
+  border-bottom: 1px solid var(--color-primary-soft-border);
+  background:
+    linear-gradient(to top, var(--color-primary-soft-border) 0 8px, transparent 8px),
+    var(--color-primary-soft);
 }
 
 .phase {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-primary-soft-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
   color: var(--color-text-muted);
 }
 
+.body {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* Streak and today's XP: one compact row, the avatar is the hero. */
 .stats {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-2);
 }
 
@@ -27,11 +48,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 52px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-muted);
 }
 
 .statTexts {
@@ -45,16 +61,14 @@
 }
 
 .statValue {
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   font-weight: var(--weight-black);
   font-variant-numeric: tabular-nums;
   line-height: 1.15;
 }
 
-/* Level and its bar along the bottom of the card. */
 .level {
   display: grid;
-  grid-column: 1 / -1;
   gap: var(--space-2);
 }
 

@@ -2,7 +2,8 @@
   position: relative;
   overflow: hidden;
   display: grid;
-  place-items: center;
+  /* On the floor: half-length poses rise from it, full-body ones stand on it. */
+  place-items: end center;
   min-height: 184px;
   border: 1px solid var(--color-primary-soft-border);
   border-radius: var(--radius-xl);
