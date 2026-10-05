@@ -21,7 +21,8 @@ import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { equipmentIn } from '@/content/catalog';
-import { areaIcon, areaName, equipmentIcon, priorityAreas } from '@/features/day/catalogDisplay';
+import { equipmentIcon } from '@/features/day/catalogDisplay';
+import { PriorityTags } from '@/features/profile/PriorityTags';
 import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
 import { rangeFromBlock } from '@/features/schedule/timeRange';
 import { useOnboardingDraft } from '../draftContext';
@@ -46,8 +47,6 @@ export function SummaryStep() {
     key: 'onboarding.summary.breakRange' | 'onboarding.summary.lunchRange',
     block: TimeBlock,
   ) => t(key, { ...rangeFromBlock(block) });
-  // Most bothersome first (ties keep the usual order), each with the value it was given.
-  const priorities = priorityAreas(draft.discomfort);
 
   const [permission, setPermission] = useState<NotificationPermissionState>(notificationPermission);
   // Only reads the state (e.g. after allowing it in the browser settings); never asks.
@@ -103,29 +102,7 @@ export function SummaryStep() {
 
       <section className={styles.flat}>
         <SectionHeader title={t('onboarding.summary.priorities')} edit="discomfort" />
-        {priorities.length > 0 ? (
-          <ul className={styles.tags}>
-            {priorities.map(({ area, level }) => (
-              <li key={area}>
-                <Tag
-                  icon={areaIcon(area)}
-                  trailing={
-                    <span className={styles.level}>
-                      <span aria-hidden="true">{level}</span>
-                      <span className="visually-hidden">
-                        {t('onboarding.summary.level', { value: level })}
-                      </span>
-                    </span>
-                  }
-                >
-                  {areaName(area, locale)}
-                </Tag>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={common.muted}>{t('onboarding.summary.noPriorities')}</p>
-        )}
+        <PriorityTags discomfort={draft.discomfort} empty={t('onboarding.summary.noPriorities')} />
       </section>
 
       <section className={styles.flat}>

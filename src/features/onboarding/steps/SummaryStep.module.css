@@ -80,21 +80,6 @@
   font-weight: var(--weight-semibold);
 }
 
-/* How much an area bothers (0–5, as set on its slider), at the end of its tag. */
-.level {
-  display: inline-grid;
-  place-items: center;
-  min-width: 26px;
-  height: 26px;
-  padding: 0 var(--space-1);
-  border-radius: var(--radius-pill);
-  background: var(--color-primary-soft);
-  color: var(--color-primary-text);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-black);
-  font-variant-numeric: tabular-nums;
-}
-
 .status {
   display: flex;
   align-items: center;

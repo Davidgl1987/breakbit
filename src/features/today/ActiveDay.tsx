@@ -8,30 +8,26 @@ import { equipmentInPlan, nextPause, workEnd } from '@/domain/day/today';
 import { atTime } from '@/domain/time';
 import type { DayPlan, Instant } from '@/domain/types';
 import { AtHandRow } from '@/features/day/AtHandRow';
-import { DayOffSheet } from '@/features/day/DayOffSheet';
 import { PauseSheet } from '@/features/day/PauseSheet';
 import { formatDuration } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
-import { useAppStore } from '@/state/store';
-import { Button } from '@/ui/components/Button/Button';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
-import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { DayProgressCard } from './DayProgressCard';
 import { DayTimelineCard } from './DayTimelineCard';
 import { MainActivityTodayCard } from './MainActivityTodayCard';
 import { NextPauseCard } from './NextPauseCard';
 import styles from './TodayScreen.module.css';
 
-type Sheet = 'pause' | 'dayOff' | null;
-
-/** Today under way: time left, next pause, the main activity, gear, progress and timeline. */
+/**
+ * Today under way: time left, next pause, the main activity, gear, progress and timeline.
+ * "Hoy no trabajo" is offered only before the day starts.
+ */
 export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; now: Instant }) {
   const { t } = useT();
-  const markDayOff = useAppStore((state) => state.markDayOff);
-  const [sheet, setSheet] = useState<Sheet>(null);
+  const [pauseOpen, setPauseOpen] = useState(false);
 
   const next = nextPause(plan, now);
   const progress = dayProgress(plan, CATALOG);
@@ -74,7 +70,7 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
 
       {!over && (
         <div className={styles.pair}>
-          <NextPauseCard pause={next} now={now} onSee={() => setSheet('pause')} />
+          <NextPauseCard pause={next} now={now} onSee={() => setPauseOpen(true)} />
           <MainActivityTodayCard plan={plan} now={now} />
         </div>
       )}
@@ -83,25 +79,8 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
       <DayProgressCard progress={progress} />
       <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
 
-      {!over && (
-        <Button variant="ghost" onClick={() => setSheet('dayOff')}>
-          {t('today.dayOff')}
-        </Button>
-      )}
-
-      {sheet === 'pause' && next && (
-        <PauseSheet content={next.content} slot={next.slot} onClose={() => setSheet(null)} />
-      )}
-      {sheet === 'dayOff' && (
-        <DayOffSheet
-          onClose={() => setSheet(null)}
-          onConfirm={() =>
-            runScreenTransition(() => {
-              markDayOff(plan.date);
-              setSheet(null);
-            })
-          }
-        />
+      {pauseOpen && next && (
+        <PauseSheet content={next.content} slot={next.slot} onClose={() => setPauseOpen(false)} />
       )}
     </>
   );

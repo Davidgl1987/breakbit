@@ -3,12 +3,9 @@
   gap: var(--space-3);
 }
 
-/* The avatar's speech bubble, top right of the stage. */
+/* The avatar's speech bubble, under the stage and pointing up at it (never over the art). */
 .bubble {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  max-width: 55%;
+  position: relative;
   margin: 0;
   padding: var(--space-2) var(--space-3);
   border: 2px solid var(--color-primary-soft-border);
@@ -17,6 +14,19 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--color-text);
+}
+
+.bubble::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid var(--color-primary-soft-border);
+  border-left: 2px solid var(--color-primary-soft-border);
+  background: var(--color-surface);
+  transform: translateX(-50%) rotate(45deg);
 }
 
 .state {
