@@ -32,10 +32,13 @@ test('opens without a connection once it has been visited', async ({ page, conte
 test('is installable: manifest and icons', async ({ page, request }) => {
   await page.goto('/');
   const href = await page.locator('link[rel="manifest"]').getAttribute('href');
-  const manifest = await (await request.get(href!)).json();
-  expect(manifest).toMatchObject({ name: 'Breakbit', display: 'standalone', start_url: '/' });
+  const manifestUrl = new URL(href!, page.url());
+  const manifest = await (await request.get(manifestUrl.href)).json();
+  expect(manifest).toMatchObject({ name: 'Breakbit', display: 'standalone' });
+  // Relative to the manifest, so the app works at the root or under a sub-path.
+  expect(new URL(manifest.start_url, manifestUrl).href).toBe(new URL('/', page.url()).href);
   for (const icon of manifest.icons as { src: string }[]) {
-    expect((await request.get(icon.src)).ok()).toBe(true);
+    expect((await request.get(new URL(icon.src, manifestUrl).href)).ok()).toBe(true);
   }
   expect(manifest.icons.some((icon: { purpose?: string }) => icon.purpose === 'maskable')).toBe(
     true,

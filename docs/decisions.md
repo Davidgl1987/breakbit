@@ -803,3 +803,18 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   y métrica de interrupción). Zonas nuevas dibujadas con el mismo código que cuello y hombros (figura
   en verde, la zona en coral): `upper_back` (de espaldas, omóplatos), `lower_back` (de espaldas, zona
   lumbar sobre la cintura) y `hips` (cuerpo entero, cadera y muslos). `back_pain` se elimina.
+
+## Publicación en GitHub Pages
+
+- **URL**: https://davidgl1987.github.io/breakbit/ (repo `Davidgl1987/breakbit`). Cada push a `main`
+  ejecuta `.github/workflows/deploy.yml`: lint, tests, build con `BASE_PATH=/breakbit/` y despliegue
+  con `actions/deploy-pages`. En el repo, Settings → Pages → Source debe ser "GitHub Actions".
+- **Sub-ruta**: la app funciona en `/` (desarrollo, preview, E2E) y bajo `/breakbit/`. Vite toma la
+  base de `BASE_PATH`; el router usa `BASE_URL` como `basename` (con la barra final, Hoy queda en
+  `/breakbit/`, dentro del alcance del service worker); el manifest usa rutas relativas; el service
+  worker resuelve la carcasa y los enlaces de las notificaciones contra su `scope`, y la lista de
+  precarga lleva la base.
+- **Enlaces directos**: GitHub Pages no tiene fallback de SPA; el workflow copia `index.html` como
+  `404.html`, así que `/breakbit/progress` o el enlace de una notificación abren la pantalla correcta
+  (con estado 404, que el navegador muestra igual).
+- El plugin de precarga no actúa si el build ha fallado, para que se vea el error real.
