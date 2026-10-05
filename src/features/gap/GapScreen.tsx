@@ -42,11 +42,8 @@ export function GapScreen() {
       }
       header={
         <ActivityHero
-          stage={
-            <AvatarStage phase={phase} pose="cheer" label={t('gap.stage')}>
-              <p className={styles.bubble}>{t('gap.bubble')}</p>
-            </AvatarStage>
-          }
+          stage={<AvatarStage phase={phase} pose="cheer" label={t('gap.stage')} />}
+          eyebrow={<p className={styles.bubble}>{t('gap.bubble')}</p>}
           title={t('gap.title')}
           name={t('gap.subtitle')}
         />

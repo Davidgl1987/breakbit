@@ -54,10 +54,10 @@ test('tabs slide, "Tengo un hueco" opens from its button and screens rise and dr
 });
 
 test('a sheet slides up and back down', async ({ page }) => {
-  await page.getByRole('button', { name: 'Hoy no trabajo' }).click();
-  const sheet = page.getByRole('dialog', { name: '¿Hoy no trabajas?' });
+  await page.getByRole('button', { name: 'Ver ejercicio' }).click();
+  const sheet = page.getByRole('dialog');
   await expect(sheet).toBeVisible();
-  await page.getByRole('button', { name: 'Cancelar' }).click();
+  await sheet.getByRole('button', { name: 'Cerrar' }).click();
   await expect(sheet).toHaveCount(0);
   // An inert copy plays the way out and goes.
   await expect(page.locator('[aria-hidden="true"][inert]')).toHaveCount(0);

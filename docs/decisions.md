@@ -821,3 +821,13 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   `404.html`, así que `/breakbit/progress` o el enlace de una notificación abren la pantalla correcta
   (con estado 404, que el navegador muestra igual).
 - El plugin de precarga no actúa si el build ha fallado, para que se vea el error real.
+
+## Ajustes de interfaz tras el avatar
+
+- **Hoy**: el avatar es el protagonista de la tarjeta principal (256 px, de borde a borde, sobre su
+  escenario); racha y XP van en una fila compacta debajo.
+- **"Hoy no trabajo"** solo se ofrece antes de empezar la jornada; una vez iniciada desaparece de Hoy.
+- **"Tengo un hueco"**: el bocadillo "¡Cualquier momento es bueno para moverte!" va debajo del
+  escenario, apuntando al avatar, para no taparlo.
+- **Ajustes › Molestias prioritarias** muestra las zonas como el resumen del onboarding: icono,
+  nombre y nivel, de más a menos (componente compartido `PriorityTags`).

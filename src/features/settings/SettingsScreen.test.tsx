@@ -51,15 +51,33 @@ describe('Settings', () => {
       'href',
       settingsPath('schedule'),
     );
-    expect(screen.getByRole('link', { name: /Molestias prioritarias/ })).toHaveTextContent(
-      'Ninguna en especial: pausas variadas',
-    );
+    const discomfort = screen
+      .getByRole('heading', { name: 'Molestias prioritarias' })
+      .closest('section')!;
+    expect(discomfort).toHaveTextContent('Ninguna en especial: pausas variadas');
+    expect(
+      within(discomfort).getByRole('link', { name: 'Editar Molestias prioritarias' }),
+    ).toHaveAttribute('href', settingsPath('discomfort'));
     expect(
       screen.getByText('Sin material: movimientos sin material y caminar.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Intensidad/ })).toHaveTextContent(
       /Normal · \d+ pausas al día/,
     );
+  });
+
+  it('shows the rated areas as in the onboarding summary: icon, name and value', () => {
+    store().updateSettings({ discomfort: { neck: 2, lower_back: 4 } });
+    ui();
+    const discomfort = screen
+      .getByRole('heading', { name: 'Molestias prioritarias' })
+      .closest('section')!;
+    const tags = within(discomfort).getAllByRole('listitem');
+    // Most bothersome first.
+    expect(tags.map((tag) => tag.textContent)).toEqual([
+      'Zona lumbar4nivel 4 de 5',
+      'Cuello2nivel 2 de 5',
+    ]);
   });
 
   it('edits the usual workday from the next one on, leaving today as it is', async () => {

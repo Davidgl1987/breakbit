@@ -91,8 +91,7 @@ describe('Today', () => {
     expect(within(sheet).getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
   });
 
-  it('marks the day off and brings it back', async () => {
-    startMonday();
+  it('marks the day off before starting it, and brings it back', async () => {
     travel(MONDAY, '09:10');
     const { user } = renderWithRouter(<AppRoutes />);
     await user.click(screen.getByRole('button', { name: 'Hoy no trabajo' }));
@@ -103,7 +102,15 @@ describe('Today', () => {
     expect(screen.getByText('Próxima jornada: martes, a las 09:00.')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Deshacer: hoy sí trabajo' }));
+    expect(screen.getByRole('link', { name: 'Empezar jornada' })).toBeInTheDocument();
+  });
+
+  it('no longer offers "Hoy no trabajo" once the day has started', () => {
+    startMonday();
+    travel(MONDAY, '09:10');
+    renderWithRouter(<AppRoutes />);
     expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Hoy no trabajo' })).not.toBeInTheDocument();
   });
 
   it('rests on days off work, showing the next workday', () => {

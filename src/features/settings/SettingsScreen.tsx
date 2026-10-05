@@ -3,7 +3,8 @@ import { Link } from 'react-router';
 import { settingsPath } from '@/app/routes';
 import { toDateKey } from '@/domain/time';
 import { equipmentIn } from '@/content/catalog';
-import { areaName, equipmentIcon, priorityAreas } from '@/features/day/catalogDisplay';
+import { equipmentIcon } from '@/features/day/catalogDisplay';
+import { PriorityTags } from '@/features/profile/PriorityTags';
 import { estimateDay } from '@/features/onboarding/estimate';
 import { LOCALES, weekdayName, type Locale } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
@@ -35,7 +36,6 @@ export function SettingsScreen() {
   const setLocale = useAppStore((state) => state.setLocale);
   const { schedule } = settings;
   const pauses = useMemo(() => estimateDay(settings, toDateKey(clock.now())).pauses, [settings]);
-  const priorities = priorityAreas(settings.discomfort).slice(0, 3);
   const equipment = equipmentIn(settings.equipment);
   const times: { icon: IconName; label: string; value: string }[] = [
     { icon: 'sunrise', label: t('settings.start'), value: schedule.workStart },
@@ -86,16 +86,25 @@ export function SettingsScreen() {
         </p>
       </Card>
 
-      <ListRow
-        leading={<PixelIcon name="neck" size={32} />}
-        title={t('settings.discomfort')}
-        subtitle={
-          priorities.length > 0
-            ? priorities.map(({ area }) => areaName(area, locale)).join(', ')
-            : t('onboarding.summary.noPriorities')
-        }
-        to={settingsPath('discomfort')}
-      />
+      <Card as="section" className={styles.card}>
+        <div className={styles.cardHead}>
+          <h2 className={styles.cardTitle}>
+            <PixelIcon name="neck" size={24} />
+            {t('settings.discomfort')}
+          </h2>
+          <Link
+            to={settingsPath('discomfort')}
+            className={styles.edit}
+            aria-label={t('settings.edit', { section: t('settings.discomfort') })}
+          >
+            <LineIcon name="chevron-right" size={20} />
+          </Link>
+        </div>
+        <PriorityTags
+          discomfort={settings.discomfort}
+          empty={t('onboarding.summary.noPriorities')}
+        />
+      </Card>
 
       <Card as="section" className={styles.card}>
         <div className={styles.cardHead}>
