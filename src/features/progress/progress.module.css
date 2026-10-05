@@ -157,3 +157,15 @@
   font-weight: var(--weight-regular);
   color: var(--color-text-muted);
 }
+
+/* "Tus ejercicios": liked most, liked least. */
+.likesGroup {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.likesTitle {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-muted);
+}

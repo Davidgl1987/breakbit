@@ -20,6 +20,7 @@ import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ActivityHero } from './ActivityHero';
 import { contentName } from './contentName';
+import { RatingCard } from './RatingCard';
 import styles from './CompletionView.module.css';
 
 interface CompletionViewProps {
@@ -32,9 +33,9 @@ interface CompletionViewProps {
 }
 
 /**
- * A pause or the main activity is done: a small celebration, the XP it earned, how the
- * day is going (what was just done first, the main activity and the pauses apart) and
- * the level. Then back to work.
+ * A pause or the main activity is done: a small celebration, the XP it earned, for a
+ * pause "¿Qué te ha parecido?", how the day is going (what was just done first, the main
+ * activity and the pauses apart) and the level. Then back to work.
  */
 export function CompletionView({ activity, title, xpKeys, focus }: CompletionViewProps) {
   const { t, locale } = useT();
@@ -106,6 +107,8 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
             : t('pause.done.noXp')}
         </p>
       </Card>
+
+      {activity.kind === 'micro' && <RatingCard activity={activity} />}
 
       {progress && (progress.hasMain || progress.planned > 0) && (
         <Card as="section" className={styles.dayCard}>

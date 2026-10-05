@@ -28,8 +28,9 @@ const DEMO_PHASE = 5;
 
 /**
  * /pause/:id/play — the exercise after "Vamos": the avatar showing the move, the timer
- * ring and the steps. A routine or combined reset goes move by move; when the last one
- * ends the pause is completed.
+ * ring and the steps. Each move waits for "Empezar", so reading it doesn't eat into its
+ * time. A routine or combined reset goes move by move; when the last one ends the pause
+ * is completed.
  */
 export function PlayScreen() {
   const { id = '' } = useParams();
@@ -94,18 +95,29 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
         />
       }
       footer={
-        <div className={styles.controls}>
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={timer.running ? timer.pause : timer.resume}
-          >
-            {timer.running ? t('pause.play.pause') : t('pause.play.resume')}
-          </Button>
-          <Button size="lg" onClick={timer.next}>
-            {last ? t('pause.play.done') : t('pause.play.next')}
-          </Button>
-        </div>
+        timer.ready ? (
+          <div className={styles.controls}>
+            <Button variant="secondary" size="lg" onClick={timer.next}>
+              {last ? t('pause.play.done') : t('pause.play.skip')}
+            </Button>
+            <Button size="lg" onClick={timer.resume}>
+              {t('pause.play.start')}
+            </Button>
+          </div>
+        ) : (
+          <div className={styles.controls}>
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={timer.running ? timer.pause : timer.resume}
+            >
+              {timer.running ? t('pause.play.pause') : t('pause.play.resume')}
+            </Button>
+            <Button size="lg" onClick={timer.next}>
+              {last ? t('pause.play.done') : t('pause.play.next')}
+            </Button>
+          </div>
+        )
       }
     >
       {/* A fresh ring per move, so it doesn't sweep back between moves. */}
@@ -114,7 +126,9 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
         progress={timer.progress}
         label={t('pause.timer')}
         seconds={timer.remainingSec}
-        caption={timer.running ? undefined : t('pause.play.paused')}
+        caption={
+          timer.running ? undefined : timer.ready ? t('pause.play.ready') : t('pause.play.paused')
+        }
       />
       <div className={styles.pills}>
         {current.exercise.areas.map((area) => (

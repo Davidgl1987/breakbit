@@ -1,4 +1,5 @@
 import type { StoreApi } from 'zustand';
+import { CATALOG } from '@/content/catalog';
 import { advanceDay } from '@/domain/pause/advance';
 import * as lifecycle from '@/domain/pause/lifecycle';
 import {
@@ -7,6 +8,7 @@ import {
   pauseCompletionXp,
   withAwards,
 } from '@/domain/progress/awards';
+import { contentExerciseIds } from '@/domain/planner/pauseContent';
 import { rebalance } from '@/domain/planner/rebalance';
 import { compareDateKeys, toDateKey } from '@/domain/time';
 import type { DateKey, DayRecord, XpEntry } from '@/domain/types';
@@ -94,6 +96,17 @@ export function pauseActions(
       const penalty = lifecycle.discardPenalty(updated, clock.now());
       set((state) => ({ xpLedger: withAwards(state.xpLedger, [penalty]) }));
       log('exercise_skipped', { activityId: id, data: reason ? { reason } : undefined });
+    },
+
+    ratePause: (date, id, rating) => {
+      const updated = updateActivity(date, id, (item) =>
+        item.kind === 'micro' && item.status === 'completed' && item.rating !== rating
+          ? { ...item, rating }
+          : item,
+      );
+      if (!updated) return;
+      const exercises = contentExerciseIds(updated.content, CATALOG).join(',');
+      log('exercise_rated', { activityId: id, data: { rating, exercises } });
     },
   };
 }

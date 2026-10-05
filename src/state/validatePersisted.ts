@@ -267,6 +267,9 @@ function validateActivity(v: Validator, activity: unknown, path: string): void {
   v.optional(activity.missReason, `${path}.missReason`, (item, itemPath) =>
     v.oneOf(item, ['window_expired', 'no_room', 'day_closed'], itemPath),
   );
+  v.optional(activity.rating, `${path}.rating`, (item, itemPath) =>
+    v.oneOf(item, ['liked', 'okay', 'disliked'], itemPath),
+  );
   v.optional(activity.firstPrompt, `${path}.firstPrompt`, (item, itemPath) =>
     v.boolean(item, itemPath),
   );

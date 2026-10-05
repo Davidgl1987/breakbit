@@ -184,6 +184,9 @@ export type ActivityStatus =
 /** plan = generated for the day · gap = "Tengo un hueco" extra · recovery = end-of-day recovery. */
 export type ActivityOrigin = 'plan' | 'gap' | 'recovery';
 export type MissReason = 'window_expired' | 'no_room' | 'day_closed';
+/** "¿Qué te ha parecido?" after a pause: which exercises the user likes, not how they feel. */
+export type ExerciseRating = 'liked' | 'okay' | 'disliked';
+
 export type SkipReason =
   'focused' | 'meeting' | 'no_time' | 'not_in_mood' | 'dislike_exercise' | 'other';
 
@@ -217,6 +220,8 @@ export interface ScheduledActivity {
   elapsedSec?: number;
   skipReason?: SkipReason;
   missReason?: MissReason;
+  /** The user's rating once it was done, if they gave one. */
+  rating?: ExerciseRating;
   firstPrompt?: boolean;
   completionMode?: CompletionMode;
   /** Main activity: time its earlier runs (or blocks) added up to, in whole seconds. */
@@ -337,6 +342,7 @@ export const EVENT_TYPES = [
   'exercise_ignored',
   'exercise_skipped',
   'exercise_missed',
+  'exercise_rated',
   'spontaneous_break',
   'main_activity_completed',
   'day_completed',

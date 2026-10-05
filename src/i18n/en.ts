@@ -24,6 +24,8 @@ export const en: Messages = {
     pauses: { one: '{count} break', other: '{count} breaks' },
     pausesPlanned: { one: '{count} planned break', other: '{count} planned breaks' },
     pausesOf: '{done} of {total} breaks',
+    edit: 'Edit',
+    editSection: 'Edit {section}',
   },
   status: {
     pending: 'Pending',
@@ -42,6 +44,16 @@ export const en: Messages = {
     xpOf: '{current} / {total} XP',
     timeLeft: '{time} of work left',
     startsAt: 'Your workday starts at {time}',
+    clock: {
+      left: 'Time left',
+      startsAt: 'Starts at',
+    },
+    meetings: {
+      row: 'Meetings',
+      none: 'None today',
+      title: "Today's meetings",
+      hint: 'Your breaks adjust to your meetings on their own.',
+    },
     nextPause: 'Next break',
     nextPauseIn: 'in {time}',
     nextPauseNow: 'Now',
@@ -177,6 +189,9 @@ export const en: Messages = {
   },
   meetings: {
     sheetTitle: 'Add meeting',
+    editTitle: 'Change meeting',
+    save: 'Save',
+    remove: 'Remove meeting',
     canMove: 'I can move during this meeting',
     canMoveHint: "With your camera off, for example: you'll be able to stand or walk.",
     add: 'Add',
@@ -233,6 +248,9 @@ export const en: Messages = {
       step: 'Move {current} of {total}',
       nextUp: 'Next: {name}',
       paused: 'Paused',
+      ready: "When you're ready",
+      start: 'Start',
+      skip: 'Skip',
       pause: 'Pause',
       resume: 'Resume',
       next: 'Next',
@@ -251,6 +269,13 @@ export const en: Messages = {
       extras: { one: '+{count} extra break', other: '+{count} extra breaks' },
       noXp: "It still adds to today's movement.",
       back: 'Back to work',
+      rating: {
+        title: 'How was it?',
+        liked: 'I liked it',
+        okay: 'Okay',
+        disliked: "Didn't like it",
+        hint: 'Progress will show which exercises you like best.',
+      },
     },
   },
   toasts: {
@@ -346,6 +371,15 @@ export const en: Messages = {
       exercises: { one: '{count} exercise', other: '{count} exercises' },
       empty: "Once you do your breaks, you'll see here which areas you move most.",
     },
+    likes: {
+      title: 'Your exercises',
+      caption: 'From how you rate your breaks when you finish them',
+      liked: 'You like most',
+      disliked: 'You like least',
+      votes: { one: '{count} vote', other: '{count} votes' },
+      empty:
+        'Rate your breaks when you finish them and you will see here which ones you like best.',
+    },
     insights: {
       title: 'This week',
       upTo: 'Compared up to {day}',
@@ -405,14 +439,6 @@ export const en: Messages = {
     equipment: 'Available equipment',
     intensity: 'Intensity',
     notifications: 'Notifications',
-    edit: 'Edit {section}',
-    start: 'Start',
-    end: 'End',
-    break: 'Break',
-    lunch: 'Lunch',
-    none: 'No',
-    noEquipment: 'No equipment: gear-free moves and walking.',
-    intensityValue: '{intensity} · {pauses} a day',
     alerts: {
       dayStart: 'Start of the workday',
       pauses: 'Breaks and main activity',
@@ -725,8 +751,15 @@ export const en: Messages = {
     equipment: {
       title: 'Your gear',
       subtitle:
-        "It's optional: most of your breaks will be gentle moves with no gear. If you have any of these at hand, tick them for more variety.",
-      always: 'If you have none, leave it as it is: Breakbit works just as well without gear.',
+        'What do you have at hand? Most of your breaks will be gentle moves with no gear. Anything you tick adds variety.',
+      hints: {
+        pullup_bar: 'Adds bar exercises',
+        dumbbells: 'Adds short dumbbell sets',
+        kettlebell: 'Adds short kettlebell sets',
+        mat: 'Adds floor mobility',
+        standing_desk: 'Lets us suggest some standing work',
+      },
+      always: 'Gear-free moves and walking are always available.',
     },
     intensity: {
       title: 'Your pace',
@@ -736,9 +769,9 @@ export const en: Messages = {
         normal: 'A balance between moving and focus.',
         active: 'More breaks, to move often.',
       },
-      withYourDay: 'Per day, with your {start}–{end} hours',
-      pausesPerDay: { one: 'planned break', other: 'planned breaks' },
-      interruption: 'of interruption',
+      withYourDay: 'With your workday ({start}–{end})',
+      pausesPerDay: { one: 'break a day', other: 'breaks a day' },
+      interruption: 'of interruption a day',
       main: 'Plus one ~{minutes} activity a day, like a walk.',
     },
     summary: {
@@ -754,7 +787,7 @@ export const en: Messages = {
       level: 'level {value} of 5',
       noPriorities: 'None in particular: varied breaks',
       equipment: 'Gear',
-      noEquipment: 'Nothing extra: your breaks will be gentle moves with no gear.',
+      noEquipment: 'No gear: gentle moves and walking',
       pace: 'Pace',
       paceValue: '{intensity} · {pauses} · ~{minutes}',
       paceHint: 'Per day, with your usual hours.',
@@ -765,7 +798,7 @@ export const en: Messages = {
         granted: 'Notifications on',
         denied: 'Notifications are blocked in this browser.',
         deniedHelp:
-          "Turn them on in your browser's settings for this site. Meanwhile, you'll see your breaks when you open Breakbit.",
+          "To turn them on, allow notifications for this site in your browser settings. You can start anyway: you'll see your breaks when you open Breakbit.",
         unsupported:
           "This browser doesn't support reminders. You'll see your breaks when you open Breakbit.",
       },

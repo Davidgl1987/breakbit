@@ -9,37 +9,54 @@ import { Button } from '@/ui/components/Button/Button';
 import { Checkbox } from '@/ui/components/Checkbox/Checkbox';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import styles from './day.module.css';
-
-const DEFAULT_LENGTH_MIN = 30;
+import { DEFAULT_MEETING_MIN, withDefaultLength } from './meetings';
 
 interface MeetingSheetProps {
   schedule: DaySchedule;
   now: Instant;
-  onAdd: (meeting: Omit<Meeting, 'id'>) => void;
+  /** A meeting to change; without it, a new one is added. */
+  meeting?: Meeting;
+  onSave: (meeting: Omit<Meeting, 'id'>) => void;
+  /** Offered when changing a meeting. */
+  onRemove?: () => void;
   onClose: () => void;
 }
 
-/** "Añadir reunión": when, and whether the user can move during it. */
-export function MeetingSheet({ schedule, now, onAdd, onClose }: MeetingSheetProps) {
+/** "Añadir reunión" (or change one): when, and whether the user can move during it. */
+export function MeetingSheet({
+  schedule,
+  now,
+  meeting,
+  onSave,
+  onRemove,
+  onClose,
+}: MeetingSheetProps) {
   const { t } = useT();
-  const [range, setRange] = useState<TimeRange>(() => defaultRange(schedule, now));
-  const [canMove, setCanMove] = useState(false);
+  const [range, setRange] = useState<TimeRange>(() =>
+    meeting ? { start: meeting.start, end: meeting.end } : defaultRange(schedule, now),
+  );
+  const [canMove, setCanMove] = useState(meeting?.canMove ?? false);
   const issue = meetingIssue(schedule, range);
 
   return (
     <BottomSheet
       open
       onClose={onClose}
-      title={t('meetings.sheetTitle')}
+      title={meeting ? t('meetings.editTitle') : t('meetings.sheetTitle')}
       actions={
         <>
           <Button
             fullWidth
             disabled={issue !== undefined}
-            onClick={() => onAdd({ start: range.start as HHmm, end: range.end as HHmm, canMove })}
+            onClick={() => onSave({ start: range.start as HHmm, end: range.end as HHmm, canMove })}
           >
-            {t('meetings.add')}
+            {meeting ? t('meetings.save') : t('meetings.add')}
           </Button>
+          {onRemove && (
+            <Button variant="destructive" fullWidth onClick={onRemove}>
+              {t('meetings.remove')}
+            </Button>
+          )}
           <Button variant="ghost" fullWidth onClick={onClose}>
             {t('meetings.cancel')}
           </Button>
@@ -47,7 +64,11 @@ export function MeetingSheet({ schedule, now, onAdd, onClose }: MeetingSheetProp
       }
     >
       <div className={styles.sheetBody}>
-        <RangeFields label={t('meetings.sheetTitle')} range={range} onChange={setRange} />
+        <RangeFields
+          label={t('meetings.sheetTitle')}
+          range={range}
+          onChange={(next) => setRange((current) => withDefaultLength(current, next))}
+        />
         <Checkbox
           checked={canMove}
           onChange={setCanMove}
@@ -69,11 +90,11 @@ function defaultRange(schedule: DaySchedule, now: Instant): TimeRange {
   const workStart = toMinutes(schedule.workStart);
   const workEnd = toMinutes(schedule.workEnd);
   const nextHalfHour = Math.ceil(minutesOfDay(now) / 30) * 30;
-  const latest = Math.max(workStart, workEnd - DEFAULT_LENGTH_MIN);
+  const latest = Math.max(workStart, workEnd - DEFAULT_MEETING_MIN);
   const start = Math.min(Math.max(nextHalfHour, workStart), latest);
   return {
     start: fromMinutes(start),
-    end: fromMinutes(Math.min(start + DEFAULT_LENGTH_MIN, workEnd)),
+    end: fromMinutes(Math.min(start + DEFAULT_MEETING_MIN, workEnd)),
   };
 }
 

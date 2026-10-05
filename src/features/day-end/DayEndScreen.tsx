@@ -312,7 +312,11 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
           fill
           value={mood}
           onChange={setMood}
-          options={MOODS.map((value) => ({ value, label: t(`dayEnd.mood.${value}`) }))}
+          options={MOODS.map((value) => ({
+            value,
+            label: t(`dayEnd.mood.${value}`),
+            icon: `mood_${value}`,
+          }))}
         />
         <p className={styles.small}>{t('dayEnd.mood.hint')}</p>
       </section>

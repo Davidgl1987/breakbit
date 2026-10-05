@@ -1,3 +1,4 @@
+import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
@@ -61,12 +62,19 @@ afterEach(() => clock.setOffset(0));
 
 describe('exercise player', () => {
   beforeEach(() => setUp());
+  const start = (user: UserEvent) => user.click(screen.getByRole('button', { name: 'Empezar' }));
 
-  it('counts the exercise down and completes it when time is up', async () => {
-    ui(pausePlayPath(first.id));
+  it('waits for "Empezar", counts down and completes when time is up', async () => {
+    const { user } = ui(pausePlayPath(first.id));
     const seconds = first.durationSec;
     expect(timer()).toHaveTextContent(clockText(seconds));
+    expect(screen.getByText('Cuando estés listo')).toBeInTheDocument();
 
+    // Reading the steps doesn't eat into the time.
+    await wait(20_000);
+    expect(timer()).toHaveTextContent(clockText(seconds));
+
+    await start(user);
     // Mid-second, clear of rounding at the edge.
     await wait(10_500);
     expect(timer()).toHaveTextContent(clockText(seconds - 10));
@@ -78,6 +86,7 @@ describe('exercise player', () => {
 
   it('stops the clock while paused', async () => {
     const { user } = ui(pausePlayPath(first.id));
+    await start(user);
     await user.click(screen.getByRole('button', { name: 'Pausar' }));
     expect(screen.getByText('En pausa')).toBeInTheDocument();
     const before = timer().textContent;
@@ -92,10 +101,17 @@ describe('exercise player', () => {
 
   it('can be finished early with "Hecho"', async () => {
     const { user } = ui(pausePlayPath(first.id));
+    await start(user);
     await wait(5_000);
     await user.click(screen.getByRole('button', { name: 'Hecho' }));
     expect(activity()).toMatchObject({ status: 'completed' });
     expect(activity().elapsedSec).toBeLessThan(first.durationSec);
+  });
+
+  it('can be marked done without the timer', async () => {
+    const { user } = ui(pausePlayPath(first.id));
+    await user.click(screen.getByRole('button', { name: 'Hecho' }));
+    expect(activity()).toMatchObject({ status: 'completed', elapsedSec: 0 });
   });
 
   it('shows the area the move works', () => {
@@ -117,12 +133,14 @@ describe('routines in the player', () => {
   const moveName = (n: number) =>
     CATALOG.exercises.find((item) => item.id === routine.steps[n - 1]!.exercise)!.name.es;
   const next = () => screen.getByRole('button', { name: 'Siguiente' });
+  const startButton = () => screen.queryByRole('button', { name: 'Empezar' });
+  const start = (user: UserEvent) => user.click(startButton()!);
   /** Past the guard that keeps a quick second tap from landing on the next move. */
   const settle = () => wait(STEP_TAP_GUARD_MS + 100);
 
   beforeEach(() => setUp({ content: { kind: 'routine', routineId: routine.id } }));
 
-  it('"Siguiente" moves on one move at a time and "Hecho" only shows on the last', async () => {
+  it('each move waits for "Empezar"; "Siguiente" moves on and "Hecho" only shows on the last', async () => {
     expect(total).toBeGreaterThan(2);
     const { user } = ui(pausePlayPath(first.id));
 
@@ -130,20 +148,32 @@ describe('routines in the player', () => {
       expect(move(n)).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 1, name: moveName(n) })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Hecho' })).not.toBeInTheDocument();
+      await start(user);
       await user.click(next());
       expect(move(n + 1)).toBeInTheDocument();
+      // The next move waits to be read and started.
+      expect(startButton()).toBeInTheDocument();
       expect(activity().status).not.toBe('completed');
       await settle();
     }
 
     expect(screen.getByRole('heading', { level: 1, name: moveName(total) })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Siguiente' })).not.toBeInTheDocument();
+    await start(user);
     await user.click(screen.getByRole('button', { name: 'Hecho' }));
     expect(activity()).toMatchObject({ status: 'completed' });
   });
 
+  it('a move can be skipped before starting it', async () => {
+    const { user } = ui(pausePlayPath(first.id));
+    await user.click(screen.getByRole('button', { name: 'Saltar' }));
+    expect(move(2)).toBeInTheDocument();
+    expect(startButton()).toBeInTheDocument();
+  });
+
   it('finishing the first move early only ends that move', async () => {
     const { user } = ui(pausePlayPath(first.id));
+    await start(user);
     await wait(3_000);
     await user.click(next());
 
@@ -154,21 +184,24 @@ describe('routines in the player', () => {
     expect(screen.queryByRole('heading', { name: '¡Pausa hecha!' })).not.toBeInTheDocument();
   });
 
-  it('a double tap on "Siguiente" moves on only once', async () => {
+  it('a double tap on "Siguiente" moves on only once, without starting the next move', async () => {
     const { user } = ui(pausePlayPath(first.id));
+    await start(user);
     await user.dblClick(next());
     expect(move(2)).toBeInTheDocument();
+    expect(startButton()).toBeInTheDocument();
   });
 
   it("a double tap on the move before last doesn't finish the routine", async () => {
     const { user } = ui(pausePlayPath(first.id));
     for (let n = 1; n < total - 1; n++) {
+      await start(user);
       await user.click(next());
       await settle();
     }
     expect(move(total - 1)).toBeInTheDocument();
 
-    // "Siguiente" turns into "Hecho" under the finger.
+    await start(user);
     await user.dblClick(next());
     expect(move(total)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Hecho' })).toBeInTheDocument();
@@ -177,18 +210,23 @@ describe('routines in the player', () => {
 
   it('a tap as a move runs out belongs to that move', async () => {
     const { user } = ui(pausePlayPath(first.id));
+    await start(user);
     // The clock ticks in quarter seconds: clearly past the end of the move.
     await wait(routine.steps[0]!.seconds * 1000 + 500);
     expect(move(2)).toBeInTheDocument();
 
-    await user.click(next());
+    // Meant for "Siguiente": it neither skips nor starts the next move.
+    await start(user);
     expect(move(2)).toBeInTheDocument();
+    expect(startButton()).toBeInTheDocument();
   });
 
-  it('runs the moves out on their own and completes after the last one', async () => {
-    ui(pausePlayPath(first.id));
+  it('each move runs out on its own once started, and completes after the last one', async () => {
+    const { user } = ui(pausePlayPath(first.id));
     for (const [index, step] of routine.steps.entries()) {
       expect(move(index + 1)).toBeInTheDocument();
+      await settle();
+      await start(user);
       await wait(step.seconds * 1000 + 1000);
     }
     expect(activity().status).toBe('completed');
@@ -197,18 +235,19 @@ describe('routines in the player', () => {
 
   it('counts only the time actually moved', async () => {
     const { user } = ui(pausePlayPath(first.id));
+    await start(user);
     await wait(5_000);
     await user.click(next());
+    // The rest are skipped without starting them.
     for (let n = 2; n < total; n++) {
       await settle();
-      await user.click(next());
+      await user.click(screen.getByRole('button', { name: 'Saltar' }));
     }
     await settle();
     await user.click(screen.getByRole('button', { name: 'Hecho' }));
 
-    const moved = 5 + ((total - 1) * (STEP_TAP_GUARD_MS + 100)) / 1000;
-    expect(activity().elapsedSec).toBeGreaterThanOrEqual(Math.floor(moved));
-    expect(activity().elapsedSec).toBeLessThanOrEqual(Math.ceil(moved));
+    expect(activity().elapsedSec).toBeGreaterThanOrEqual(5);
+    expect(activity().elapsedSec).toBeLessThanOrEqual(6);
   });
 });
 
@@ -236,6 +275,24 @@ describe('pause done', () => {
     await user.click(screen.getByRole('button', { name: 'Volver a lo mío' }));
     expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();
     expect(store().xpLedger.reduce((sum, entry) => sum + entry.amount, 0)).toBe(120);
+  });
+
+  it('asks how it was: one tap, optional, and it can be changed', async () => {
+    const { user } = ui(pausePlayPath(first.id));
+    await user.click(screen.getByRole('button', { name: 'Hecho' }));
+    const rating = screen.getByRole('radiogroup', { name: '¿Qué te ha parecido?' });
+    expect(
+      within(rating)
+        .getAllByRole('radio')
+        .map((radio) => radio.textContent),
+    ).toEqual(['Me gusta', 'Normal', 'No me gusta']);
+    expect(activity().rating).toBeUndefined();
+
+    await user.click(within(rating).getByRole('radio', { name: 'Me gusta' }));
+    expect(activity().rating).toBe('liked');
+    expect(within(rating).getByRole('radio', { name: 'Me gusta' })).toBeChecked();
+    await user.click(within(rating).getByRole('radio', { name: 'No me gusta' }));
+    expect(activity().rating).toBe('disliked');
   });
 
   it('shows the welcome-back bonus on the same line', async () => {

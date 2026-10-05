@@ -65,3 +65,15 @@
   font-size: var(--text-lg);
   font-weight: var(--weight-black);
 }
+
+/* "¿Qué te ha parecido?" */
+.rating {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.ratingTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-black);
+}

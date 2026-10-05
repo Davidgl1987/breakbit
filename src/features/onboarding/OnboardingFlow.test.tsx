@@ -61,7 +61,7 @@ describe('onboarding', () => {
     // 5. Pace
     expect(screen.getByRole('heading', { level: 1, name: 'Tu ritmo' })).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: 'Activo' }));
-    expect(screen.getByText('Al día, con tu horario de 09:00 a 18:00')).toBeInTheDocument();
+    expect(screen.getByText('Con tu jornada (09:00–18:00)')).toBeInTheDocument();
     await next(user);
 
     // 6. Summary
@@ -112,11 +112,11 @@ describe('onboarding', () => {
 
   it('links each summary section back to its step', () => {
     renderWithRouter(<AppRoutes />, { route: '/onboarding/summary' });
-    expect(screen.getByRole('link', { name: 'Editar: Jornada' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Editar Jornada' })).toHaveAttribute(
       'href',
       '/onboarding/schedule',
     );
-    expect(screen.getByRole('link', { name: 'Editar: Ritmo' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Editar Ritmo' })).toHaveAttribute(
       'href',
       '/onboarding/intensity',
     );
@@ -228,9 +228,7 @@ describe('onboarding: equipment', () => {
     const { user } = renderWithRouter(<AppRoutes />, { route: '/onboarding/equipment' });
     expect(screen.queryByRole('checkbox', { name: /Ninguno/ })).not.toBeInTheDocument();
     expect(
-      screen.getByText(
-        'Si no tienes nada, déjalo así: Breakbit funciona igual de bien sin material.',
-      ),
+      screen.getByText('Los movimientos sin material y caminar siempre estarán disponibles.'),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole('checkbox', { name: /Esterilla/ }));
@@ -244,9 +242,7 @@ describe('onboarding: equipment', () => {
 
   it('shows an empty selection in the summary as gear-free moves', () => {
     renderWithRouter(<AppRoutes />, { route: '/onboarding/summary' });
-    expect(
-      screen.getByText('Nada extra: tus pausas serán movimientos suaves sin material.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Sin material: movimientos suaves y caminar')).toBeInTheDocument();
   });
 });
 
@@ -286,7 +282,9 @@ describe('onboarding: notifications', () => {
     expect(
       screen.getByText('Las notificaciones están bloqueadas en este navegador.'),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Actívalas en los ajustes del navegador/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/permite las notificaciones de este sitio en los ajustes del navegador/),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Empezar' }));
     expect(requestPermission).not.toHaveBeenCalled();

@@ -4,7 +4,8 @@ import { useNow } from '@/state/useNow';
 
 /**
  * Taps this soon after the move changed are ignored: a double tap on "Siguiente", or a
- * tap as the time ran out, belongs to the move that just ended, not to the next one.
+ * tap as the time ran out, belongs to the move that just ended, not to the next one (it
+ * neither skips nor starts it).
  */
 export const STEP_TAP_GUARD_MS = 800;
 
@@ -23,19 +24,23 @@ interface TimerState {
 export interface StepTimer {
   index: number;
   running: boolean;
+  /** The current step hasn't been started yet: the user reads it first. */
+  ready: boolean;
   /** 0–1 through the current step. */
   progress: number;
   remainingSec: number;
   pause: () => void;
+  /** Starts the current step, or carries on after a pause. */
   resume: () => void;
   /** Moves on to the next step, or finishes after the last one. One step per tap. */
   next: () => void;
 }
 
 /**
- * Counts down each step from timestamps, so it stays right when the tab sleeps. Starts
- * running at once ("Vamos" was the go). Calls `onFinish` with the seconds actually
- * moved once the last step ends or is skipped.
+ * Counts down each step from timestamps, so it stays right when the tab sleeps. Every
+ * step waits to be started, so reading it doesn't eat into its time; the next one waits
+ * too. Calls `onFinish` with the seconds actually moved once the last step ends or is
+ * skipped.
  */
 export function useStepTimer(
   stepSeconds: readonly number[],
@@ -44,12 +49,14 @@ export function useStepTimer(
   const now = useNow(250);
   const [state, setState] = useState<TimerState>(() => ({
     index: 0,
-    runningSince: clock.now(),
+    runningSince: null,
     stepMs: 0,
     doneMs: 0,
     changedAt: null,
   }));
   const finished = useRef(false);
+  const justChanged = () =>
+    state.changedAt !== null && clock.now() - state.changedAt < STEP_TAP_GUARD_MS;
 
   const stepMs = (stepSeconds[state.index] ?? 0) * 1000;
   const runMs = (at: number) =>
@@ -73,7 +80,7 @@ export function useStepTimer(
         ? current
         : {
             index: from + 1,
-            runningSince: at,
+            runningSince: null,
             stepMs: 0,
             doneMs: current.doneMs + ran,
             changedAt: at,
@@ -94,6 +101,7 @@ export function useStepTimer(
   return {
     index: state.index,
     running: state.runningSince !== null,
+    ready: state.runningSince === null && state.stepMs === 0,
     progress: stepMs > 0 ? elapsedMs / stepMs : 1,
     remainingSec: Math.ceil((stepMs - elapsedMs) / 1000),
     pause: () =>
@@ -106,12 +114,14 @@ export function useStepTimer(
               stepMs: current.stepMs + Math.max(0, clock.now() - current.runningSince),
             },
       ),
-    resume: () =>
+    resume: () => {
+      if (justChanged()) return;
       setState((current) =>
         current.runningSince === null ? { ...current, runningSince: clock.now() } : current,
-      ),
+      );
+    },
     next: () => {
-      if (state.changedAt !== null && clock.now() - state.changedAt < STEP_TAP_GUARD_MS) return;
+      if (justChanged()) return;
       advance();
     },
   };

@@ -39,31 +39,31 @@ afterEach(() => {
 });
 
 describe('Settings', () => {
-  it('sums up the profile, each part opening its editor', () => {
+  it('sums up the profile as in the onboarding summary, each part opening its editor', () => {
     ui();
     expect(screen.getByRole('heading', { level: 1, name: 'Ajustes' })).toBeInTheDocument();
-    const workday = screen.getByRole('heading', { name: 'Jornada habitual' }).closest('section')!;
-    for (const value of ['09:00', '17:00', '11:00', '14:00']) {
-      expect(within(workday).getByText(value)).toBeInTheDocument();
-    }
-    expect(workday).toHaveTextContent('lun · mar · mié · jue · vie');
-    expect(within(workday).getByRole('link', { name: 'Editar Jornada habitual' })).toHaveAttribute(
-      'href',
-      settingsPath('schedule'),
+    const section = (name: string) => screen.getByRole('heading', { name }).closest('section')!;
+    const editLink = (name: string) =>
+      within(section(name)).getByRole('link', { name: `Editar ${name}` });
+
+    expect(section('Jornada habitual')).toHaveTextContent('lun · mar · mié · jue · vie');
+    expect(section('Jornada habitual')).toHaveTextContent('09:00–17:00');
+    expect(section('Jornada habitual')).toHaveTextContent('Descanso 11:00–11:15');
+    expect(section('Jornada habitual')).toHaveTextContent('Comida 14:00–15:00');
+    expect(editLink('Jornada habitual')).toHaveAttribute('href', settingsPath('schedule'));
+
+    expect(section('Molestias prioritarias')).toHaveTextContent(
+      'Ninguna en especial: pausas variadas',
     );
-    const discomfort = screen
-      .getByRole('heading', { name: 'Molestias prioritarias' })
-      .closest('section')!;
-    expect(discomfort).toHaveTextContent('Ninguna en especial: pausas variadas');
-    expect(
-      within(discomfort).getByRole('link', { name: 'Editar Molestias prioritarias' }),
-    ).toHaveAttribute('href', settingsPath('discomfort'));
-    expect(
-      screen.getByText('Sin material: movimientos sin material y caminar.'),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Intensidad/ })).toHaveTextContent(
-      /Normal · \d+ pausas al día/,
+    expect(editLink('Molestias prioritarias')).toHaveAttribute('href', settingsPath('discomfort'));
+
+    expect(section('Equipamiento disponible')).toHaveTextContent(
+      'Sin material: movimientos suaves y caminar',
     );
+    expect(editLink('Equipamiento disponible')).toHaveAttribute('href', settingsPath('equipment'));
+
+    expect(section('Intensidad')).toHaveTextContent(/Normal · \d+ pausas previstas · ~\d+ min/);
+    expect(editLink('Intensidad')).toHaveAttribute('href', settingsPath('intensity'));
   });
 
   it('shows the rated areas as in the onboarding summary: icon, name and value', () => {

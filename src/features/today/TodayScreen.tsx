@@ -10,6 +10,7 @@ import { Wordmark } from '@/ui/components/Wordmark/Wordmark';
 import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ActiveDay } from './ActiveDay';
+import { DayClock } from './DayClock';
 import { DayOffCard, NotStartedCard, RestCard } from './DayStateCards';
 import styles from './TodayScreen.module.css';
 
@@ -26,9 +27,12 @@ export function TodayScreen() {
     <>
       <header className={styles.header}>
         <Wordmark />
-        <div className={styles.greeting}>
-          <h1 className={styles.title}>{t('today.greeting')}</h1>
-          <p className={styles.subtitle}>{formatLongDate(locale, date)}</p>
+        <div className={styles.greetingRow}>
+          <div className={styles.greeting}>
+            <h1 className={styles.title}>{t('today.greeting')}</h1>
+            <p className={styles.subtitle}>{formatLongDate(locale, date)}</p>
+          </div>
+          {state.kind === 'active' && <DayClock plan={state.plan} now={now} />}
         </div>
       </header>
 

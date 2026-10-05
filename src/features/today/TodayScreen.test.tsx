@@ -63,7 +63,10 @@ describe('Today', () => {
     travel(MONDAY, '09:10');
     renderWithRouter(<AppRoutes />);
 
-    expect(screen.getByText('Te quedan 7 h 50 min de jornada')).toBeInTheDocument();
+    // Next to the greeting: what's left of the workday.
+    const dayClock = screen.getByText('Te quedan 7 h 50 min de jornada').closest('p')!;
+    expect(dayClock).toHaveTextContent('Te quedan7 h 50 min');
+    expect(screen.getByRole('banner')).toContainElement(dayClock);
     expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();
     expect(screen.getByText(/^en \d+/)).toBeInTheDocument();
     // The areas the next pause works, by name for screen readers.
@@ -103,6 +106,59 @@ describe('Today', () => {
 
     await user.click(screen.getByRole('button', { name: 'Deshacer: hoy sí trabajo' }));
     expect(screen.getByRole('link', { name: 'Empezar jornada' })).toBeInTheDocument();
+  });
+
+  it('says when the workday starts, next to the greeting, if it was started early', () => {
+    startMonday();
+    travel(MONDAY, '08:40');
+    renderWithRouter(<AppRoutes />);
+    expect(screen.getByText('Tu jornada empieza a las 09:00').closest('p')).toHaveTextContent(
+      'Empieza a las09:00',
+    );
+  });
+
+  it('"Reuniones" lists today\'s meetings: add, change or remove them', async () => {
+    startMonday();
+    travel(MONDAY, '09:10');
+    const meetings = () => store().days[MONDAY]!.plan!.meetings;
+    const sheet = () => screen.getByRole('dialog', { name: 'Reuniones de hoy' });
+    const { user } = renderWithRouter(<AppRoutes />);
+
+    expect(screen.getByRole('button', { name: /Reuniones/ })).toHaveTextContent('Ninguna hoy');
+    await user.click(screen.getByRole('button', { name: /Reuniones/ }));
+    // Only the meetings: closing the day lives elsewhere.
+    expect(within(sheet()).queryByRole('link', { name: 'Cerrar jornada' })).not.toBeInTheDocument();
+
+    // A new meeting (the next half hour) re-plans the day: no pause during it.
+    await user.click(within(sheet()).getByRole('button', { name: 'Añadir reunión' }));
+    const add = screen.getByRole('dialog', { name: 'Añadir reunión' });
+    await user.click(within(add).getByRole('button', { name: 'Añadir' }));
+    expect(meetings()).toEqual([{ id: 'm1', start: '09:30', end: '10:00', canMove: false }]);
+    const during = store()
+      .days[MONDAY]!.plan!.activities.filter((item) => item.kind === 'micro')
+      .filter((item) => {
+        const at = new Date(item.currentScheduledAt);
+        const minute = at.getHours() * 60 + at.getMinutes();
+        return minute >= 9 * 60 + 30 && minute < 10 * 60;
+      });
+    expect(during).toEqual([]);
+
+    // Changing it: "Puedo moverme".
+    await user.click(within(sheet()).getByRole('button', { name: /09:30–10:00/ }));
+    const edit = screen.getByRole('dialog', { name: 'Cambiar reunión' });
+    await user.click(within(edit).getByRole('checkbox', { name: /Puedo moverme/ }));
+    await user.click(within(edit).getByRole('button', { name: 'Guardar' }));
+    expect(meetings()).toEqual([{ id: 'm1', start: '09:30', end: '10:00', canMove: true }]);
+
+    // And removing it.
+    await user.click(within(sheet()).getByRole('button', { name: /09:30–10:00/ }));
+    await user.click(screen.getByRole('button', { name: 'Quitar reunión' }));
+    expect(meetings()).toEqual([]);
+
+    // No "Listo": it closes like any sheet.
+    expect(within(sheet()).queryByRole('button', { name: 'Listo' })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('no longer offers "Hoy no trabajo" once the day has started', () => {
