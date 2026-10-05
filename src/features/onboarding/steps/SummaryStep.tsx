@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { toDateKey } from '@/domain/time';
-import type { TimeBlock } from '@/domain/types';
-import { weekdayName } from '@/i18n/translate';
+import {
+  EquipmentSummary,
+  PaceSummary,
+  PrioritiesSummary,
+  WorkdaySummary,
+} from '@/features/profile/ProfileSummary';
+import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
 import { useT } from '@/i18n/useT';
-import { clock } from '@/services/clock';
 import {
   notificationPermission,
   requestNotificationPermission,
@@ -15,38 +18,23 @@ import { useAppStore } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
-import { Tag } from '@/ui/components/Tag/Tag';
-import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
-import { equipmentIn } from '@/content/catalog';
-import { equipmentIcon } from '@/features/day/catalogDisplay';
-import { PriorityTags } from '@/features/profile/PriorityTags';
-import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
-import { rangeFromBlock } from '@/features/schedule/timeRange';
 import { useOnboardingDraft } from '../draftContext';
 import { clearOnboardingDraft } from '../draftStorage';
-import { estimateDay } from '../estimate';
 import common from '../onboarding.module.css';
 import { OnboardingStep } from '../OnboardingStep';
-import { onboardingPath, type OnboardingStepId } from '../steps';
+import { onboardingPath } from '../steps';
 import styles from './SummaryStep.module.css';
 
 /** Step 6: the whole setup at a glance, reminders on request, and start. */
 export function SummaryStep() {
-  const { t, locale } = useT();
+  const { t } = useT();
   const navigate = useNavigate();
   const [draft] = useOnboardingDraft();
   const completeOnboarding = useAppStore((state) => state.completeOnboarding);
-  const estimate = useMemo(() => estimateDay(draft, toDateKey(clock.now())), [draft]);
   const valid = scheduleIssueMessages(draft.schedule).length === 0 && draft.workDays.length > 0;
-
-  const { schedule } = draft;
-  const range = (
-    key: 'onboarding.summary.breakRange' | 'onboarding.summary.lunchRange',
-    block: TimeBlock,
-  ) => t(key, { ...rangeFromBlock(block) });
 
   const [permission, setPermission] = useState<NotificationPermissionState>(notificationPermission);
   // Only reads the state (e.g. after allowing it in the browser settings); never asks.
@@ -76,69 +64,33 @@ export function SummaryStep() {
       subtitle={t('onboarding.summary.subtitle')}
       action={{ label: t('onboarding.summary.start'), onClick: start, disabled: !valid }}
     >
-      <Card as="section" className={common.section}>
-        <SectionHeader title={t('onboarding.summary.workday')} edit="schedule" />
-        <div className={styles.workday}>
-          <p className={styles.days}>
-            {draft.workDays.map((day) => weekdayName(locale, day, 'short')).join(' · ')}
-          </p>
-          <p className={styles.hours}>
-            {schedule.workStart}–{schedule.workEnd}
-          </p>
-        </div>
-        <ul className={styles.rows}>
-          <Row icon="mug">
-            {schedule.breaks[0]
-              ? range('onboarding.summary.breakRange', schedule.breaks[0])
-              : t('onboarding.summary.noBreak')}
-          </Row>
-          <Row icon="food">
-            {schedule.lunch
-              ? range('onboarding.summary.lunchRange', schedule.lunch)
-              : t('onboarding.summary.noLunch')}
-          </Row>
-        </ul>
-      </Card>
-
-      <section className={styles.flat}>
-        <SectionHeader title={t('onboarding.summary.priorities')} edit="discomfort" />
-        <PriorityTags discomfort={draft.discomfort} empty={t('onboarding.summary.noPriorities')} />
-      </section>
-
-      <section className={styles.flat}>
-        <SectionHeader title={t('onboarding.summary.equipment')} edit="equipment" />
-        {draft.equipment.length > 0 ? (
-          <ul className={styles.tags}>
-            {equipmentIn(draft.equipment).map((item) => (
-              <li key={item.id}>
-                <Tag icon={equipmentIcon(item.id)}>{item.name[locale]}</Tag>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={common.muted}>{t('onboarding.summary.noEquipment')}</p>
-        )}
-      </section>
-
-      <Card as="section" variant="tinted" className={common.section}>
-        <SectionHeader title={t('onboarding.summary.pace')} edit="intensity" />
-        <div className={styles.workday}>
-          <p className={styles.pace}>
-            {t('onboarding.summary.paceValue', {
-              intensity: t(`intensity.${draft.intensity}`),
-              pauses: t('common.pausesPlanned', { count: estimate.pauses }),
-              minutes: t('common.minutes', { count: estimate.interruptionMin }),
-            })}
-          </p>
-          <p className={common.muted}>{t('onboarding.summary.paceHint')}</p>
-        </div>
-      </Card>
+      <WorkdaySummary
+        title={t('onboarding.summary.workday')}
+        editTo={onboardingPath('schedule')}
+        workDays={draft.workDays}
+        schedule={draft.schedule}
+      />
+      <PrioritiesSummary
+        title={t('onboarding.summary.priorities')}
+        editTo={onboardingPath('discomfort')}
+        discomfort={draft.discomfort}
+      />
+      <EquipmentSummary
+        title={t('onboarding.summary.equipment')}
+        editTo={onboardingPath('equipment')}
+        equipment={draft.equipment}
+      />
+      <PaceSummary
+        title={t('onboarding.summary.pace')}
+        editTo={onboardingPath('intensity')}
+        settings={draft}
+      />
 
       <Card as="section" variant="muted" className={common.section}>
-        <h3 className={common.heading}>
+        <h2 className={common.heading}>
           <PixelIcon name="bell" size={24} />
           {t('onboarding.summary.notifications.title')}
-        </h3>
+        </h2>
         <p className={common.muted}>{t('onboarding.summary.notifications.body')}</p>
         {permission === 'default' && (
           <Button variant="secondary" onClick={() => void enableNotifications()}>
@@ -174,30 +126,5 @@ export function SummaryStep() {
         </InlineMessage>
       )}
     </OnboardingStep>
-  );
-}
-
-function SectionHeader({ title, edit }: { title: string; edit: OnboardingStepId }) {
-  const { t } = useT();
-  return (
-    <div className={styles.sectionHeader}>
-      <h3 className={common.sectionTitle}>{title}</h3>
-      <Link
-        to={onboardingPath(edit)}
-        aria-label={`${t('onboarding.summary.edit')}: ${title}`}
-        className={styles.edit}
-      >
-        {t('onboarding.summary.edit')}
-      </Link>
-    </div>
-  );
-}
-
-function Row({ icon, children }: { icon: IconName; children: ReactNode }) {
-  return (
-    <li className={styles.row}>
-      <PixelIcon name={icon} size={24} />
-      {children}
-    </li>
   );
 }

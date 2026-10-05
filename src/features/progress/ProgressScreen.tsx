@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { CATALOG } from '@/content/catalog';
 import { areaStats } from '@/domain/stats/areas';
 import { weekInsights } from '@/domain/stats/insights';
+import { exerciseRatings } from '@/domain/stats/ratings';
 import { weekStats } from '@/domain/stats/weekStats';
 import { addDays, startOfWeek, weekdayOf } from '@/domain/time';
 import { useToday } from '@/features/day/useToday';
@@ -14,6 +15,7 @@ import { ConstancyCard } from './ConstancyCard';
 import { EvolutionCard } from './EvolutionCard';
 import { HistoryCard } from './HistoryCard';
 import { InsightsCard } from './InsightsCard';
+import { LikesCard } from './LikesCard';
 import { useHistory } from './useHistory';
 import { WeekSummaryCard } from './WeekSummaryCard';
 
@@ -22,7 +24,8 @@ const AREA_DAYS = 28;
 
 /**
  * "/progress": the avatar's evolution, consistency over the months, this week in
- * numbers, the areas moved most, what's worth telling about the week, and past weeks.
+ * numbers, the areas moved most, the exercises liked most and least, what's worth telling
+ * about the week, and past weeks.
  */
 export function ProgressScreen() {
   const { t } = useT();
@@ -32,6 +35,7 @@ export function ProgressScreen() {
   const results = useAppStore((state) => state.progress.weeklyResults);
   const monday = startOfWeek(today);
 
+  const likes = useMemo(() => exerciseRatings(history.days, CATALOG), [history]);
   const { current, insights, areas } = useMemo(() => {
     const thisWeek = weekStats(monday, history, ledger);
     // The same stretch of last week (Monday up to the same weekday), for a fair comparison.
@@ -54,6 +58,7 @@ export function ProgressScreen() {
       <ConstancyCard history={history} />
       <WeekSummaryCard stats={current} from={monday} to={addDays(monday, 6)} />
       <AreasCard areas={areas} />
+      <LikesCard stats={likes} />
       <InsightsCard insights={insights} today={today} />
       <HistoryCard results={results} />
     </>

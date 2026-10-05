@@ -5,6 +5,7 @@ import type {
   DayPlan,
   DayRecord,
   DaySchedule,
+  ExerciseRating,
   Instant,
   Mood,
   NextDayDecision,
@@ -93,6 +94,8 @@ export interface PauseActions {
   completePause: (date: DateKey, id: string, elapsedSec: number) => void;
   /** "Descartar pausa": −50 XP, with an optional reason. */
   discardPause: (date: DateKey, id: string, reason?: SkipReason) => void;
+  /** "¿Qué te ha parecido?" on a pause just done (it can be changed). */
+  ratePause: (date: DateKey, id: string, rating: ExerciseRating) => void;
 }
 
 /** Today's main activity: its session and completion. The rules live in domain/main. */

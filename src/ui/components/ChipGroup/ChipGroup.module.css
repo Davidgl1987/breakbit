@@ -53,6 +53,17 @@
   border-color: var(--color-primary);
 }
 
+/* Tiles: the icon above its label (intensity, mood). */
+.tiles .chip {
+  display: inline-grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--space-1);
+  min-height: 84px;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+}
+
 .selected,
 .selected:hover {
   background: var(--color-primary);

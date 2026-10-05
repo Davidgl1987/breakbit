@@ -5,6 +5,7 @@ import { HISTORY_NOW, historyScenarioState } from '@/app/dev/historyScenario';
 import { ROUTES } from '@/app/routes';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import { atTime } from '@/domain/time';
+import type { DateKey, ExerciseRating, ScheduledActivity } from '@/domain/types';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
@@ -86,6 +87,43 @@ describe('Progress with some history', () => {
     const insights = within(section('Esta semana')).getAllByRole('listitem');
     expect(insights.length).toBeGreaterThan(0);
     expect(insights.length).toBeLessThanOrEqual(3);
+  });
+
+  it('lists the exercises liked most and least, from the ratings', () => {
+    // Two pauses of the latest day with a plan: one liked, one disliked.
+    const days = store().days;
+    const date = (Object.keys(days) as DateKey[])
+      .filter((key) => days[key]?.plan)
+      .sort()
+      .at(-1)!;
+    const record = days[date]!;
+    const [a, b] = record.plan!.activities.filter((item) => item.kind === 'micro');
+    const rated = (item: ScheduledActivity, exerciseId: string, rating: ExerciseRating) => ({
+      ...item,
+      status: 'completed' as const,
+      content: { kind: 'exercises' as const, exerciseIds: [exerciseId] },
+      rating,
+    });
+    const changes = [rated(a!, 'march', 'liked'), rated(b!, 'lunge', 'disliked')];
+    useAppStore.setState((state) => ({
+      days: {
+        ...state.days,
+        [date]: {
+          ...record,
+          plan: {
+            ...record.plan!,
+            activities: record.plan!.activities.map(
+              (item) => changes.find((other) => other.id === item.id) ?? item,
+            ),
+          },
+        },
+      },
+    }));
+
+    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    const likes = section('Tus ejercicios');
+    expect(likes).toHaveTextContent('Te gustan másMarcha en el sitio1 voto');
+    expect(likes).toHaveTextContent('Te gustan menosZancada1 voto');
   });
 
   it('lists past weeks, newest first, each opening its result', async () => {

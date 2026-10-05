@@ -14,6 +14,7 @@ import { DayOffSheet } from '@/features/day/DayOffSheet';
 import { MainActivityCard } from '@/features/day/MainActivityCard';
 import { MainActivitySheet } from '@/features/day/MainActivitySheet';
 import { MeetingSheet } from '@/features/day/MeetingSheet';
+import { nextMeetingId } from '@/features/day/meetings';
 import { useDayPlanner } from '@/features/day/useDayPlanner';
 import { ScheduleFields } from '@/features/schedule/ScheduleFields';
 import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
@@ -222,7 +223,7 @@ export function DayStartScreen() {
         <MeetingSheet
           schedule={draft.schedule}
           now={now}
-          onAdd={addMeeting}
+          onSave={addMeeting}
           onClose={() => setSheet(null)}
         />
       )}
@@ -271,13 +272,6 @@ function preview(
     previous: current,
     now,
   });
-}
-
-function nextMeetingId(meetings: readonly Meeting[]): string {
-  const taken = new Set(meetings.map((meeting) => meeting.id));
-  let n = meetings.length + 1;
-  while (taken.has(`m${n}`)) n++;
-  return `m${n}`;
 }
 
 function partOfDay(now: number): 'morning' | 'afternoon' | 'evening' {

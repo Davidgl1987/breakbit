@@ -831,3 +831,45 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   escenario, apuntando al avatar, para no taparlo.
 - **Ajustes › Molestias prioritarias** muestra las zonas como el resumen del onboarding: icono,
   nombre y nivel, de más a menos (componente compartido `PriorityTags`).
+
+## Ajustes tras el primer día de uso real
+
+- **Ajustes reutiliza el resumen del onboarding**: jornada, molestias, material y ritmo se muestran
+  con los mismos componentes (`features/profile/ProfileSummary`), cada uno con su "Editar".
+  Notificaciones, apariencia, idioma y datos siguen siendo propios de Ajustes.
+- **Ritmo con velocímetros** (`pace_soft`, `pace_normal`, `pace_active`) en el selector de intensidad
+  y en el resumen. `ChipGroup` admite icono por opción y entonces pinta baldosas (icono sobre el
+  texto); también lo usa la valoración del día (las cuatro caras).
+- **Tiempo de jornada junto al saludo**: "Te quedan 7 h 45 min" (o "Empieza a las 09:00") va a la
+  derecha de "¡Hola!", encima del avatar.
+- **"Reuniones"** (la fila que antes decía "Te quedan…") muestra las de hoy y abre "Reuniones de hoy":
+  añadir, tocar para cambiar o quitar; las pausas se replanifican. Cerrar la jornada no está aquí: lo
+  ofrece la tarjeta del final del día. El horario se cambia en Ajustes y la actividad principal en su
+  tarjeta.
+- **Reunión de media hora por defecto**: al cambiar la hora de inicio, la de fin pasa a ser 30 min
+  después; luego se puede alargar cambiando el fin.
+- **Ejercicio con inicio manual**: cada movimiento espera a "Empezar" (leerlo no consume su tiempo)
+  y el siguiente también espera. Se puede saltar o dar por hecho sin cronómetro. "Empezar" ignora
+  los toques justo después de cambiar de movimiento, como "Siguiente".
+- **"¿Qué te ha parecido?"** al terminar una pausa: Me gusta / Normal / No me gusta, opcional y
+  editable mientras se está en la pantalla. Se guarda en la pausa (`rating`) y en el registro de
+  eventos (`exercise_rated`). Progreso muestra "Tus ejercicios": los que más y menos gustan (una
+  pausa valorada cuenta para todos sus ejercicios). De momento no cambia el planificador.
+- **Iconos nuevos con IA**: los 83 iconos que usa la app, en 6 hojas temáticas
+  (`scripts/pixel-icons/sheets.py`), como sprites de 32×32 al estilo de 16 bits del avatar.
+  `scripts/pixel-icons/reference.py` genera las referencias (`docs/iconos/`) y los prompts
+  (`docs/prompts-iconos.md`). Los 22 iconos del pack original que no se usan no se piden.
+
+## Iconos de 16 bits
+
+- Los 83 iconos que usa la app se generaron con IA (`docs/prompts-iconos.md`, 6 hojas) y se importan
+  con `pnpm icons <zip o carpeta>` (`scripts/pixel-icons/import.py`) como sprites PNG de 32×32 en
+  `public/icons/` (~74 KB en total). Sustituyen a los de 16×16 dibujados por código, que se eliminan
+  junto a los 22 del pack original que ya no se usaban.
+- La IA no respeta la cuadrícula al píxel (sus "píxeles" miden 8–10 px y en una hoja los dibujos
+  bajaban unos 10 px): cada icono es la pieza más grande de su celda más las pequeñas más cercanas
+  (una sombra cortada vuelve a su icono) y las motas sueltas se descartan. Después se recorta, se
+  centra en un cuadrado y se remuestrea a 28×28 con el color dominante de cada bloque, con 2 píxeles
+  de margen y un máximo de 32 colores. Así todos tienen el mismo tamaño óptico.
+- Los avisos usan los mismos iconos a 192 px (`public/icons/notify`).
+- "Reuniones de hoy" se cierra como cualquier hoja (fuera o deslizando), sin botón "Listo".
