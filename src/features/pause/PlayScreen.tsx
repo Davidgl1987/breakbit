@@ -3,6 +3,7 @@ import { pauseDonePath, pausePath, ROUTES } from '@/app/routes';
 import { isOpen } from '@/domain/pause/window';
 import type { ScheduledActivity } from '@/domain/types';
 import { ActivityHero } from '@/features/day/ActivityHero';
+import { areaIcon, areaName } from '@/features/day/catalogDisplay';
 import { contentName } from '@/features/day/contentName';
 import { contentItems, suggestsStanding } from '@/features/day/contentItems';
 import { ExerciseDetails } from '@/features/day/ExerciseDetails';
@@ -17,7 +18,6 @@ import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedProgress';
 import { Tag } from '@/ui/components/Tag/Tag';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
-import { AREA_ICONS } from '@/ui/icons/domainIcons';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './pause.module.css';
@@ -118,8 +118,8 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
       />
       <div className={styles.pills}>
         {current.exercise.areas.map((area) => (
-          <Tag key={area} icon={AREA_ICONS[area]}>
-            {t(`areas.${area}`)}
+          <Tag key={area} icon={areaIcon(area)}>
+            {areaName(area, locale)}
           </Tag>
         ))}
       </div>

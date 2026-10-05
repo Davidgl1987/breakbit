@@ -11,7 +11,7 @@ import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
 import { StatusBadge } from '@/ui/components/StatusBadge/StatusBadge';
-import { mainActivityIcon } from '@/ui/icons/domainIcons';
+import { mainActivityIcon } from '@/features/day/catalogDisplay';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './TodayScreen.module.css';
 

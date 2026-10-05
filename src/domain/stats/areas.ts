@@ -1,12 +1,5 @@
 import { addDays, compareDateKeys } from '../time';
-import {
-  BODY_AREAS,
-  type ActivityContent,
-  type BodyArea,
-  type Catalog,
-  type DateKey,
-  type DayRecord,
-} from '../types';
+import type { ActivityContent, BodyArea, Catalog, DateKey, DayRecord } from '../types';
 
 export interface AreaStat {
   area: BodyArea;
@@ -28,7 +21,7 @@ export function areaStats(
   catalog: Catalog,
 ): AreaStat[] {
   const totals = new Map<BodyArea, AreaStat>(
-    BODY_AREAS.map((area) => [area, { area, exercises: 0, seconds: 0 }]),
+    catalog.areas.map(({ id }) => [id, { area: id, exercises: 0, seconds: 0 }]),
   );
   for (let date = from; compareDateKeys(date, to) <= 0; date = addDays(date, 1)) {
     for (const item of days[date]?.plan?.activities ?? []) {
@@ -39,7 +32,8 @@ export function areaStats(
       const scale = (item.elapsedSec ?? item.durationSec) / planned;
       for (const move of moves) {
         for (const area of move.areas) {
-          const stat = totals.get(area)!;
+          const stat = totals.get(area);
+          if (!stat) continue;
           stat.exercises++;
           stat.seconds += move.seconds * scale;
         }
@@ -67,7 +61,7 @@ function movesOf(
     const routineId = content.routineId;
     const routine = catalog.routines.find((item) => item.id === routineId);
     return (routine?.steps ?? []).flatMap((step) => {
-      const found = exercise(step.exerciseId);
+      const found = exercise(step.exercise);
       return found ? [{ areas: found.areas, seconds: step.seconds }] : [];
     });
   }

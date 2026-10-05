@@ -227,13 +227,13 @@ describe('guided activity', () => {
     setUp(MOBILITY, '11:00');
     const { user } = ui();
     await user.click(screen.getByRole('button', { name: 'Empezar' }));
-    expect(screen.getByText('Movimiento 1 de 7')).toBeInTheDocument();
+    expect(screen.getByText('Movimiento 1 de 6')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: 'Retracción cervical suave' }),
     ).toBeInTheDocument();
 
     await wait(46_000);
-    expect(screen.getByText('Movimiento 2 de 7')).toBeInTheDocument();
+    expect(screen.getByText('Movimiento 2 de 6')).toBeInTheDocument();
   });
 });
 

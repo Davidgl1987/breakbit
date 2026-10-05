@@ -14,16 +14,18 @@ export type Instant = number;
 export type LocaleCode = 'es' | 'en';
 export type Localized = Record<LocaleCode, string>;
 
-export const BODY_AREAS = ['neck', 'back', 'shoulders', 'wrists', 'eyes', 'sedentary'] as const;
-export type BodyArea = (typeof BODY_AREAS)[number];
-
-/** "Ninguno" is represented by an empty equipment list. Walking outside is always available. */
-export const EQUIPMENT = ['pullup_bar', 'dumbbells', 'kettlebell', 'mat', 'standing_desk'] as const;
-export type EquipmentId = (typeof EQUIPMENT)[number];
+/**
+ * Body areas and equipment are content: their ids come from the catalog
+ * (src/content/catalogo-breakbit.json), so the domain treats them as plain strings.
+ */
+export type BodyArea = string;
+/** "Ninguno" is represented by an empty equipment list. Walking is always available. */
+export type EquipmentId = string;
 
 export type Intensity = 'soft' | 'normal' | 'active';
 export type DiscomfortLevel = 0 | 1 | 2 | 3 | 4 | 5;
-export type DiscomfortLevels = Record<BodyArea, DiscomfortLevel>;
+/** 0–5 per area id; an area without a value counts as 0. */
+export type DiscomfortLevels = Partial<Record<BodyArea, DiscomfortLevel>>;
 
 // ---------- Schedule ----------
 
@@ -90,24 +92,43 @@ export interface Meeting {
 export type Posture = 'standing' | 'either' | 'floor';
 export type MeetingFriendly = 'yes' | 'partial' | 'no';
 
+/** A body area the user rates 0–5 ("molestias"); it only prioritises content. */
+export interface Area {
+  id: BodyArea;
+  name: Localized;
+  icon?: string;
+}
+
+/** Optional equipment the user may have at hand. */
+export interface Equipment {
+  id: EquipmentId;
+  name: Localized;
+  /** What it adds, shown when choosing it. */
+  hint: Localized;
+  icon?: string;
+}
+
 /** A single movement used for microbreaks and routines. */
 export interface Exercise {
   id: string;
   name: Localized;
   description: Localized;
   steps: Localized[];
+  /** Ordered by importance: the first is the main one. */
   areas: BodyArea[];
   equipment: EquipmentId[];
   durationSec: number;
   posture: Posture;
   meetingFriendly: MeetingFriendly;
+  icon?: string;
 }
 
-/** A sequence of exercises. Its pause type follows from its total duration. */
+/** A sequence of catalog exercises. Its pause type follows from its total duration. */
 export interface Routine {
   id: string;
   name: Localized;
-  steps: { exerciseId: string; seconds: number }[];
+  steps: { exercise: string; seconds: number }[];
+  icon?: string;
 }
 
 export type CompletionMode = 'continuous' | 'accumulated';
@@ -133,12 +154,15 @@ export interface MainActivity {
   slots: ActivitySlot[];
   /** Done while working (standing desk, walking meeting): it does not interrupt work. */
   whileWorking: boolean;
-  /** Optional guided routine for the activity. */
-  routineId?: string;
+  /** Optional guided routine for the activity (a routine id). */
+  routine?: string;
+  icon?: string;
 }
 
 /** Content the planner chooses from. Passed in as data so domain logic stays testable. */
 export interface Catalog {
+  areas: readonly Area[];
+  equipment: readonly Equipment[];
   exercises: readonly Exercise[];
   routines: readonly Routine[];
   mainActivities: readonly MainActivity[];

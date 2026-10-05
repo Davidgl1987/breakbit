@@ -106,17 +106,15 @@ Los valores numéricos viven en `src/domain/config.ts`.
 - **Validación de horario**: hora válida, fin > inicio, comida y descansos dentro de la jornada,
   duraciones > 0 y sin solapes (tocarse está permitido). Los turnos que cruzan medianoche quedan
   **fuera del MVP**.
-- **Catálogo** (`src/content`, es/en): 45 ejercicios (mvp_v1 §11 + dinámicos del master §15), las 4
-  mini-rutinas del master §16 + una rutina de movilidad de 5 min, y 10 actividades principales. El
-  material para la actividad principal se agrupa en bloques suaves de 5–10 min. Un test impide
-  lenguaje médico en el contenido. **Provisional** hasta la revisión de contenido y assets: priorizar
-  variedad real y eliminar ejercicios redundantes.
+- **Catálogo**: desde la revisión de contenido vive en un único JSON,
+  `src/content/catalogo-breakbit.json` (ver "Catálogo en JSON" al final y `docs/formato-catalogo.md`).
 - `posture: 'either'` implica la recomendación "Si puedes, hazlo mejor de pie" (sin campo aparte).
   El tipo de pausa (micro/reset/active) se deriva de la duración.
 - **Selección ponderada**: peso de zona = 1 + 2 × slider. La zona anterior se evita salvo que pese al
   menos el doble que todas las demás juntas. El ejercicio anterior nunca se repite si hay alternativa;
   los recientes pesan 0,25. Trabajo de suelo solo en descansos; en reuniones solo movimientos
-  discretos. RNG con semilla (fecha + reroll) para planes reproducibles.
+  discretos. RNG con semilla (fecha + reroll) para planes reproducibles. Ampliada en "Catálogo en
+  JSON".
 - **Actividad principal**: filtra por material y contexto (en reunión solo las compatibles; en tiempo
   de trabajo, las que no requieren un descanso real). Favorece las que cubren la duración preferida;
   "Otra misión" excluye la actual. Pasear por la calle siempre está disponible.
@@ -221,8 +219,7 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   explica cómo activarlo en los ajustes del navegador y se puede empezar igualmente. Al volver a la
   pestaña se relee el estado (sin preguntar). `notifications.enabled` se guarda según el permiso final.
 - **Copy**: cercano, corto y práctico; sin lenguaje médico ni de videojuego en la configuración. Los
-  nombres visibles son naturales ("Tiempo sentado" en vez de "Sedentarismo"); los identificadores
-  internos no cambian.
+  nombres visibles son naturales; los de zonas y material vienen del catálogo.
 - **Design system**: componentes genéricos nuevos `MultiChipGroup` (días), `InlineMessage` (pista o
   error), `Tag` (etiqueta estática), `Avatar` (con placeholder por fase) y `EvolutionStrip`; `Wordmark`
   pasa a `ui/components`. Todos están en `/dev/kit`. No hay variantes visuales propias del onboarding.
@@ -769,3 +766,40 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   en el formato del idioma del navegador (un Chrome en inglés enseña 9:00 AM aunque la app esté
   en español). En móvil los avisos solo llegan con la app abierta (sin backend; Web Push es
   trabajo futuro).
+
+## Catálogo en JSON
+
+- **Una sola fuente**: `src/content/catalogo-breakbit.json` contiene zonas, material, ejercicios,
+  rutinas y actividades principales con sus textos es/en. La app lo importa tal cual (`CATALOG`); no
+  hay listas de zonas o material en tipos, componentes ni traducciones. `BodyArea` y `EquipmentId`
+  son `string`, y `discomfort` es un mapa parcial (una zona sin valor cuenta como 0).
+- **Validación al compilar** (`build/catalogCheck.ts` + `src/content/validateCatalog.ts`): ids únicos
+  por sección, referencias existentes, textos es/en, rangos (ejercicios 20–120 s y ≥ 2 pasos,
+  actividades 5–30 min), valores de `posture`, `meetingFriendly`, `completionMode` y `slots`, campos
+  desconocidos, lenguaje médico y cobertura (todo el material se usa; cada zona tiene ≥ 2 ejercicios
+  sin material, uno de ellos de escritorio y apto para reuniones; hay una actividad sin material).
+  `pnpm build` falla y el servidor de desarrollo muestra el error, con el elemento y el problema. El
+  build avisa de los iconos que el catálogo nombra y aún no existen (se usa uno genérico).
+- **Sin compatibilidad hacia atrás**: no había usuarios, así que el catálogo anterior se sustituyó
+  entero (sin `retired` ni migraciones). Ids desconocidos en datos guardados se ignoran.
+- **"Tiempo sentado" deja de ser una zona**: romper los ratos sentado es la base de la app, no una
+  molestia. Cada 2.ª pausa de trabajo o reunión (empezando por la primera) exige un ejercicio
+  `standing`, y los resets combinados empiezan siempre por uno, sea cual sea la puntuación de las
+  zonas (`MOVEMENT.standingEvery`). Las puntuaciones solo priorizan zonas.
+- **Pesos** (`SELECTION`): un ejercicio cuenta 1 para su zona principal, 0,6 para la segunda y 0,4
+  para las demás. El material pesa 0,15 en el escritorio, 0,6 en un descanso y 0,8 en "Tengo un
+  hueco"; el suelo, 0,4 en un descanso y 1 en "Tengo un hueco" (en trabajo y reuniones no entra).
+  Resultado en 200 jornadas de prueba: con todo el material marcado, ~1 de cada 7 pausas lo usa; con
+  un solo material, ~1 de cada 20. Unas 3 de cada 4 pausas de escritorio te ponen de pie.
+- **"Tengo un hueco"** es tiempo elegido: admite trabajo de suelo fuera de reuniones.
+- **Rutinas**: hasta 180 s pueden ser pausas; las más largas guían una actividad o un hueco de 10+ min.
+  Su peso sigue a las zonas de sus movimientos (media de los pesos de sus zonas principales).
+- **Resets**: un movimiento largo (el paseo corto, 90 s) puede ser un reset por sí solo.
+- **Reuniones**: en una reunión "puedo moverme" entran `yes` y `partial`; nunca `no` ni suelo. En una
+  reunión en la que no puedes moverte no se planifican pausas.
+- **Actividades `whileWorking`** (trabajo de pie, reunión caminando): no llevan los márgenes de
+  20/35 min sin pausas alrededor, porque no interrumpen el trabajo.
+- Iconos para el catálogo: `band` → `resistance_band` y `sedentary` → `seated` (marcador de la fase 1
+  y métrica de interrupción). Zonas nuevas dibujadas con el mismo código que cuello y hombros (figura
+  en verde, la zona en coral): `upper_back` (de espaldas, omóplatos), `lower_back` (de espaldas, zona
+  lumbar sobre la cintura) y `hips` (cuerpo entero, cadera y muslos). `back_pain` se elimina.

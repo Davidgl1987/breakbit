@@ -10,14 +10,6 @@
       "icon": "neck"
     },
     {
-      "id": "back",
-      "name": {
-        "es": "Espalda",
-        "en": "Back"
-      },
-      "icon": "back_pain"
-    },
-    {
       "id": "shoulders",
       "name": {
         "es": "Hombros",
@@ -26,12 +18,36 @@
       "icon": "shoulders"
     },
     {
+      "id": "upper_back",
+      "name": {
+        "es": "Espalda alta",
+        "en": "Upper back"
+      },
+      "icon": "upper_back"
+    },
+    {
+      "id": "lower_back",
+      "name": {
+        "es": "Zona lumbar",
+        "en": "Lower back"
+      },
+      "icon": "lower_back"
+    },
+    {
       "id": "wrists",
       "name": {
-        "es": "Muñecas",
-        "en": "Wrists"
+        "es": "Muñecas y antebrazos",
+        "en": "Wrists and forearms"
       },
       "icon": "wrist"
+    },
+    {
+      "id": "hips_legs",
+      "name": {
+        "es": "Cadera y piernas",
+        "en": "Hips and legs"
+      },
+      "icon": "hips"
     },
     {
       "id": "eyes",
@@ -40,17 +56,33 @@
         "en": "Eyes"
       },
       "icon": "eyes"
-    },
-    {
-      "id": "sedentary",
-      "name": {
-        "es": "Tiempo sentado",
-        "en": "Sitting time"
-      },
-      "icon": "sedentary"
     }
   ],
   "equipment": [
+    {
+      "id": "resistance_band",
+      "name": {
+        "es": "Banda elástica",
+        "en": "Resistance band"
+      },
+      "hint": {
+        "es": "Añade ejercicios para espalda y hombros",
+        "en": "Adds upper-back and shoulder exercises"
+      },
+      "icon": "resistance_band"
+    },
+    {
+      "id": "mat",
+      "name": {
+        "es": "Esterilla",
+        "en": "Mat"
+      },
+      "hint": {
+        "es": "Añade movilidad y ejercicios en el suelo",
+        "en": "Adds floor mobility and exercises"
+      },
+      "icon": "mat"
+    },
     {
       "id": "pullup_bar",
       "name": {
@@ -58,8 +90,8 @@
         "en": "Pull-up bar"
       },
       "hint": {
-        "es": "Añade ejercicios con barra",
-        "en": "Adds bar exercises"
+        "es": "Añade colgados y trabajo de escápulas",
+        "en": "Adds hangs and shoulder-blade work"
       },
       "icon": "pullup_bar"
     },
@@ -70,8 +102,8 @@
         "en": "Dumbbells"
       },
       "hint": {
-        "es": "Añade pequeños bloques con mancuernas",
-        "en": "Adds short dumbbell sets"
+        "es": "Añade pequeños bloques de fuerza",
+        "en": "Adds short strength blocks"
       },
       "icon": "dumbbell"
     },
@@ -82,22 +114,10 @@
         "en": "Kettlebell"
       },
       "hint": {
-        "es": "Añade pequeños bloques con kettlebell",
-        "en": "Adds short kettlebell sets"
+        "es": "Añade movimientos de fuerza de cuerpo completo",
+        "en": "Adds full-body strength movements"
       },
       "icon": "kettlebell"
-    },
-    {
-      "id": "mat",
-      "name": {
-        "es": "Esterilla",
-        "en": "Mat"
-      },
-      "hint": {
-        "es": "Añade movilidad en el suelo",
-        "en": "Adds floor mobility"
-      },
-      "icon": "mat"
     },
     {
       "id": "standing_desk",
@@ -106,8 +126,8 @@
         "en": "Standing desk"
       },
       "hint": {
-        "es": "Permite proponerte ratos de trabajo de pie",
-        "en": "Lets us suggest some standing work"
+        "es": "Permite alternar bloques de trabajo sentado y de pie",
+        "en": "Lets you alternate sitting and standing work blocks"
       },
       "icon": "desk"
     }
@@ -180,8 +200,8 @@
     {
       "id": "neck_side_tilt",
       "name": {
-        "es": "Inclinación lateral suave",
-        "en": "Gentle side neck tilt"
+        "es": "Inclinación lateral de cuello",
+        "en": "Side neck tilt"
       },
       "description": {
         "es": "Acerca la oreja al hombro sin elevarlo.",
@@ -272,7 +292,7 @@
     {
       "id": "scapular_retraction",
       "name": {
-        "es": "Retracción escapular",
+        "es": "Juntar los omóplatos",
         "en": "Shoulder blade squeeze"
       },
       "description": {
@@ -295,7 +315,7 @@
       ],
       "areas": [
         "shoulders",
-        "back"
+        "upper_back"
       ],
       "equipment": [],
       "durationSec": 40,
@@ -328,7 +348,7 @@
       ],
       "areas": [
         "shoulders",
-        "back"
+        "upper_back"
       ],
       "equipment": [],
       "durationSec": 40,
@@ -360,8 +380,7 @@
         }
       ],
       "areas": [
-        "shoulders",
-        "sedentary"
+        "shoulders"
       ],
       "equipment": [],
       "durationSec": 30,
@@ -369,43 +388,10 @@
       "meetingFriendly": "partial"
     },
     {
-      "id": "punch",
-      "name": {
-        "es": "Golpes al frente",
-        "en": "Front punches"
-      },
-      "description": {
-        "es": "Puñetazos suaves alternos.",
-        "en": "Gentle alternating punches."
-      },
-      "steps": [
-        {
-          "es": "De pie, con las rodillas un poco flexionadas y los puños a la altura del pecho.",
-          "en": "Stand with soft knees and your fists at chest height."
-        },
-        {
-          "es": "Lanza puñetazos suaves al frente, alternando brazos.",
-          "en": "Throw gentle punches forward, alternating arms."
-        },
-        {
-          "es": "Gira un poco el tronco con cada golpe.",
-          "en": "Rotate your torso slightly with each punch."
-        }
-      ],
-      "areas": [
-        "shoulders",
-        "sedentary"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "no"
-    },
-    {
       "id": "thoracic_extension",
       "name": {
-        "es": "Extensión torácica sentado",
-        "en": "Seated upper-back extension"
+        "es": "Extensión de espalda alta",
+        "en": "Upper-back extension"
       },
       "description": {
         "es": "Abre el pecho y extiende la espalda alta con control.",
@@ -426,7 +412,7 @@
         }
       ],
       "areas": [
-        "back"
+        "upper_back"
       ],
       "equipment": [],
       "durationSec": 40,
@@ -436,8 +422,8 @@
     {
       "id": "thoracic_rotation",
       "name": {
-        "es": "Rotación torácica sentado",
-        "en": "Seated thoracic rotation"
+        "es": "Rotación de espalda alta",
+        "en": "Upper-back rotation"
       },
       "description": {
         "es": "Gira el tronco despacio hacia cada lado.",
@@ -458,7 +444,7 @@
         }
       ],
       "areas": [
-        "back"
+        "upper_back"
       ],
       "equipment": [],
       "durationSec": 45,
@@ -490,7 +476,8 @@
         }
       ],
       "areas": [
-        "back"
+        "upper_back",
+        "lower_back"
       ],
       "equipment": [],
       "durationSec": 50,
@@ -522,8 +509,8 @@
         }
       ],
       "areas": [
-        "back",
-        "sedentary"
+        "hips_legs",
+        "lower_back"
       ],
       "equipment": [],
       "durationSec": 50,
@@ -555,78 +542,13 @@
         }
       ],
       "areas": [
-        "back",
-        "sedentary"
+        "upper_back",
+        "hips_legs"
       ],
       "equipment": [],
       "durationSec": 30,
       "posture": "standing",
       "meetingFriendly": "partial"
-    },
-    {
-      "id": "trunk_twist",
-      "name": {
-        "es": "Rotación de tronco",
-        "en": "Trunk rotation"
-      },
-      "description": {
-        "es": "Giro controlado del tronco.",
-        "en": "A controlled torso rotation."
-      },
-      "steps": [
-        {
-          "es": "De pie, con los brazos cruzados sobre el pecho o abiertos en cruz.",
-          "en": "Stand with your arms crossed over your chest or out to the sides."
-        },
-        {
-          "es": "Gira el tronco despacio a un lado manteniendo la cadera al frente.",
-          "en": "Slowly rotate to one side, keeping your hips facing forward."
-        },
-        {
-          "es": "Vuelve al centro y alterna.",
-          "en": "Return to center and alternate."
-        }
-      ],
-      "areas": [
-        "back"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "partial"
-    },
-    {
-      "id": "golf_swing",
-      "name": {
-        "es": "Giro tipo golf",
-        "en": "Golf swing"
-      },
-      "description": {
-        "es": "Rotación amplia simulando un swing.",
-        "en": "A wide rotation, like a golf swing."
-      },
-      "steps": [
-        {
-          "es": "De pie, junta las manos como si sujetaras un palo.",
-          "en": "Stand and clasp your hands as if holding a club."
-        },
-        {
-          "es": "Gira el tronco llevando las manos de un lado a otro en un arco amplio.",
-          "en": "Rotate your torso, sweeping your hands from side to side in a wide arc."
-        },
-        {
-          "es": "Acompaña con las rodillas y alterna lados.",
-          "en": "Let your knees follow and alternate sides."
-        }
-      ],
-      "areas": [
-        "back",
-        "shoulders"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "no"
     },
     {
       "id": "wave",
@@ -653,8 +575,9 @@
         }
       ],
       "areas": [
-        "sedentary",
-        "back"
+        "hips_legs",
+        "upper_back",
+        "lower_back"
       ],
       "equipment": [],
       "durationSec": 30,
@@ -686,7 +609,7 @@
         }
       ],
       "areas": [
-        "sedentary"
+        "hips_legs"
       ],
       "equipment": [],
       "durationSec": 45,
@@ -718,7 +641,7 @@
         }
       ],
       "areas": [
-        "sedentary"
+        "hips_legs"
       ],
       "equipment": [],
       "durationSec": 40,
@@ -750,7 +673,7 @@
         }
       ],
       "areas": [
-        "sedentary"
+        "hips_legs"
       ],
       "equipment": [],
       "durationSec": 45,
@@ -782,44 +705,12 @@
         }
       ],
       "areas": [
-        "sedentary"
+        "hips_legs"
       ],
       "equipment": [],
       "durationSec": 90,
       "posture": "standing",
       "meetingFriendly": "yes"
-    },
-    {
-      "id": "plie",
-      "name": {
-        "es": "Plié",
-        "en": "Plié squat"
-      },
-      "description": {
-        "es": "Flexión de piernas con base amplia.",
-        "en": "Knee bends with a wide stance."
-      },
-      "steps": [
-        {
-          "es": "Abre los pies más que la cadera, con las puntas hacia fuera.",
-          "en": "Stand with your feet wide and your toes turned out."
-        },
-        {
-          "es": "Flexiona las rodillas en la dirección de los pies, con el tronco recto.",
-          "en": "Bend your knees over your toes, keeping your torso upright."
-        },
-        {
-          "es": "Sube y repite a un ritmo suave.",
-          "en": "Rise and repeat at an easy pace."
-        }
-      ],
-      "areas": [
-        "sedentary"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "no"
     },
     {
       "id": "push_side",
@@ -846,71 +737,7 @@
         }
       ],
       "areas": [
-        "sedentary"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "no"
-    },
-    {
-      "id": "kick_step",
-      "name": {
-        "es": "Patada frontal controlada",
-        "en": "Controlled front kick"
-      },
-      "description": {
-        "es": "Eleva la pierna estirada hasta una altura cómoda.",
-        "en": "Raise a straight leg to a comfortable height."
-      },
-      "steps": [
-        {
-          "es": "De pie, apóyate en la mesa si lo necesitas.",
-          "en": "Stand, holding the desk if you need to."
-        },
-        {
-          "es": "Eleva una pierna estirada al frente sin forzar.",
-          "en": "Lift one straight leg forward without forcing it."
-        },
-        {
-          "es": "Bájala con control y alterna.",
-          "en": "Lower it with control and alternate."
-        }
-      ],
-      "areas": [
-        "sedentary"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "no"
-    },
-    {
-      "id": "hop_rotate",
-      "name": {
-        "es": "Saltitos con giro de cadera",
-        "en": "Hip-twist hops"
-      },
-      "description": {
-        "es": "Pequeños saltos rotando suavemente la cadera.",
-        "en": "Small hops while gently twisting your hips."
-      },
-      "steps": [
-        {
-          "es": "De pie, con los brazos relajados delante del pecho.",
-          "en": "Stand with your arms relaxed in front of your chest."
-        },
-        {
-          "es": "Da saltitos girando la cadera a un lado y a otro.",
-          "en": "Hop lightly, twisting your hips side to side."
-        },
-        {
-          "es": "Mantén el tronco mirando al frente.",
-          "en": "Keep your upper body facing forward."
-        }
-      ],
-      "areas": [
-        "sedentary"
+        "hips_legs"
       ],
       "equipment": [],
       "durationSec": 30,
@@ -942,71 +769,7 @@
         }
       ],
       "areas": [
-        "sedentary"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "no"
-    },
-    {
-      "id": "curtsy_cross",
-      "name": {
-        "es": "Zancada cruzada",
-        "en": "Curtsy lunge"
-      },
-      "description": {
-        "es": "Paso cruzado hacia atrás, como una reverencia.",
-        "en": "A crossed step back, like a curtsy."
-      },
-      "steps": [
-        {
-          "es": "De pie, cruza una pierna por detrás de la otra.",
-          "en": "Standing, cross one leg behind the other."
-        },
-        {
-          "es": "Flexiona ambas rodillas con el tronco erguido.",
-          "en": "Bend both knees, keeping your torso upright."
-        },
-        {
-          "es": "Vuelve y alterna lados.",
-          "en": "Return and alternate sides."
-        }
-      ],
-      "areas": [
-        "sedentary"
-      ],
-      "equipment": [],
-      "durationSec": 30,
-      "posture": "standing",
-      "meetingFriendly": "no"
-    },
-    {
-      "id": "hop",
-      "name": {
-        "es": "Saltitos",
-        "en": "Light hops"
-      },
-      "description": {
-        "es": "Saltos suaves.",
-        "en": "Gentle hops."
-      },
-      "steps": [
-        {
-          "es": "De pie, con las rodillas ligeramente flexionadas.",
-          "en": "Stand with soft knees."
-        },
-        {
-          "es": "Da saltitos suaves sobre las puntas de los pies.",
-          "en": "Hop lightly on the balls of your feet."
-        },
-        {
-          "es": "Aterriza con suavidad y respira.",
-          "en": "Land softly and keep breathing."
-        }
-      ],
-      "areas": [
-        "sedentary"
+        "hips_legs"
       ],
       "equipment": [],
       "durationSec": 30,
@@ -1191,7 +954,7 @@
       ],
       "areas": [
         "shoulders",
-        "back"
+        "upper_back"
       ],
       "equipment": [
         "pullup_bar"
@@ -1226,7 +989,7 @@
       ],
       "areas": [
         "shoulders",
-        "back"
+        "upper_back"
       ],
       "equipment": [
         "pullup_bar"
@@ -1260,47 +1023,13 @@
         }
       ],
       "areas": [
-        "back",
-        "sedentary"
+        "upper_back",
+        "lower_back"
       ],
       "equipment": [
         "dumbbells"
       ],
       "durationSec": 45,
-      "posture": "standing",
-      "meetingFriendly": "no"
-    },
-    {
-      "id": "lateral_raise_light",
-      "name": {
-        "es": "Elevación lateral ligera",
-        "en": "Light lateral raise"
-      },
-      "description": {
-        "es": "Elevación lateral con carga muy ligera.",
-        "en": "A lateral raise with a very light load."
-      },
-      "steps": [
-        {
-          "es": "De pie, con mancuernas ligeras a los lados.",
-          "en": "Stand with light dumbbells at your sides."
-        },
-        {
-          "es": "Sube los brazos hacia los lados hasta la altura de los hombros.",
-          "en": "Raise your arms out to shoulder height."
-        },
-        {
-          "es": "Baja despacio. Unas 10 veces.",
-          "en": "Lower slowly. About 10 times."
-        }
-      ],
-      "areas": [
-        "shoulders"
-      ],
-      "equipment": [
-        "dumbbells"
-      ],
-      "durationSec": 50,
       "posture": "standing",
       "meetingFriendly": "no"
     },
@@ -1329,7 +1058,7 @@
         }
       ],
       "areas": [
-        "back",
+        "upper_back",
         "shoulders"
       ],
       "equipment": [
@@ -1364,7 +1093,8 @@
         }
       ],
       "areas": [
-        "back"
+        "lower_back",
+        "hips_legs"
       ],
       "equipment": [
         "kettlebell"
@@ -1398,7 +1128,8 @@
         }
       ],
       "areas": [
-        "shoulders"
+        "shoulders",
+        "upper_back"
       ],
       "equipment": [
         "kettlebell"
@@ -1432,7 +1163,8 @@
         }
       ],
       "areas": [
-        "back"
+        "upper_back",
+        "lower_back"
       ],
       "equipment": [
         "mat"
@@ -1466,47 +1198,14 @@
         }
       ],
       "areas": [
-        "back",
+        "upper_back",
+        "lower_back",
         "shoulders"
       ],
       "equipment": [
         "mat"
       ],
       "durationSec": 45,
-      "posture": "floor",
-      "meetingFriendly": "no"
-    },
-    {
-      "id": "quadruped_rotation",
-      "name": {
-        "es": "Rotación torácica a cuatro apoyos",
-        "en": "Quadruped thoracic rotation"
-      },
-      "description": {
-        "es": "Gira el tronco suavemente desde cuatro apoyos.",
-        "en": "Gently rotate your upper back from all fours."
-      },
-      "steps": [
-        {
-          "es": "A cuatro apoyos, lleva una mano detrás de la cabeza.",
-          "en": "On all fours, place one hand behind your head."
-        },
-        {
-          "es": "Gira el codo hacia el techo abriendo el pecho.",
-          "en": "Rotate your elbow up toward the ceiling, opening your chest."
-        },
-        {
-          "es": "Vuelve despacio. Unas 6 veces por lado.",
-          "en": "Return slowly. About 6 per side."
-        }
-      ],
-      "areas": [
-        "back"
-      ],
-      "equipment": [
-        "mat"
-      ],
-      "durationSec": 60,
       "posture": "floor",
       "meetingFriendly": "no"
     },
@@ -1535,8 +1234,8 @@
         }
       ],
       "areas": [
-        "sedentary",
-        "back"
+        "hips_legs",
+        "lower_back"
       ],
       "equipment": [
         "mat"
@@ -1570,8 +1269,8 @@
         }
       ],
       "areas": [
-        "back",
-        "sedentary"
+        "hips_legs",
+        "lower_back"
       ],
       "equipment": [
         "mat"
@@ -1579,6 +1278,878 @@
       "durationSec": 60,
       "posture": "floor",
       "meetingFriendly": "no"
+    },
+    {
+      "id": "wall_slides",
+      "name": {
+        "es": "Deslizamientos en pared",
+        "en": "Wall slides"
+      },
+      "description": {
+        "es": "Desliza los brazos por la pared de forma controlada.",
+        "en": "Slide your arms along the wall with control."
+      },
+      "steps": [
+        {
+          "es": "Apoya la espalda en una pared y coloca los brazos en forma de W.",
+          "en": "Stand against a wall with your arms in a W shape."
+        },
+        {
+          "es": "Desliza los brazos hacia arriba sin forzar.",
+          "en": "Slide your arms upward without forcing."
+        },
+        {
+          "es": "Baja despacio y repite unas 8 veces.",
+          "en": "Lower slowly and repeat about 8 times."
+        }
+      ],
+      "areas": [
+        "shoulders",
+        "upper_back"
+      ],
+      "equipment": [],
+      "durationSec": 45,
+      "posture": "standing",
+      "meetingFriendly": "partial"
+    },
+    {
+      "id": "doorway_chest_stretch",
+      "name": {
+        "es": "Apertura de pecho en puerta",
+        "en": "Doorway chest stretch"
+      },
+      "description": {
+        "es": "Abre suavemente el pecho usando el marco de una puerta.",
+        "en": "Gently open your chest using a doorway."
+      },
+      "steps": [
+        {
+          "es": "Apoya un antebrazo en el marco de una puerta.",
+          "en": "Place one forearm against a doorway."
+        },
+        {
+          "es": "Da un pequeño paso hacia delante.",
+          "en": "Take a small step forward."
+        },
+        {
+          "es": "Mantén 20 segundos y cambia de lado.",
+          "en": "Hold for 20 seconds and switch sides."
+        }
+      ],
+      "areas": [
+        "shoulders",
+        "upper_back"
+      ],
+      "equipment": [],
+      "durationSec": 50,
+      "posture": "standing",
+      "meetingFriendly": "partial"
+    },
+    {
+      "id": "desk_thoracic_extension",
+      "name": {
+        "es": "Extensión sobre escritorio",
+        "en": "Desk upper-back extension"
+      },
+      "description": {
+        "es": "Abre hombros y espalda alta usando el escritorio.",
+        "en": "Open your shoulders and upper back using your desk."
+      },
+      "steps": [
+        {
+          "es": "Apoya las manos en el escritorio y da un paso atrás.",
+          "en": "Place your hands on the desk and step back."
+        },
+        {
+          "es": "Lleva el pecho suavemente hacia el suelo.",
+          "en": "Gently lower your chest toward the floor."
+        },
+        {
+          "es": "Vuelve despacio y repite unas 6 veces.",
+          "en": "Return slowly and repeat about 6 times."
+        }
+      ],
+      "areas": [
+        "upper_back",
+        "shoulders"
+      ],
+      "equipment": [],
+      "durationSec": 45,
+      "posture": "standing",
+      "meetingFriendly": "partial"
+    },
+    {
+      "id": "desk_thread_needle",
+      "name": {
+        "es": "Rotación apoyada en escritorio",
+        "en": "Desk rotation"
+      },
+      "description": {
+        "es": "Rota la espalda alta con una mano apoyada.",
+        "en": "Rotate your upper back with one hand supported."
+      },
+      "steps": [
+        {
+          "es": "Apoya una mano en el escritorio e inclina un poco el tronco.",
+          "en": "Place one hand on the desk and lean forward slightly."
+        },
+        {
+          "es": "Pasa el otro brazo por debajo del cuerpo.",
+          "en": "Reach your other arm underneath your body."
+        },
+        {
+          "es": "Después abre ese brazo hacia el techo.",
+          "en": "Then open that arm toward the ceiling."
+        },
+        {
+          "es": "Haz 5 repeticiones y cambia de lado.",
+          "en": "Do 5 repetitions and switch sides."
+        }
+      ],
+      "areas": [
+        "upper_back",
+        "shoulders"
+      ],
+      "equipment": [],
+      "durationSec": 60,
+      "posture": "standing",
+      "meetingFriendly": "partial"
+    },
+    {
+      "id": "side_reach",
+      "name": {
+        "es": "Alcance lateral",
+        "en": "Side reach"
+      },
+      "description": {
+        "es": "Alarga un costado llevando el brazo por encima de la cabeza.",
+        "en": "Lengthen one side by reaching overhead."
+      },
+      "steps": [
+        {
+          "es": "Levanta un brazo por encima de la cabeza.",
+          "en": "Raise one arm overhead."
+        },
+        {
+          "es": "Inclínate suavemente hacia el lado contrario.",
+          "en": "Gently lean to the opposite side."
+        },
+        {
+          "es": "Vuelve al centro y cambia de lado.",
+          "en": "Return to center and switch sides."
+        }
+      ],
+      "areas": [
+        "upper_back",
+        "shoulders"
+      ],
+      "equipment": [],
+      "durationSec": 40,
+      "posture": "either",
+      "meetingFriendly": "yes"
+    },
+    {
+      "id": "wrist_flexor_stretch",
+      "name": {
+        "es": "Estiramiento interno de antebrazo",
+        "en": "Inner forearm stretch"
+      },
+      "description": {
+        "es": "Alarga suavemente la parte interna del antebrazo.",
+        "en": "Gently stretch the inner forearm."
+      },
+      "steps": [
+        {
+          "es": "Extiende un brazo al frente con la palma hacia arriba.",
+          "en": "Extend one arm forward with your palm facing up."
+        },
+        {
+          "es": "Con la otra mano lleva suavemente los dedos hacia abajo.",
+          "en": "Use your other hand to gently guide the fingers downward."
+        },
+        {
+          "es": "Mantén 15–20 segundos y cambia.",
+          "en": "Hold for 15–20 seconds and switch."
+        }
+      ],
+      "areas": [
+        "wrists"
+      ],
+      "equipment": [],
+      "durationSec": 45,
+      "posture": "either",
+      "meetingFriendly": "yes"
+    },
+    {
+      "id": "wrist_extensor_stretch",
+      "name": {
+        "es": "Estiramiento exterior de antebrazo",
+        "en": "Outer forearm stretch"
+      },
+      "description": {
+        "es": "Alarga suavemente la parte exterior del antebrazo.",
+        "en": "Gently stretch the outer forearm."
+      },
+      "steps": [
+        {
+          "es": "Extiende un brazo al frente con la palma hacia abajo.",
+          "en": "Extend one arm forward with your palm facing down."
+        },
+        {
+          "es": "Flexiona la muñeca y acompaña suavemente con la otra mano.",
+          "en": "Bend your wrist and gently assist with your other hand."
+        },
+        {
+          "es": "Mantén 15–20 segundos y cambia.",
+          "en": "Hold for 15–20 seconds and switch."
+        }
+      ],
+      "areas": [
+        "wrists"
+      ],
+      "equipment": [],
+      "durationSec": 45,
+      "posture": "either",
+      "meetingFriendly": "yes"
+    },
+    {
+      "id": "standing_hip_flexor",
+      "name": {
+        "es": "Apertura de cadera de pie",
+        "en": "Standing hip opener"
+      },
+      "description": {
+        "es": "Abre suavemente la parte delantera de la cadera.",
+        "en": "Gently open the front of your hip."
+      },
+      "steps": [
+        {
+          "es": "Da un paso hacia atrás y apoya bien ambos pies.",
+          "en": "Step one foot back and keep both feet planted."
+        },
+        {
+          "es": "Flexiona ligeramente la pierna delantera.",
+          "en": "Slightly bend your front knee."
+        },
+        {
+          "es": "Lleva suavemente la cadera hacia delante.",
+          "en": "Gently shift your hips forward."
+        },
+        {
+          "es": "Mantén 20 segundos y cambia.",
+          "en": "Hold for 20 seconds and switch."
+        }
+      ],
+      "areas": [
+        "hips_legs",
+        "lower_back"
+      ],
+      "equipment": [],
+      "durationSec": 50,
+      "posture": "standing",
+      "meetingFriendly": "partial"
+    },
+    {
+      "id": "standing_hip_abduction",
+      "name": {
+        "es": "Apertura lateral de pierna",
+        "en": "Standing hip abduction"
+      },
+      "description": {
+        "es": "Eleva una pierna hacia un lado con control.",
+        "en": "Lift one leg out to the side with control."
+      },
+      "steps": [
+        {
+          "es": "Apóyate ligeramente en el escritorio.",
+          "en": "Lightly hold the desk for support."
+        },
+        {
+          "es": "Eleva una pierna hacia un lado sin inclinar el tronco.",
+          "en": "Lift one leg sideways without leaning."
+        },
+        {
+          "es": "Haz 8–10 repeticiones y cambia.",
+          "en": "Do 8–10 repetitions and switch."
+        }
+      ],
+      "areas": [
+        "hips_legs"
+      ],
+      "equipment": [],
+      "durationSec": 50,
+      "posture": "standing",
+      "meetingFriendly": "partial"
+    },
+    {
+      "id": "sit_to_stand",
+      "name": {
+        "es": "Levántate de la silla",
+        "en": "Sit to stand"
+      },
+      "description": {
+        "es": "Siéntate y levántate de la silla de forma controlada.",
+        "en": "Sit down and stand up from your chair with control."
+      },
+      "steps": [
+        {
+          "es": "Siéntate cerca del borde de la silla.",
+          "en": "Sit near the edge of your chair."
+        },
+        {
+          "es": "Levántate sin impulsarte con las manos.",
+          "en": "Stand without pushing with your hands."
+        },
+        {
+          "es": "Siéntate despacio y repite unas 10 veces.",
+          "en": "Sit down slowly and repeat about 10 times."
+        }
+      ],
+      "areas": [
+        "hips_legs"
+      ],
+      "equipment": [],
+      "durationSec": 45,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "single_leg_balance",
+      "name": {
+        "es": "Equilibrio a una pierna",
+        "en": "Single-leg balance"
+      },
+      "description": {
+        "es": "Mantén el equilibrio sobre una pierna.",
+        "en": "Balance on one leg."
+      },
+      "steps": [
+        {
+          "es": "Ponte de pie junto al escritorio.",
+          "en": "Stand next to your desk."
+        },
+        {
+          "es": "Levanta un pie unos centímetros del suelo.",
+          "en": "Lift one foot a few centimeters off the floor."
+        },
+        {
+          "es": "Mantén 20 segundos y cambia de pierna.",
+          "en": "Hold for 20 seconds and switch legs."
+        }
+      ],
+      "areas": [
+        "hips_legs"
+      ],
+      "equipment": [],
+      "durationSec": 45,
+      "posture": "standing",
+      "meetingFriendly": "yes"
+    },
+    {
+      "id": "standing_hamstring_mobility",
+      "name": {
+        "es": "Movilidad posterior de pierna",
+        "en": "Standing hamstring mobility"
+      },
+      "description": {
+        "es": "Alterna una pierna al frente para mover la parte posterior de las piernas.",
+        "en": "Alternate one leg forward to move the back of your legs."
+      },
+      "steps": [
+        {
+          "es": "Adelanta un talón con la pierna casi estirada.",
+          "en": "Place one heel forward with the leg almost straight."
+        },
+        {
+          "es": "Lleva la cadera atrás e inclina un poco el tronco.",
+          "en": "Push your hips back and lean forward slightly."
+        },
+        {
+          "es": "Vuelve arriba y cambia de pierna.",
+          "en": "Come back up and switch legs."
+        },
+        {
+          "es": "Alterna unas 6 veces por lado.",
+          "en": "Alternate about 6 times per side."
+        }
+      ],
+      "areas": [
+        "hips_legs"
+      ],
+      "equipment": [],
+      "durationSec": 50,
+      "posture": "standing",
+      "meetingFriendly": "partial"
+    },
+    {
+      "id": "band_pull_apart",
+      "name": {
+        "es": "Apertura con banda",
+        "en": "Band pull-apart"
+      },
+      "description": {
+        "es": "Abre la banda juntando suavemente los omóplatos.",
+        "en": "Pull the band apart while gently squeezing your shoulder blades."
+      },
+      "steps": [
+        {
+          "es": "Sujeta la banda al frente con los brazos estirados.",
+          "en": "Hold the band in front of you with straight arms."
+        },
+        {
+          "es": "Abre los brazos hasta acercar la banda al pecho.",
+          "en": "Open your arms until the band approaches your chest."
+        },
+        {
+          "es": "Vuelve despacio y repite 10–15 veces.",
+          "en": "Return slowly and repeat 10–15 times."
+        }
+      ],
+      "areas": [
+        "shoulders",
+        "upper_back"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "durationSec": 45,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "band_external_rotation",
+      "name": {
+        "es": "Rotación externa con banda",
+        "en": "Band external rotation"
+      },
+      "description": {
+        "es": "Abre las manos manteniendo los codos junto al cuerpo.",
+        "en": "Move your hands apart while keeping your elbows by your sides."
+      },
+      "steps": [
+        {
+          "es": "Sujeta la banda con los codos doblados y pegados al cuerpo.",
+          "en": "Hold the band with your elbows bent and close to your body."
+        },
+        {
+          "es": "Separa las manos sin despegar los codos.",
+          "en": "Move your hands apart without moving your elbows."
+        },
+        {
+          "es": "Vuelve despacio y repite 10–15 veces.",
+          "en": "Return slowly and repeat 10–15 times."
+        }
+      ],
+      "areas": [
+        "shoulders"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "durationSec": 45,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "band_row",
+      "name": {
+        "es": "Remo con banda",
+        "en": "Band row"
+      },
+      "description": {
+        "es": "Tira de la banda hacia ti llevando los codos atrás.",
+        "en": "Pull the band toward you, driving your elbows back."
+      },
+      "steps": [
+        {
+          "es": "Ancla la banda delante de ti a una altura cómoda.",
+          "en": "Anchor the band in front of you at a comfortable height."
+        },
+        {
+          "es": "Tira hacia el cuerpo llevando los codos atrás.",
+          "en": "Pull toward your body, driving your elbows back."
+        },
+        {
+          "es": "Vuelve con control y repite 10–15 veces.",
+          "en": "Return with control and repeat 10–15 times."
+        }
+      ],
+      "areas": [
+        "upper_back",
+        "shoulders"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "durationSec": 50,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "band_face_pull",
+      "name": {
+        "es": "Face pull con banda",
+        "en": "Band face pull"
+      },
+      "description": {
+        "es": "Lleva la banda hacia la cara abriendo los codos.",
+        "en": "Pull the band toward your face while opening your elbows."
+      },
+      "steps": [
+        {
+          "es": "Ancla la banda delante de ti a la altura de la cara.",
+          "en": "Anchor the band in front of you at face height."
+        },
+        {
+          "es": "Tira hacia la cara llevando los codos hacia atrás.",
+          "en": "Pull toward your face, driving your elbows back."
+        },
+        {
+          "es": "Vuelve despacio y repite 10–12 veces.",
+          "en": "Return slowly and repeat 10–12 times."
+        }
+      ],
+      "areas": [
+        "upper_back",
+        "shoulders"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "durationSec": 50,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "band_pallof_press",
+      "name": {
+        "es": "Press anti-giro con banda",
+        "en": "Band Pallof press"
+      },
+      "description": {
+        "es": "Aleja la banda del pecho evitando que el tronco gire.",
+        "en": "Press the band away while keeping your torso from rotating."
+      },
+      "steps": [
+        {
+          "es": "Ancla la banda a un lado y sujétala frente al pecho.",
+          "en": "Anchor the band beside you and hold it at your chest."
+        },
+        {
+          "es": "Aleja las manos del pecho manteniendo el tronco quieto.",
+          "en": "Press your hands away while keeping your torso still."
+        },
+        {
+          "es": "Vuelve y repite 8 veces antes de cambiar de lado.",
+          "en": "Return and repeat 8 times before switching sides."
+        }
+      ],
+      "areas": [
+        "lower_back"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "durationSec": 60,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "assisted_hang",
+      "name": {
+        "es": "Colgado con apoyo",
+        "en": "Assisted hang"
+      },
+      "description": {
+        "es": "Cuélgate parcialmente manteniendo los pies apoyados.",
+        "en": "Hang partially while keeping your feet supported."
+      },
+      "steps": [
+        {
+          "es": "Agarra la barra y mantén los pies en el suelo.",
+          "en": "Grip the bar and keep your feet on the floor."
+        },
+        {
+          "es": "Flexiona un poco las rodillas dejando parte del peso en los brazos.",
+          "en": "Slightly bend your knees, letting your arms take some weight."
+        },
+        {
+          "es": "Mantén 15–30 segundos respirando con calma.",
+          "en": "Hold for 15–30 seconds while breathing calmly."
+        }
+      ],
+      "areas": [
+        "shoulders",
+        "upper_back"
+      ],
+      "equipment": [
+        "pullup_bar"
+      ],
+      "durationSec": 40,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "farmer_walk",
+      "name": {
+        "es": "Paseo con mancuernas",
+        "en": "Farmer walk"
+      },
+      "description": {
+        "es": "Camina despacio con una mancuerna en cada mano.",
+        "en": "Walk slowly with a dumbbell in each hand."
+      },
+      "steps": [
+        {
+          "es": "Coge una mancuerna en cada mano y ponte erguido.",
+          "en": "Hold a dumbbell in each hand and stand tall."
+        },
+        {
+          "es": "Camina despacio con pasos cómodos.",
+          "en": "Walk slowly with comfortable steps."
+        },
+        {
+          "es": "Mantén los hombros relajados y vuelve al punto de inicio.",
+          "en": "Keep your shoulders relaxed and return to your starting point."
+        }
+      ],
+      "areas": [
+        "upper_back",
+        "lower_back",
+        "hips_legs"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "durationSec": 60,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "kettlebell_deadlift",
+      "name": {
+        "es": "Peso muerto con kettlebell",
+        "en": "Kettlebell deadlift"
+      },
+      "description": {
+        "es": "Levanta la kettlebell usando una bisagra de cadera.",
+        "en": "Lift the kettlebell using a hip hinge."
+      },
+      "steps": [
+        {
+          "es": "Coloca la kettlebell entre los pies.",
+          "en": "Place the kettlebell between your feet."
+        },
+        {
+          "es": "Lleva la cadera atrás y agarra el asa.",
+          "en": "Push your hips back and grip the handle."
+        },
+        {
+          "es": "Ponte de pie empujando el suelo y extendiendo la cadera.",
+          "en": "Stand by pushing through the floor and extending your hips."
+        },
+        {
+          "es": "Baja con control y repite unas 8 veces.",
+          "en": "Lower with control and repeat about 8 times."
+        }
+      ],
+      "areas": [
+        "hips_legs",
+        "lower_back"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "durationSec": 60,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "goblet_squat_light",
+      "name": {
+        "es": "Sentadilla goblet ligera",
+        "en": "Light goblet squat"
+      },
+      "description": {
+        "es": "Haz sentadillas cómodas sujetando la kettlebell al pecho.",
+        "en": "Do comfortable squats while holding the kettlebell at your chest."
+      },
+      "steps": [
+        {
+          "es": "Sujeta la kettlebell delante del pecho.",
+          "en": "Hold the kettlebell in front of your chest."
+        },
+        {
+          "es": "Baja la cadera como si fueras a sentarte.",
+          "en": "Lower your hips as if sitting down."
+        },
+        {
+          "es": "Vuelve arriba con control.",
+          "en": "Stand back up with control."
+        },
+        {
+          "es": "Repite unas 8 veces.",
+          "en": "Repeat about 8 times."
+        }
+      ],
+      "areas": [
+        "hips_legs"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "durationSec": 60,
+      "posture": "standing",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "bird_dog",
+      "name": {
+        "es": "Bird dog",
+        "en": "Bird dog"
+      },
+      "description": {
+        "es": "Extiende brazo y pierna contrarios manteniendo el tronco estable.",
+        "en": "Extend opposite arm and leg while keeping your torso steady."
+      },
+      "steps": [
+        {
+          "es": "Colócate a cuatro apoyos.",
+          "en": "Start on all fours."
+        },
+        {
+          "es": "Extiende un brazo y la pierna contraria.",
+          "en": "Extend one arm and the opposite leg."
+        },
+        {
+          "es": "Vuelve despacio y cambia de lado.",
+          "en": "Return slowly and switch sides."
+        },
+        {
+          "es": "Haz unas 6 repeticiones por lado.",
+          "en": "Do about 6 repetitions per side."
+        }
+      ],
+      "areas": [
+        "lower_back",
+        "hips_legs"
+      ],
+      "equipment": [
+        "mat"
+      ],
+      "durationSec": 60,
+      "posture": "floor",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "thread_the_needle",
+      "name": {
+        "es": "Enhebrar la aguja",
+        "en": "Thread the needle"
+      },
+      "description": {
+        "es": "Rota suavemente la espalda alta desde cuatro apoyos.",
+        "en": "Gently rotate your upper back from all fours."
+      },
+      "steps": [
+        {
+          "es": "Colócate a cuatro apoyos.",
+          "en": "Start on all fours."
+        },
+        {
+          "es": "Pasa un brazo por debajo del otro.",
+          "en": "Reach one arm underneath the other."
+        },
+        {
+          "es": "Después abre ese brazo hacia el techo.",
+          "en": "Then open that arm toward the ceiling."
+        },
+        {
+          "es": "Repite 5 veces y cambia.",
+          "en": "Repeat 5 times and switch."
+        }
+      ],
+      "areas": [
+        "upper_back",
+        "shoulders"
+      ],
+      "equipment": [
+        "mat"
+      ],
+      "durationSec": 60,
+      "posture": "floor",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "dead_bug",
+      "name": {
+        "es": "Dead bug",
+        "en": "Dead bug"
+      },
+      "description": {
+        "es": "Mueve brazos y piernas manteniendo el tronco estable.",
+        "en": "Move your arms and legs while keeping your torso steady."
+      },
+      "steps": [
+        {
+          "es": "Túmbate boca arriba con brazos arriba y rodillas dobladas.",
+          "en": "Lie on your back with arms up and knees bent."
+        },
+        {
+          "es": "Aleja lentamente un brazo y la pierna contraria.",
+          "en": "Slowly reach one arm and the opposite leg away."
+        },
+        {
+          "es": "Vuelve al centro y cambia de lado.",
+          "en": "Return to center and switch sides."
+        },
+        {
+          "es": "Haz unas 6 repeticiones por lado.",
+          "en": "Do about 6 repetitions per side."
+        }
+      ],
+      "areas": [
+        "lower_back",
+        "hips_legs"
+      ],
+      "equipment": [
+        "mat"
+      ],
+      "durationSec": 60,
+      "posture": "floor",
+      "meetingFriendly": "no"
+    },
+    {
+      "id": "eyes_closed_break",
+      "name": {
+        "es": "Descanso con ojos cerrados",
+        "en": "Eyes-closed break"
+      },
+      "description": {
+        "es": "Aparta la vista de la pantalla y mantén los ojos cerrados unos segundos.",
+        "en": "Look away from the screen and keep your eyes closed for a few seconds."
+      },
+      "steps": [
+        {
+          "es": "Aparta las manos del teclado y relaja la cara.",
+          "en": "Take your hands off the keyboard and relax your face."
+        },
+        {
+          "es": "Cierra suavemente los ojos durante 20 segundos.",
+          "en": "Gently close your eyes for 20 seconds."
+        },
+        {
+          "es": "Ábrelos y mira un punto lejano.",
+          "en": "Open them and look at something far away."
+        }
+      ],
+      "areas": [
+        "eyes"
+      ],
+      "equipment": [],
+      "durationSec": 30,
+      "posture": "either",
+      "meetingFriendly": "yes"
     }
   ],
   "routines": [
@@ -1598,7 +2169,7 @@
           "seconds": 30
         },
         {
-          "exercise": "trunk_twist",
+          "exercise": "high_twist",
           "seconds": 30
         },
         {
@@ -1619,15 +2190,15 @@
           "seconds": 30
         },
         {
-          "exercise": "high_twist",
-          "seconds": 30
+          "exercise": "desk_thoracic_extension",
+          "seconds": 40
         },
         {
-          "exercise": "golf_swing",
-          "seconds": 30
+          "exercise": "side_reach",
+          "seconds": 40
         },
         {
-          "exercise": "wave",
+          "exercise": "march",
           "seconds": 30
         }
       ]
@@ -1640,20 +2211,16 @@
       },
       "steps": [
         {
-          "exercise": "march",
-          "seconds": 30
+          "exercise": "sit_to_stand",
+          "seconds": 45
         },
         {
-          "exercise": "plie",
-          "seconds": 30
+          "exercise": "calf_raises",
+          "seconds": 40
         },
         {
-          "exercise": "push_side",
-          "seconds": 30
-        },
-        {
-          "exercise": "kick_step",
-          "seconds": 30
+          "exercise": "standing_hip_abduction",
+          "seconds": 50
         }
       ]
     },
@@ -1669,23 +2236,15 @@
           "seconds": 30
         },
         {
-          "exercise": "punch",
-          "seconds": 30
+          "exercise": "wall_slides",
+          "seconds": 45
         },
         {
-          "exercise": "lunge",
-          "seconds": 30
+          "exercise": "hip_hinge",
+          "seconds": 45
         },
         {
           "exercise": "high_twist",
-          "seconds": 30
-        },
-        {
-          "exercise": "push_side",
-          "seconds": 30
-        },
-        {
-          "exercise": "hop_rotate",
           "seconds": 30
         }
       ]
@@ -1699,14 +2258,14 @@
       "steps": [
         {
           "exercise": "chin_tuck",
-          "seconds": 45
+          "seconds": 40
         },
         {
-          "exercise": "neck_side_tilt",
-          "seconds": 45
+          "exercise": "neck_rotation",
+          "seconds": 40
         },
         {
-          "exercise": "shoulder_circles",
+          "exercise": "wall_slides",
           "seconds": 45
         },
         {
@@ -1714,16 +2273,108 @@
           "seconds": 45
         },
         {
-          "exercise": "cat_cow_standing",
-          "seconds": 45
-        },
-        {
-          "exercise": "chest_opener",
-          "seconds": 30
+          "exercise": "standing_hip_flexor",
+          "seconds": 50
         },
         {
           "exercise": "march",
           "seconds": 45
+        }
+      ]
+    },
+    {
+      "id": "meeting_reset",
+      "name": {
+        "es": "Reset para reunión",
+        "en": "Meeting reset"
+      },
+      "steps": [
+        {
+          "exercise": "chin_tuck",
+          "seconds": 30
+        },
+        {
+          "exercise": "scapular_retraction",
+          "seconds": 30
+        },
+        {
+          "exercise": "far_gaze",
+          "seconds": 25
+        },
+        {
+          "exercise": "calf_raises",
+          "seconds": 35
+        }
+      ]
+    },
+    {
+      "id": "band_upper_reset",
+      "name": {
+        "es": "Reset con banda",
+        "en": "Band reset"
+      },
+      "steps": [
+        {
+          "exercise": "band_pull_apart",
+          "seconds": 40
+        },
+        {
+          "exercise": "band_external_rotation",
+          "seconds": 40
+        },
+        {
+          "exercise": "band_row",
+          "seconds": 45
+        },
+        {
+          "exercise": "band_pallof_press",
+          "seconds": 55
+        }
+      ]
+    },
+    {
+      "id": "wrists_reset",
+      "name": {
+        "es": "Reset de manos y muñecas",
+        "en": "Hands and wrists reset"
+      },
+      "steps": [
+        {
+          "exercise": "finger_flex",
+          "seconds": 30
+        },
+        {
+          "exercise": "wrist_mobility",
+          "seconds": 35
+        },
+        {
+          "exercise": "wrist_flexor_stretch",
+          "seconds": 40
+        },
+        {
+          "exercise": "wrist_extensor_stretch",
+          "seconds": 40
+        }
+      ]
+    },
+    {
+      "id": "floor_reset",
+      "name": {
+        "es": "Reset en esterilla",
+        "en": "Mat reset"
+      },
+      "steps": [
+        {
+          "exercise": "cat_cow_mat",
+          "seconds": 45
+        },
+        {
+          "exercise": "thread_the_needle",
+          "seconds": 50
+        },
+        {
+          "exercise": "bird_dog",
+          "seconds": 55
         }
       ]
     }
@@ -1838,8 +2489,8 @@
         "en": "Mini mobility routine"
       },
       "description": {
-        "es": "Cuello, hombros, espalda y marcha suave en 5 minutos.",
-        "en": "Neck, shoulders, back and gentle marching in 5 minutes."
+        "es": "Movilidad de cuello, hombros, espalda, cadera y piernas en pocos minutos.",
+        "en": "Neck, shoulder, back, hip and leg mobility in a few minutes."
       },
       "steps": [
         {
@@ -1906,6 +2557,46 @@
       "icon": "desk"
     },
     {
+      "id": "band_block",
+      "name": {
+        "es": "Mini bloque con banda",
+        "en": "Resistance band mini block"
+      },
+      "description": {
+        "es": "Espalda, hombros y estabilidad con una banda elástica.",
+        "en": "Upper-back, shoulder and stability work with a resistance band."
+      },
+      "steps": [
+        {
+          "es": "Empieza con aperturas y rotaciones externas.",
+          "en": "Start with pull-aparts and external rotations."
+        },
+        {
+          "es": "Sigue con remo o face pulls.",
+          "en": "Continue with rows or face pulls."
+        },
+        {
+          "es": "Termina con press anti-giro y repite si te queda tiempo.",
+          "en": "Finish with Pallof presses and repeat if you have time."
+        }
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "durationMin": {
+        "min": 5,
+        "max": 10
+      },
+      "shortVersionMin": 5,
+      "completionMode": "continuous",
+      "slots": [
+        "break"
+      ],
+      "whileWorking": false,
+      "routine": "band_upper_reset",
+      "icon": "resistance_band"
+    },
+    {
       "id": "pullup_block",
       "name": {
         "es": "Bloque de barra",
@@ -1917,16 +2608,16 @@
       },
       "steps": [
         {
-          "es": "Cuélgate de la barra 10–30 segundos, con los pies apoyados si lo necesitas.",
-          "en": "Hang from the bar for 10–30 seconds, feet down if you need to."
+          "es": "Empieza con un colgado con los pies apoyados.",
+          "en": "Start with a supported hang, keeping your feet down."
         },
         {
           "es": "Haz unas retracciones escapulares sin doblar los codos.",
           "en": "Do a few scapular pulls without bending your elbows."
         },
         {
-          "es": "Si te apetece, alguna dominada asistida o negativa, sin buscar fatiga.",
-          "en": "If you like, add a few assisted or negative pull-ups, without chasing fatigue."
+          "es": "Si te resulta cómodo, prueba algún colgado libre corto.",
+          "en": "If it feels comfortable, try a short free hang."
         },
         {
           "es": "Descansa entre tandas.",
@@ -1967,8 +2658,8 @@
           "en": "Do a few light rows per side."
         },
         {
-          "es": "Haz unas bisagras de cadera con la espalda recta.",
-          "en": "Do a few hip hinges with a straight back."
+          "es": "Haz unas bisagras de cadera controladas.",
+          "en": "Do a few controlled hip hinges."
         },
         {
           "es": "Repite la vuelta si te queda tiempo.",
@@ -2001,16 +2692,16 @@
       },
       "steps": [
         {
-          "es": "Levanta la kettlebell del suelo con una bisagra de cadera controlada.",
-          "en": "Lift the kettlebell from the floor with a controlled hip hinge."
+          "es": "Haz unas repeticiones de peso muerto con kettlebell.",
+          "en": "Do a few kettlebell deadlifts."
         },
         {
-          "es": "Haz unas sentadillas cómodas con la kettlebell al pecho.",
-          "en": "Do a few comfortable squats holding the kettlebell at your chest."
+          "es": "Sigue con unas sentadillas goblet cómodas.",
+          "en": "Follow with a few comfortable goblet squats."
         },
         {
-          "es": "Camina despacio con la kettlebell a un lado y cambia de mano.",
-          "en": "Walk slowly with the kettlebell at one side, then switch hands."
+          "es": "Termina caminando despacio con la kettlebell a un lado y cambia de mano.",
+          "en": "Finish by walking slowly with the kettlebell at one side, then switch hands."
         }
       ],
       "equipment": [
@@ -2039,16 +2730,16 @@
       },
       "steps": [
         {
-          "es": "Empieza con gato-vaca a cuatro apoyos.",
-          "en": "Start with cat-cow on all fours."
+          "es": "Sigue los movimientos guiados uno a uno.",
+          "en": "Follow the guided movements one by one."
         },
         {
-          "es": "Pasa a la postura del niño y respira.",
-          "en": "Move into child's pose and breathe."
+          "es": "Muévete despacio y con un rango cómodo.",
+          "en": "Move slowly through a comfortable range."
         },
         {
-          "es": "Sigue con el estiramiento de cadera en zancada y el puente de glúteos.",
-          "en": "Continue with the kneeling hip stretch and glute bridges."
+          "es": "Repite la secuencia si quieres completar más tiempo.",
+          "en": "Repeat the sequence if you want a longer session."
         }
       ],
       "equipment": [
@@ -2063,7 +2754,8 @@
         "break"
       ],
       "whileWorking": false,
-      "icon": "mat"
+      "icon": "mat",
+      "routine": "floor_reset"
     }
   ]
 }

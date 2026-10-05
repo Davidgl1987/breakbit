@@ -12,8 +12,8 @@ import {
 } from './pauseContent';
 import { PAUSE_RESERVE_MIN, resolvePauseTimes, type PauseRequest } from './resolve';
 import { pauseTypeForDuration } from './selectExercise';
-import { buildTimeline, slotAt, type Interval } from './timeline';
-import { microbreakZones } from './zones';
+import { buildTimeline, slotAt } from './timeline';
+import { microbreakZones, type MainInterval } from './zones';
 
 /**
  * Re-plans the remaining microbreaks after something changed (a postpone, a missed or
@@ -37,7 +37,7 @@ export function rebalance(plan: DayPlan, now: Instant, context: ContentContext):
   const earliest = startMinute(plan, now);
 
   const main = plan.activities.find((item) => item.kind === 'main' && item.status !== 'skipped');
-  const zones = microbreakZones(timeline, main ? mainInterval(main) : undefined);
+  const zones = microbreakZones(timeline, main ? mainInterval(main, context) : undefined);
 
   const planned = plan.activities
     .filter((item) => item.kind === 'micro' && item.origin === 'plan')
@@ -156,13 +156,17 @@ function movementAnchor(item: ScheduledActivity): Instant | undefined {
   return item.startedAt ?? item.currentScheduledAt;
 }
 
-function mainInterval(main: ScheduledActivity): Interval {
+function mainInterval(main: ScheduledActivity, context: ContentContext): MainInterval {
   const durationMin = Math.ceil(main.durationSec / 60);
   const end =
     main.status === 'completed' && main.completedAt !== undefined
       ? minutesOfDay(main.completedAt)
       : minutesOfDay(main.currentScheduledAt) + durationMin;
-  return { start: end - durationMin, end };
+  const activityId = main.content.kind === 'main' ? main.content.activityId : undefined;
+  const whileWorking = context.catalog.mainActivities.find(
+    (activity) => activity.id === activityId,
+  )?.whileWorking;
+  return { start: end - durationMin, end, whileWorking };
 }
 
 /**

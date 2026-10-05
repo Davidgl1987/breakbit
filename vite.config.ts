@@ -1,12 +1,13 @@
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
+import { catalogCheck } from './build/catalogCheck.ts';
 import { swPrecache } from './build/swPrecache.ts';
 
 const PURE_TESTS = ['src/domain/**/*.test.ts', 'src/content/**/*.test.ts', 'build/**/*.test.ts'];
 
 export default defineConfig({
-  plugins: [react(), swPrecache()],
+  plugins: [catalogCheck(), react(), swPrecache()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

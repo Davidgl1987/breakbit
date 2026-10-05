@@ -23,12 +23,17 @@ export function microbreakViolations(
   const exercises = new Map(catalog.exercises.map((exercise) => [exercise.id, exercise]));
   const main = plan.activities.find((item) => item.kind === 'main');
   const mainStart = main ? minutesOfDay(main.currentScheduledAt) : undefined;
+  // One done while working (standing desk, walking meeting) needs no buffers around it.
+  const whileWorking =
+    main?.content.kind === 'main' &&
+    catalog.mainActivities.find(
+      (activity) => main.content.kind === 'main' && activity.id === main.content.activityId,
+    )?.whileWorking === true;
+  const pre = whileWorking ? 0 : PLANNER.mainPreBufferMin;
+  const post = whileWorking ? 0 : PLANNER.mainPostBufferMin;
   const mainZone: Interval | undefined =
     main && mainStart !== undefined
-      ? {
-          start: mainStart - PLANNER.mainPreBufferMin,
-          end: mainStart + Math.ceil(main.durationSec / 60) + PLANNER.mainPostBufferMin,
-        }
+      ? { start: mainStart - pre, end: mainStart + Math.ceil(main.durationSec / 60) + post }
       : undefined;
 
   const placed = plan.activities

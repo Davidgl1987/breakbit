@@ -232,7 +232,7 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
         )}
         <MetricTile
           layout="inline"
-          icon="sedentary"
+          icon="seated"
           value={formatActiveTime(summary.interruptionSec)}
           label={t('dayEnd.stats.interruption')}
         />

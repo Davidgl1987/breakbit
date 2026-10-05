@@ -1,9 +1,8 @@
 import fc from 'fast-check';
 import { validateSchedule } from '@/domain/calendar/validation';
 import { fromMinutes } from '@/domain/time';
+import { CATALOG } from '@/content/catalog';
 import {
-  BODY_AREAS,
-  EQUIPMENT,
   type BodyArea,
   type DaySchedule,
   type DiscomfortLevel,
@@ -85,12 +84,11 @@ export function meetingsArb(schedule: DaySchedule): fc.Arbitrary<Meeting[]> {
 }
 
 export const discomfortArb: fc.Arbitrary<DiscomfortLevels> = fc.record(
-  Object.fromEntries(BODY_AREAS.map((area) => [area, fc.integer({ min: 0, max: 5 })])) as Record<
-    BodyArea,
-    fc.Arbitrary<DiscomfortLevel>
-  >,
+  Object.fromEntries(
+    CATALOG.areas.map((area) => [area.id, fc.integer({ min: 0, max: 5 })]),
+  ) as Record<BodyArea, fc.Arbitrary<DiscomfortLevel>>,
 );
 
 export const intensityArb: fc.Arbitrary<Intensity> = fc.constantFrom('soft', 'normal', 'active');
 
-export const equipmentArb = fc.subarray([...EQUIPMENT]);
+export const equipmentArb = fc.subarray(CATALOG.equipment.map((item) => item.id));

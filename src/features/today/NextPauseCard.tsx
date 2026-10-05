@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { pausePath, pausePlayPath } from '@/app/routes';
 import { isAwaitingAnswer, isDue } from '@/domain/pause/window';
 import type { Instant, ScheduledActivity } from '@/domain/types';
+import { areaIcon, areaName } from '@/features/day/catalogDisplay';
 import { contentAreas } from '@/features/day/contentItems';
 import { contentName } from '@/features/day/contentName';
 import { formatDuration } from '@/i18n/translate';
@@ -10,7 +11,6 @@ import { Button } from '@/ui/components/Button/Button';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
 import { StatusBadge } from '@/ui/components/StatusBadge/StatusBadge';
-import { AREA_ICONS } from '@/ui/icons/domainIcons';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './TodayScreen.module.css';
 
@@ -60,7 +60,12 @@ export function NextPauseCard({ pause, now, onSee }: NextPauseCardProps) {
         {areas.length > 0 && (
           <span className={styles.areaIcons}>
             {areas.map((area) => (
-              <PixelIcon key={area} name={AREA_ICONS[area]} size={32} label={t(`areas.${area}`)} />
+              <PixelIcon
+                key={area}
+                name={areaIcon(area)}
+                size={32}
+                label={areaName(area, locale)}
+              />
             ))}
           </span>
         )}

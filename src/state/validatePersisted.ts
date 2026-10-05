@@ -1,6 +1,6 @@
 import { validateSchedule } from '@/domain/calendar/validation';
 import { isValidDateKey, isValidHHmm } from '@/domain/time';
-import { BODY_AREAS, EQUIPMENT, EVENT_TYPES } from '@/domain/types';
+import { EVENT_TYPES } from '@/domain/types';
 import { LOCALES } from '@/i18n/translate';
 
 /**
@@ -121,14 +121,13 @@ function validateSettings(v: Validator, settings: unknown, path: string): void {
   v.array(settings.workDays, `${path}.workDays`, (day, dayPath) => v.integer(day, dayPath, 1, 7));
   validateSchedule_(v, settings.schedule, `${path}.schedule`);
   v.oneOf(settings.intensity, ['soft', 'normal', 'active'], `${path}.intensity`);
+  // Area and equipment ids come from the catalog; ids it doesn't have are ignored.
   if (v.record(settings.discomfort, `${path}.discomfort`)) {
-    for (const area of BODY_AREAS) {
-      v.integer(settings.discomfort[area], `${path}.discomfort.${area}`, 0, 5);
+    for (const [area, level] of Object.entries(settings.discomfort)) {
+      v.integer(level, `${path}.discomfort.${area}`, 0, 5);
     }
   }
-  v.array(settings.equipment, `${path}.equipment`, (item, itemPath) =>
-    v.oneOf(item, EQUIPMENT, itemPath),
-  );
+  v.array(settings.equipment, `${path}.equipment`, (item, itemPath) => v.string(item, itemPath));
   v.integer(settings.preferredMainActivityMin, `${path}.preferredMainActivityMin`, 1, 240);
   if (v.record(settings.notifications, `${path}.notifications`)) {
     for (const key of ['enabled', 'dayStart', 'microbreaks', 'dayEnd']) {

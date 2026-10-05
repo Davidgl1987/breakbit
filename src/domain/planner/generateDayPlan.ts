@@ -1,4 +1,4 @@
-import { DAY_END_LEAD_MIN, PLANNER, SPACING } from '../config';
+import { DAY_END_LEAD_MIN, MOVEMENT, PLANNER, SPACING } from '../config';
 import { createRng } from '../rng';
 import { atMinutes, compareDateKeys, minutesOfDay, toDateKey } from '../time';
 import type {
@@ -57,7 +57,8 @@ export interface PlanInput {
 /**
  * Builds the day: proposes the main activity, spreads the microbreaks evenly over the
  * free work time (never during lunch or busy meetings, away from the main activity,
- * using free breaks as natural spots) and picks varied content weighted by the sliders.
+ * using free breaks as natural spots) and picks varied content: areas weighted by the
+ * sliders, regular pauses that get the user up whatever the sliders say.
  * Deterministic for the same input.
  */
 export function generateDayPlan(input: PlanInput): DayPlan {
@@ -81,7 +82,13 @@ export function generateDayPlan(input: PlanInput): DayPlan {
         },
         rng,
       );
-  const mainInterval = main ? { start: main.start, end: main.start + main.durationMin } : undefined;
+  const mainInterval = main
+    ? {
+        start: main.start,
+        end: main.start + main.durationMin,
+        whileWorking: main.activity.whileWorking,
+      }
+    : undefined;
 
   // 1. How many pauses: from the effective work time left today.
   const windows = workWindows(timeline, from);
@@ -146,13 +153,20 @@ function planMicrobreaks(
     recentExerciseIds: [...(input.recentExerciseIds ?? [])],
     usedRoutineIds: [],
   };
+  // Work pauses: every Nth is a combined reset. Work and meeting pauses: every Nth gets
+  // the user up, whatever the sliders say (breaks get a routine anyway).
   let workIndex = 0;
+  let deskIndex = 0;
   const micros: ScheduledActivity[] = [];
 
   times.forEach((time, index) => {
     const slot = slotAt(timeline, time);
-    const chosen = choosePauseContent(pauseShape(slot, workIndex), slot, context, state, rng);
+    const standing = slot !== 'break' && deskIndex % MOVEMENT.standingEvery === 0;
+    const chosen = choosePauseContent(pauseShape(slot, workIndex), slot, context, state, rng, {
+      standing,
+    });
     if (slot === 'work') workIndex++;
+    if (slot !== 'break') deskIndex++;
     if (!chosen) return;
     state = chosen.state;
     micros.push(

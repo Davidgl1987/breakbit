@@ -15,7 +15,7 @@ describe('contentAreas', () => {
   it('gives a routine the main area of each move, in order and each once', () => {
     for (const routine of CATALOG.routines) {
       const areas = contentAreas({ kind: 'routine', routineId: routine.id });
-      const main = routine.steps.map((step) => exercise(step.exerciseId).areas[0]);
+      const main = routine.steps.map((step) => exercise(step.exercise).areas[0]);
       expect(areas).toEqual([...new Set(main)]);
       expect(new Set(areas).size).toBe(areas.length);
     }

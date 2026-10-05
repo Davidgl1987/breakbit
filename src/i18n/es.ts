@@ -671,21 +671,6 @@ export const es = {
       noWorkdays: 'Elige al menos un día de trabajo.',
     },
   },
-  areas: {
-    neck: 'Cuello',
-    back: 'Espalda',
-    shoulders: 'Hombros',
-    wrists: 'Muñecas',
-    eyes: 'Vista',
-    sedentary: 'Tiempo sentado',
-  },
-  equipment: {
-    mat: 'Esterilla',
-    dumbbells: 'Mancuernas',
-    kettlebell: 'Kettlebell',
-    pullup_bar: 'Barra de dominadas',
-    standing_desk: 'Escritorio elevable',
-  },
   week: {
     label: 'Tu semana',
     stage: 'Tu avatar tras la semana',
@@ -757,13 +742,6 @@ export const es = {
       title: 'Tu material',
       subtitle:
         'Es opcional: la mayoría de tus pausas serán movimientos suaves sin material. Si tienes algo de esto a mano, márcalo para añadir variedad.',
-      hints: {
-        pullup_bar: 'Añade ejercicios con barra',
-        dumbbells: 'Añade pequeños bloques con mancuernas',
-        kettlebell: 'Añade pequeños bloques con kettlebell',
-        mat: 'Añade movilidad en el suelo',
-        standing_desk: 'Permite proponerte ratos de trabajo de pie',
-      },
       always: 'Si no tienes nada, déjalo así: Breakbit funciona igual de bien sin material.',
     },
     intensity: {
