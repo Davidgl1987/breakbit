@@ -1,153 +1,188 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { BODY_AREAS, EQUIPMENT, type Localized } from '@/domain/types';
 import { CATALOG } from './catalog';
+import { formatCatalogIssues, validateCatalog, type CatalogIssue } from './validateCatalog';
 
-const { exercises, routines, mainActivities } = CATALOG;
+const FILE = fileURLToPath(new URL('./catalogo-breakbit.json', import.meta.url));
+type Section = 'areas' | 'equipment' | 'exercises' | 'routines' | 'mainActivities';
+// Loose on purpose: the tests break the catalog in ways its types wouldn't allow.
+type RawCatalog = Record<Section, any[]>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const raw = () => JSON.parse(readFileSync(FILE, 'utf8')) as RawCatalog;
 
-/** Breakbit builds habits; it never promises health outcomes. */
-const MEDICAL_TERMS = [
-  /\bcur(a|ar|e)\b/i,
-  /\bdolor/i,
-  /\bpain\b/i,
-  /lesi[oó]n|injur/i,
-  /rehab/i,
-  /terap|therap/i,
-  /tratamiento|treatment/i,
-  /diagn/i,
-];
-
-function allTexts(): Localized[] {
-  return [
-    ...exercises.flatMap((item) => [item.name, item.description, ...item.steps]),
-    ...routines.map((item) => item.name),
-    ...mainActivities.flatMap((item) => [item.name, item.description, ...item.steps]),
-  ];
+/** A copy of the real catalog with one change, to check each rule fails on its own. */
+function broken(change: (data: RawCatalog) => void): CatalogIssue[] {
+  const data = raw();
+  change(data);
+  return validateCatalog(data);
 }
 
-describe('content catalog', () => {
-  it('has unique ids', () => {
-    const ids = [...exercises, ...routines, ...mainActivities].map((item) => item.id);
-    expect(new Set(ids).size).toBe(ids.length);
+const problems = (issues: CatalogIssue[]) =>
+  issues.map((issue) => `${issue.where}: ${issue.problem}`);
+
+describe('the bundled catalog', () => {
+  it('passes every check', () => {
+    const issues = validateCatalog(raw());
+    expect(issues, formatCatalogIssues(issues)).toEqual([]);
   });
 
-  it('is fully translated', () => {
-    for (const text of allTexts()) {
-      expect(text.es.trim(), JSON.stringify(text)).not.toBe('');
-      expect(text.en.trim(), JSON.stringify(text)).not.toBe('');
-    }
+  it('is what the app uses, untouched', () => {
+    expect(CATALOG).toEqual(raw());
+  });
+});
+
+describe('validateCatalog', () => {
+  it('names the item and field of each problem', () => {
+    const issues = broken((data) => {
+      data.exercises[0].durationSec = 130;
+    });
+    expect(problems(issues)).toEqual([
+      'exercises[0] "chin_tuck" → durationSec: 130 está fuera de 20–120 segundos',
+    ]);
+  });
+
+  it('rejects repeated ids within a section', () => {
+    const issues = broken((data) => {
+      data.exercises[1].id = data.exercises[0].id;
+    });
+    expect(problems(issues)).toContainEqual(
+      'exercises[1] → id: "chin_tuck" está repetido en exercises',
+    );
+  });
+
+  it('allows the same id in different sections', () => {
+    const issues = broken((data) => {
+      data.routines[0].id = data.exercises[0].id;
+    });
+    expect(issues).toEqual([]);
+  });
+
+  it('checks references to areas, equipment, exercises and routines', () => {
+    const issues = broken((data) => {
+      data.exercises[0].areas = ['sedentary'];
+      data.exercises[1].equipment = ['treadmill'];
+      data.routines[0].steps[0].exercise = 'trunk_twist';
+      data.mainActivities[0].routine = 'nope';
+    });
+    expect(problems(issues)).toEqual(
+      expect.arrayContaining([
+        'exercises[0] "chin_tuck" → areas: "sedentary" no existe en areas',
+        'exercises[1] "neck_rotation" → equipment: "treadmill" no existe en equipment',
+        'routines[0] "wake_up" → steps[0] → exercise: "trunk_twist" no existe en exercises',
+        'mainActivities[0] "walk_outside" → routine: "nope" no existe en routines',
+      ]),
+    );
+  });
+
+  it('needs every text in Spanish and English', () => {
+    const issues = broken((data) => {
+      data.areas[0].name = { es: 'Cuello', en: ' ' };
+      data.exercises[0].steps[1] = { es: 'Paso' };
+    });
+    expect(problems(issues)).toEqual(
+      expect.arrayContaining([
+        'areas[0] "neck" → name: falta el texto en inglés (en)',
+        'exercises[0] "chin_tuck" → steps[1]: falta el texto en inglés (en)',
+      ]),
+    );
+  });
+
+  it('keeps exercises between 20 and 120 s, with two steps, a valid posture and meeting fit', () => {
+    const issues = broken((data) => {
+      data.exercises[0].durationSec = 10;
+      data.exercises[1].steps = data.exercises[1].steps.slice(0, 1);
+      data.exercises[2].posture = 'seated';
+      data.exercises[3].meetingFriendly = 'maybe';
+    });
+    expect(problems(issues)).toEqual(
+      expect.arrayContaining([
+        'exercises[0] "chin_tuck" → durationSec: 10 está fuera de 20–120 segundos',
+        'exercises[1] "neck_rotation" → steps: debe ser una lista con al menos 2 pasos',
+        'exercises[2] "neck_side_tilt" → posture: "seated" no es válido; usa standing, either, floor',
+        'exercises[3] "neck_isometrics" → meetingFriendly: "maybe" no es válido; usa yes, partial, no',
+      ]),
+    );
+  });
+
+  it('keeps main activities between 5 and 30 minutes, with a short version inside the range', () => {
+    const issues = broken((data) => {
+      data.mainActivities[0].durationMin = { min: 10, max: 45 };
+      data.mainActivities[1].durationMin = { min: 3, max: 10 };
+      data.mainActivities[4].shortVersionMin = 30;
+    });
+    expect(problems(issues)).toEqual(
+      expect.arrayContaining([
+        'mainActivities[0] "walk_outside" → durationMin.max: 45 está fuera de 5–30 minutos',
+        'mainActivities[1] "walk_indoors" → durationMin.min: 3 está fuera de 5–30 minutos',
+        'mainActivities[4] "standing_work" → shortVersionMin: 30 debe estar entre min (10) y max (30), sin llegar a max',
+      ]),
+    );
+  });
+
+  it('flags unknown fields, such as a typo or a retired flag', () => {
+    const issues = broken((data) => {
+      data.exercises[0].retired = true;
+      data.exercises[1].meetingFriendy = 'yes';
+    });
+    expect(problems(issues)).toEqual(
+      expect.arrayContaining([
+        'exercises[0] "chin_tuck" → retired: campo desconocido',
+        'exercises[1] "neck_rotation" → meetingFriendy: campo desconocido',
+      ]),
+    );
   });
 
   it('avoids medical language', () => {
-    for (const text of allTexts()) {
-      for (const term of MEDICAL_TERMS) {
-        expect(text.es, `${term}`).not.toMatch(term);
-        expect(text.en, `${term}`).not.toMatch(term);
+    const issues = broken((data) => {
+      data.exercises[0].description.es = 'Alivia el dolor de cuello.';
+    });
+    expect(problems(issues)).toEqual([
+      'exercises[0] "chin_tuck": usa lenguaje médico ("dolor"); Breakbit no promete salud',
+    ]);
+  });
+
+  it('needs every equipment to be used somewhere', () => {
+    const issues = broken((data) => {
+      data.equipment.push({
+        id: 'foam_roller',
+        name: { es: 'Rodillo', en: 'Foam roller' },
+        hint: { es: 'Añade masaje', en: 'Adds massage' },
+      });
+    });
+    expect(problems(issues)).toEqual([
+      'equipment "foam_roller": no se usa en ningún ejercicio ni actividad',
+    ]);
+  });
+
+  it('needs enough gear-free exercises in every area to plan a day without equipment', () => {
+    const issues = broken((data) => {
+      data.areas.push({ id: 'feet', name: { es: 'Pies', en: 'Feet' } });
+      data.exercises[0].areas = ['neck', 'feet'];
+    });
+    expect(problems(issues)).toEqual([
+      'areas "feet": necesita al menos 2 ejercicios sin material y tiene 1',
+    ]);
+  });
+
+  it('needs a gear-free move that suits the desk and meetings in every area', () => {
+    const issues = broken((data) => {
+      for (const exercise of data.exercises) {
+        if (exercise.areas.includes('eyes')) exercise.meetingFriendly = 'no';
       }
-    }
+    });
+    expect(problems(issues)).toEqual([
+      'areas "eyes": necesita un ejercicio sin material, que no sea de suelo y apto para reuniones',
+    ]);
   });
 
-  it('keeps microbreak exercises short (20 s – 2 min) with steps', () => {
-    for (const exercise of exercises) {
-      expect(exercise.durationSec, exercise.id).toBeGreaterThanOrEqual(20);
-      expect(exercise.durationSec, exercise.id).toBeLessThanOrEqual(120);
-      expect(exercise.steps.length, exercise.id).toBeGreaterThanOrEqual(2);
-      expect(exercise.areas.length, exercise.id).toBeGreaterThan(0);
-    }
-  });
-
-  it('offers at least two equipment-free exercises for every area', () => {
-    for (const area of BODY_AREAS) {
-      const count = exercises.filter(
-        (exercise) => exercise.areas.includes(area) && exercise.equipment.length === 0,
-      ).length;
-      expect(count, area).toBeGreaterThanOrEqual(2);
-    }
-  });
-
-  it('offers equipment-free options during work time and meetings', () => {
-    const atDesk = exercises.filter(
-      (item) => item.equipment.length === 0 && item.posture !== 'floor',
+  it('reads as a list for the build error', () => {
+    expect(
+      formatCatalogIssues([
+        { where: 'exercises[0] "a"', problem: 'uno' },
+        { where: 'areas', problem: 'dos' },
+      ]),
+    ).toBe(
+      'El catálogo de contenido tiene 2 problemas:\n  • exercises[0] "a": uno\n  • areas: dos',
     );
-    const inMeetings = atDesk.filter((item) => item.meetingFriendly !== 'no');
-    expect(new Set(atDesk.flatMap((item) => item.areas)).size).toBe(BODY_AREAS.length);
-    expect(new Set(inMeetings.flatMap((item) => item.areas)).size).toBe(BODY_AREAS.length);
-  });
-
-  it('uses every MVP equipment somewhere', () => {
-    for (const item of EQUIPMENT) {
-      const used =
-        exercises.some((exercise) => exercise.equipment.includes(item)) ||
-        mainActivities.some((activity) => activity.equipment.includes(item));
-      expect(used, item).toBe(true);
-    }
-  });
-
-  it('builds routines only from known exercises', () => {
-    const ids = new Set(exercises.map((exercise) => exercise.id));
-    for (const routine of routines) {
-      for (const step of routine.steps)
-        expect(ids.has(step.exerciseId), step.exerciseId).toBe(true);
-    }
-  });
-
-  it('includes the master mini-routines with 30 s per movement', () => {
-    const expected = {
-      wake_up: ['march', 'arm_swing', 'trunk_twist', 'wave'],
-      desk_reset: ['chest_opener', 'high_twist', 'golf_swing', 'wave'],
-      active_legs: ['march', 'plie', 'push_side', 'kick_step'],
-      active_reset: ['march', 'punch', 'lunge', 'high_twist', 'push_side', 'hop_rotate'],
-    };
-    for (const [id, steps] of Object.entries(expected)) {
-      const routine = routines.find((item) => item.id === id);
-      expect(
-        routine?.steps.map((step) => step.exerciseId),
-        id,
-      ).toEqual(steps);
-      expect(
-        routine?.steps.every((step) => step.seconds === 30),
-        id,
-      ).toBe(true);
-    }
-  });
-
-  it('keeps main activities between 5 and 30 minutes', () => {
-    for (const activity of mainActivities) {
-      expect(activity.durationMin.min, activity.id).toBeGreaterThanOrEqual(5);
-      expect(activity.durationMin.max, activity.id).toBeLessThanOrEqual(30);
-      expect(activity.durationMin.min, activity.id).toBeLessThanOrEqual(activity.durationMin.max);
-    }
-  });
-
-  it("declares short versions only within each activity's range, below its longest", () => {
-    for (const activity of mainActivities) {
-      if (activity.shortVersionMin === undefined) continue;
-      expect(activity.shortVersionMin, activity.id).toBeGreaterThanOrEqual(
-        activity.durationMin.min,
-      );
-      expect(activity.shortVersionMin, activity.id).toBeLessThan(activity.durationMin.max);
-    }
-  });
-
-  it('gives every main activity at least one slot', () => {
-    for (const activity of mainActivities)
-      expect(activity.slots.length, activity.id).toBeGreaterThan(0);
-  });
-
-  it('links main-activity routines that exist', () => {
-    const ids = new Set(routines.map((routine) => routine.id));
-    for (const activity of mainActivities) {
-      if (activity.routineId) expect(ids.has(activity.routineId), activity.id).toBe(true);
-    }
-  });
-
-  it('always offers walking outside without equipment', () => {
-    const walk = mainActivities.find((activity) => activity.id === 'walk_outside');
-    expect(walk?.equipment).toEqual([]);
-  });
-
-  it('keeps standing work for users with a standing desk', () => {
-    const standing = mainActivities.filter((activity) => activity.id.startsWith('standing_work'));
-    expect(standing.map((activity) => activity.id)).toEqual(['standing_work']);
-    expect(standing[0]?.equipment).toEqual(['standing_desk']);
   });
 });

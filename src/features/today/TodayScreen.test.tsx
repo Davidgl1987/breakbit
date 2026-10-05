@@ -1,14 +1,13 @@
 import { act, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
-import { CATALOG } from '@/content/catalog';
+import { areaById, CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import { planDay } from '@/domain/day/planDay';
 import { nextPause } from '@/domain/day/today';
 import { atTime } from '@/domain/time';
 import type { DateKey } from '@/domain/types';
 import { contentAreas } from '@/features/day/contentItems';
-import { es } from '@/i18n/es';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
@@ -70,7 +69,7 @@ describe('Today', () => {
     // The areas the next pause works, by name for screen readers.
     const next = nextPause(store().days[MONDAY]!.plan!, clock.now())!;
     const card = screen.getByRole('heading', { name: 'Próxima pausa' }).parentElement!;
-    const names = contentAreas(next.content).map((area) => es.areas[area]);
+    const names = contentAreas(next.content).map((area) => areaById(area)!.name.es);
     expect(names.length).toBeGreaterThan(0);
     for (const name of names.slice(0, 3)) {
       expect(within(card).getByRole('img', { name })).toBeInTheDocument();

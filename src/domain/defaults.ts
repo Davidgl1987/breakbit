@@ -10,7 +10,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
     lunch: { start: '14:00', durationMin: 60 },
   },
   intensity: 'normal',
-  discomfort: { neck: 0, back: 0, shoulders: 0, wrists: 0, eyes: 0, sedentary: 0 },
+  /** Every area of the catalog starts at 0 (no value = 0). */
+  discomfort: {},
   equipment: [],
   preferredMainActivityMin: 20,
   notifications: { enabled: true, dayStart: true, microbreaks: true, dayEnd: true },

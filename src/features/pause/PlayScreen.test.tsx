@@ -3,12 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
 import { pausePath, pausePlayPath } from '@/app/routes';
 import { ToastHost } from '@/app/ToastHost';
-import { CATALOG } from '@/content/catalog';
+import { areaById, CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import { generateDayPlan } from '@/domain/planner/generateDayPlan';
 import type { ActivityContent, DateKey, ScheduledActivity } from '@/domain/types';
 import { contentName } from '@/features/day/contentName';
-import { es } from '@/i18n/es';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
@@ -105,7 +104,8 @@ describe('exercise player', () => {
       (item) => first.content.kind === 'exercises' && item.id === first.content.exerciseIds[0],
     )!;
     expect(screen.getByRole('heading', { level: 1, name: exercise.name.es })).toBeInTheDocument();
-    for (const area of exercise.areas) expect(screen.getByText(es.areas[area])).toBeInTheDocument();
+    for (const area of exercise.areas)
+      expect(screen.getByText(areaById(area)!.name.es)).toBeInTheDocument();
   });
 });
 
@@ -115,7 +115,7 @@ describe('routines in the player', () => {
   const move = (n: number) =>
     screen.queryByText(`${routine.name.es} · Movimiento ${n} de ${total}`);
   const moveName = (n: number) =>
-    CATALOG.exercises.find((item) => item.id === routine.steps[n - 1]!.exerciseId)!.name.es;
+    CATALOG.exercises.find((item) => item.id === routine.steps[n - 1]!.exercise)!.name.es;
   const next = () => screen.getByRole('button', { name: 'Siguiente' });
   /** Past the guard that keeps a quick second tap from landing on the next move. */
   const settle = () => wait(STEP_TAP_GUARD_MS + 100);

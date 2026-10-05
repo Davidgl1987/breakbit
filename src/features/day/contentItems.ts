@@ -22,7 +22,7 @@ export function contentItems(content: ActivityContent): ContentItem[] {
     const routineId = content.routineId;
     const routine = CATALOG.routines.find((item) => item.id === routineId);
     return (routine?.steps ?? []).flatMap((step) =>
-      exercises([step.exerciseId]).map((exercise) => ({ exercise, seconds: step.seconds })),
+      exercises([step.exercise]).map((exercise) => ({ exercise, seconds: step.seconds })),
     );
   }
   return [];

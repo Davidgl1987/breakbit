@@ -29,7 +29,10 @@ export const PLANNER = {
   minEffectiveMin: 30,
 } as const;
 
-/** Weighted exercise selection driven by the discomfort sliders. */
+/**
+ * Weighted content selection. The discomfort sliders prioritise areas; they never decide
+ * whether the user moves (see MOVEMENT).
+ */
 export const SELECTION = {
   /** Every area keeps some weight so plans stay varied even with all sliders at 0. */
   areaBaseWeight: 1,
@@ -39,8 +42,26 @@ export const SELECTION = {
    * the weight of all other available areas together ("salvo alta prioridad").
    */
   areaRepeatDominance: 2,
+  /** How much an exercise counts for an area by its place in the exercise's list: main, second, rest. */
+  areaRankWeights: [1, 0.6, 0.4],
   /** Relative weight of exercises used recently (others weigh 1). */
   recentExerciseWeight: 0.25,
+  /**
+   * Exercises that need equipment add variety without making every pause need it:
+   * rare at the desk, more likely in a break or a chosen gap.
+   */
+  equipmentWeight: { desk: 0.15, break: 0.6, free: 0.8 },
+  /** Floor work only fits real breaks: less often in a planned break, normal in a chosen gap. */
+  floorWeight: { break: 0.4, free: 1 },
+} as const;
+
+/** Breaking up long sitting stretches, whatever the sliders say. */
+export const MOVEMENT = {
+  /**
+   * Every Nth pause in work time or a meeting gets the user standing (a 'standing'
+   * exercise), starting with the first; combined resets always include one.
+   */
+  standingEvery: 2,
 } as const;
 
 /** Microbreaks per effective work hour (work time minus lunch). */

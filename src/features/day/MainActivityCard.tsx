@@ -5,7 +5,7 @@ import { useT } from '@/i18n/useT';
 import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { StatusBadge } from '@/ui/components/StatusBadge/StatusBadge';
-import { mainActivityIcon } from '@/ui/icons/domainIcons';
+import { mainActivityIcon } from './catalogDisplay';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { mainActivityInfo, mainWhere } from './mainActivity';
 import styles from './MainActivityCard.module.css';

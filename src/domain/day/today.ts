@@ -1,17 +1,16 @@
 import { isDue, isOpen, windowEnd } from '../pause/window';
 import { contentExerciseIds } from '../planner/pauseContent';
 import { atTime } from '../time';
-import {
-  EQUIPMENT,
-  type Catalog,
-  type DateKey,
-  type DayOverride,
-  type DayPlan,
-  type DayRecord,
-  type DaySchedule,
-  type EquipmentId,
-  type Instant,
-  type ScheduledActivity,
+import type {
+  Catalog,
+  DateKey,
+  DayOverride,
+  DayPlan,
+  DayRecord,
+  DaySchedule,
+  EquipmentId,
+  Instant,
+  ScheduledActivity,
 } from '../types';
 
 /**
@@ -87,5 +86,5 @@ export function equipmentInPlan(plan: DayPlan, catalog: Catalog): EquipmentId[] 
       exercise?.equipment.forEach((id) => used.add(id));
     }
   }
-  return EQUIPMENT.filter((id) => used.has(id));
+  return catalog.equipment.map((item) => item.id).filter((id) => used.has(id));
 }

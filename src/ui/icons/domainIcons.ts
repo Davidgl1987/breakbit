@@ -1,26 +1,9 @@
-import type { BodyArea, EquipmentId, EvolutionPhase } from '@/domain/types';
-import type { IconName } from './iconNames';
-
-export const AREA_ICONS: Record<BodyArea, IconName> = {
-  neck: 'neck',
-  back: 'back_pain',
-  shoulders: 'shoulders',
-  wrists: 'wrist',
-  eyes: 'eyes',
-  sedentary: 'sedentary',
-};
-
-export const EQUIPMENT_ICONS: Record<EquipmentId, IconName> = {
-  pullup_bar: 'pullup_bar',
-  dumbbells: 'dumbbell',
-  kettlebell: 'kettlebell',
-  mat: 'mat',
-  standing_desk: 'desk',
-};
+import type { EvolutionPhase } from '@/domain/types';
+import { ICON_NAMES, type IconName } from './iconNames';
 
 /** Placeholder art per evolution phase, from sitting to moving, until the avatar exists. */
 export const PHASE_PLACEHOLDER_ICONS: Record<EvolutionPhase, IconName> = {
-  1: 'sedentary',
+  1: 'seated',
   2: 'chair',
   3: 'laptop',
   4: 'stretch',
@@ -53,19 +36,12 @@ export function roomItemIcon(itemId: string): IconName {
   return ROOM_ITEM_ICONS[itemId] ?? 'reward';
 }
 
-/** Main activities by id; anything new falls back to a generic movement icon. */
-const MAIN_ACTIVITY_ICONS: Partial<Record<string, IconName>> = {
-  walk_outside: 'outside',
-  walk_indoors: 'walk',
-  walking_meeting: 'call',
-  mobility_routine: 'stretch',
-  standing_work: 'desk',
-  pullup_block: 'pullup_bar',
-  dumbbell_block: 'dumbbell',
-  kettlebell_block: 'kettlebell',
-  mat_mobility: 'mat',
-};
-
-export function mainActivityIcon(activityId: string): IconName {
-  return MAIN_ACTIVITY_ICONS[activityId] ?? 'exercise';
+/**
+ * An icon named by content (the catalog's `icon` fields), or `fallback` while that icon
+ * doesn't exist yet.
+ */
+export function iconOr(name: string | undefined, fallback: IconName): IconName {
+  return name !== undefined && (ICON_NAMES as readonly string[]).includes(name)
+    ? (name as IconName)
+    : fallback;
 }

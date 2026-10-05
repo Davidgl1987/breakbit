@@ -5,3 +5,5 @@ coverage
 dist
 test-results
 playwright-report
+# Content catalog: edited by hand and replaced as a whole, kept exactly as delivered
+src/content/catalogo-breakbit.json

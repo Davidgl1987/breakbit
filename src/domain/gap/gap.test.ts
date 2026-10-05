@@ -176,6 +176,18 @@ describe('what to do with a gap', () => {
     expect(seconds(m10)).toBeLessThanOrEqual(600);
   });
 
+  it('makes room for floor work and equipment: the user chose this time', () => {
+    const withMat = { ...context, equipment: ['mat'] };
+    const routines = new Set<string>();
+    for (let seed = 0; seed < 200; seed++) {
+      const proposal = proposeGap(plan, 'm3', at('09:20'), withMat, `f${seed}`);
+      if (proposal && 'content' in proposal && proposal.content.kind === 'routine')
+        routines.add(proposal.content.routineId);
+    }
+    // Work time, yet the mat routine comes up; a planned work pause never offers it.
+    expect(routines).toContain('floor_reset');
+  });
+
   it('keeps to quiet moves in a meeting', () => {
     const meeting: Meeting = { id: 'm1', start: '09:00', end: '10:00', canMove: true };
     const day = dayWith([pause(0, '13:00')], [meeting]);

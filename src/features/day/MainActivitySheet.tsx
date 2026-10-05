@@ -13,7 +13,7 @@ import { Button } from '@/ui/components/Button/Button';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { OptionList } from '@/ui/components/OptionList/OptionList';
 import { TimeField } from '@/ui/components/TimeField/TimeField';
-import { mainActivityIcon } from '@/ui/icons/domainIcons';
+import { mainActivityIcon } from './catalogDisplay';
 import styles from './day.module.css';
 
 interface MainActivitySheetProps {

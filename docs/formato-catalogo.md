@@ -1,12 +1,20 @@
 # Formato del catálogo de Breakbit
 
-Todo el contenido que usa la app va en **un único archivo JSON**: zonas (molestias), material,
-ejercicios, rutinas y actividades principales. La base para editar es
-[catalogo-actual.json](catalogo-actual.json), que es el contenido que tiene la app ahora
-exportado a este formato.
+Todo el contenido que usa la app va en **un único archivo JSON**:
+[src/content/catalogo-breakbit.json](../src/content/catalogo-breakbit.json). Contiene las zonas
+(molestias), el material, los ejercicios, las rutinas y las actividades principales, con sus
+textos en español e inglés. Es la única fuente: el onboarding, Ajustes, el planificador y las
+pantallas leen de ahí.
 
-Al integrarlo, la app comprueba el archivo al compilar. Si algo no cumple las reglas, el build
-falla con un mensaje que dice qué y dónde.
+Para cambiar el contenido, edita ese archivo o sustitúyelo entero por otro con el mismo nombre.
+La app lo comprueba al compilar (`pnpm build`) y al abrirla en desarrollo (`pnpm dev`). Si algo no
+cumple las reglas, el build falla con un mensaje que dice qué elemento y qué problema, por ejemplo:
+
+```text
+El catálogo de contenido tiene 2 problemas:
+  • exercises[0] "chin_tuck" → durationSec: 150 está fuera de 20–120 segundos
+  • routines[0] "wake_up" → steps[0] → exercise: "trunk_twist" no existe en exercises
+```
 
 ## Estructura general
 
@@ -24,19 +32,24 @@ falla con un mensaje que dice qué y dónde.
 - **Textos:** todos van en español y en inglés: `{ "es": "...", "en": "..." }`.
 - **Ids:** en minúsculas y con guiones bajos (`chin_tuck`), únicos dentro de su sección.
 - **Iconos:** el campo `icon` es opcional en todo. Si falta o no existe, la app usa uno
-  genérico hasta que hagamos los iconos.
+  genérico hasta que hagamos los iconos. El build lista los que faltan.
+- **Campos:** solo los de este documento. Un campo desconocido (una errata, por ejemplo) es un
+  error.
 
 ## `areas`: zonas o molestias
 
-Son las zonas que el usuario puntúa de 0 a 5 en el onboarding y en Ajustes. Cuanto más alta la
-puntuación, más ejercicios de esa zona le toca.
+Son las zonas que el usuario puntúa de 0 a 5 en el onboarding y en Ajustes, en el orden del
+archivo. Cuanto más alta la puntuación, más ejercicios de esa zona le tocan. Las puntuaciones solo
+**priorizan**: con todo a 0 la jornada tiene el mismo movimiento, repartido entre todas las zonas.
+
+Pasar muchas horas sentado no es una zona: romper esos ratos es la base de la app, y el
+planificador te pone de pie a menudo sea cual sea la puntuación.
 
 | Campo | Tipo | Obligatorio | Qué es |
 |---|---|---|---|
 | `id` | texto | sí | `neck`, `lower_back`… |
 | `name` | texto es/en | sí | "Cuello" / "Neck" |
 | `icon` | texto | no | Nombre del icono |
-| `retired` | sí/no | no | Ver "Retirar cosas" |
 
 ```json
 { "id": "neck", "name": { "es": "Cuello", "en": "Neck" }, "icon": "neck" }
@@ -44,7 +57,8 @@ puntuación, más ejercicios de esa zona le toca.
 
 ## `equipment`: material
 
-El material opcional que el usuario marca si lo tiene a mano.
+El material opcional que el usuario marca si lo tiene a mano, en el orden del archivo. Solo
+añade variedad: la mayoría de las pausas siguen sin material.
 
 | Campo | Tipo | Obligatorio | Qué es |
 |---|---|---|---|
@@ -52,7 +66,6 @@ El material opcional que el usuario marca si lo tiene a mano.
 | `name` | texto es/en | sí | "Esterilla" |
 | `hint` | texto es/en | sí | Lo que aporta, en el onboarding: "Añade movilidad en el suelo" |
 | `icon` | texto | no | Nombre del icono |
-| `retired` | sí/no | no | Ver "Retirar cosas" |
 
 ```json
 {
@@ -73,24 +86,33 @@ Cada movimiento suelto. El planificador los elige solos o los combina para las p
 | `name` | texto es/en | sí | "Retracción cervical suave" |
 | `description` | texto es/en | sí | Una frase que explica el movimiento |
 | `steps` | lista de textos es/en | sí | Al menos 2 pasos: cómo hacerlo |
-| `areas` | lista de ids de `areas` | sí | Al menos 1. Zonas que trabaja; la primera es la principal (la de su icono en la app) |
+| `areas` | lista de ids de `areas` | sí | Al menos 1. Zonas que trabaja, por importancia: la primera es la principal (cuenta más para esa zona y es la de su icono) |
 | `equipment` | lista de ids de `equipment` | sí | `[]` si no necesita nada |
 | `durationSec` | número | sí | Entre 20 y 120 segundos |
 | `posture` | `standing` · `either` · `floor` | sí | Ver abajo |
 | `meetingFriendly` | `yes` · `partial` · `no` | sí | Ver abajo |
 | `icon` | texto | no | Nombre del icono |
-| `retired` | sí/no | no | Ver "Retirar cosas" |
 
 **`posture`:**
-- `standing`: hay que ponerse de pie.
+- `standing`: hay que ponerse de pie. Son los que rompen el rato sentado: cada dos pausas de
+  trabajo, una es de pie.
 - `either`: se puede hacer sentado, pero de pie es mejor. La app muestra "Si puedes, hazlo
   mejor de pie".
-- `floor`: en el suelo; necesita esterilla o un descanso de verdad.
+- `floor`: en el suelo. Solo en descansos (con menos frecuencia) y en "Tengo un hueco"; nunca en
+  horas de trabajo ni en reuniones.
 
 **`meetingFriendly`:**
-- `yes`: discreto, se puede hacer en mitad de una reunión.
-- `partial`: solo en una reunión en la que puedas moverte (cámara apagada, de pie).
-- `no`: no apto para reuniones.
+- `yes`: puede salir durante una reunión.
+- `partial`: solo si puedes moverte o tienes la cámara apagada.
+- `no`: nunca en una reunión.
+
+En la app, las pausas en reunión solo se planifican en las reuniones marcadas "Puedo moverme"
+(ahí entran `yes` y `partial`). En una reunión en la que no puedes moverte no hay pausas.
+
+**Cómo elige el planificador**, por orden: la puntuación de las zonas; el material que tienes (sin
+material primero: el material pesa poco en horas de trabajo y más en descansos o en "Tengo un
+hueco"); la postura y el momento; si estás en una reunión; variedad respecto a los ejercicios
+recientes; y levantarte con regularidad.
 
 ```json
 {
@@ -115,16 +137,17 @@ Cada movimiento suelto. El planificador los elige solos o los combina para las p
 
 ## `routines`: rutinas
 
-Secuencias de ejercicios. Las de hasta 3 minutos pueden salir como pausas "activas"; una
-actividad principal también puede usar una rutina más larga como guía.
+Secuencias de ejercicios del catálogo, por id: los ejercicios no se repiten dentro de la rutina.
+Las de hasta 3 minutos pueden salir como pausas en un descanso o en "Tengo un hueco"; las más largas
+guían una actividad principal (con su campo `routine`) o un hueco de 10 minutos o más. El material y
+la postura de una rutina salen de sus ejercicios.
 
 | Campo | Tipo | Obligatorio | Qué es |
 |---|---|---|---|
 | `id` | texto | sí | `wake_up` |
 | `name` | texto es/en | sí | "Despertar" |
-| `steps` | lista de `{ "exercise": id, "seconds": número }` | sí | Ejercicios existentes, en orden |
+| `steps` | lista de `{ "exercise": id, "seconds": número }` | sí | Ejercicios existentes, en orden; de 10 a 120 segundos cada uno |
 | `icon` | texto | no | Nombre del icono |
-| `retired` | sí/no | no | Ver "Retirar cosas" |
 
 ```json
 {
@@ -133,14 +156,15 @@ actividad principal también puede usar una rutina más larga como guía.
   "steps": [
     { "exercise": "march", "seconds": 30 },
     { "exercise": "arm_swing", "seconds": 30 },
-    { "exercise": "trunk_twist", "seconds": 30 },
+    { "exercise": "high_twist", "seconds": 30 },
     { "exercise": "wave", "seconds": 30 }
   ]
 }
 ```
 
-Tamaños de pausa, como referencia: **micro**, 30–60 s (un ejercicio); **reset**, 90–120 s (de 2
-a 4 movimientos, que combina el planificador); **activa**, 2–3 minutos (una rutina).
+Tamaños de pausa, como referencia: **micro**, 30–60 s (un ejercicio); **reset**, 90–120 s (de 1
+a 4 movimientos que combina el planificador, empezando por uno de pie; un ejercicio largo como el
+paseo corto vale por sí solo); **activa**, 2–3 minutos (una rutina).
 
 ## `mainActivities`: actividades principales
 
@@ -157,10 +181,9 @@ La "misión" del día, de 5 a 30 minutos.
 | `shortVersionMin` | número | no | Versión corta que se ofrece al cerrar el día |
 | `completionMode` | `continuous` · `accumulated` | sí | `continuous`: de una vez, con temporizador. `accumulated`: se suma en bloques a lo largo del día |
 | `slots` | lista de `break` · `work` · `meeting` | sí | Dónde encaja: en un descanso, en horas de trabajo o en una reunión "puedo moverme" |
-| `whileWorking` | sí/no | sí | Se hace mientras trabajas (standing desk, reunión caminando), así que no interrumpe el trabajo |
+| `whileWorking` | sí/no | sí | Se hace mientras trabajas (escritorio elevable, reunión caminando): no cuenta como interrupción ni aparta las pausas de su alrededor |
 | `routine` | id de `routines` | no | Rutina que guía la actividad |
 | `icon` | texto | no | Nombre del icono |
-| `retired` | sí/no | no | Ver "Retirar cosas" |
 
 ```json
 {
@@ -184,48 +207,34 @@ La "misión" del día, de 5 a 30 minutos.
 ## Reglas que comprueba la app
 
 **Generales**
-- Ids únicos dentro de cada sección, y cada referencia (zonas, material, ejercicios, rutinas)
-  apunta a algo que existe.
+- Ids únicos dentro de cada sección, en minúsculas con números y guiones bajos, y cada referencia
+  (zonas, material, ejercicios, rutinas) apunta a algo que existe.
 - Todos los textos en español y en inglés, sin dejar ninguno vacío.
+- Sin campos desconocidos.
 - Sin lenguaje médico: ni curar, dolor, lesión, rehabilitación, terapia, tratamiento ni
   diagnóstico, en ninguno de los dos idiomas. Breakbit crea hábitos; no promete salud.
 
 **Ejercicios**
 - De 20 a 120 segundos, con al menos 2 pasos y al menos 1 zona.
-
-**Cobertura** (para que siempre haya algo que proponer)
-- Cada zona tiene al menos 2 ejercicios sin material.
-- Cada zona tiene al menos un ejercicio sin material que no sea de suelo (`standing` o
-  `either`), para poder proponerlo en horas de trabajo, y uno de esos apto para reuniones
-  (`yes` o `partial`).
-- Todo el material se usa en algún ejercicio o actividad. Si no, marcarlo no aportaría nada.
+- `posture` y `meetingFriendly` con uno de sus valores.
 
 **Rutinas**
-- Una rutina de hasta 180 segundos en total puede salir como pausa activa. Las más largas solo
-  sirven para guiar una actividad principal (con su campo `routine`).
+- Al menos un paso, cada uno con un ejercicio existente y de 10 a 120 segundos.
 
 **Actividades principales**
 - Entre 5 y 30 minutos, con `min` ≤ `max`.
 - Si hay versión corta, está dentro del rango y por debajo del máximo.
-- Al menos un `slot`.
-- Siempre debe existir al menos un paseo sin material.
+- Al menos un `slot`, sin repetir.
 
-## Retirar cosas (no borrar)
+**Cobertura** (para que siempre haya algo que proponer)
+- Cada zona tiene al menos 2 ejercicios sin material, para planificar una jornada aunque el usuario
+  no tenga nada.
+- Cada zona tiene al menos un ejercicio sin material que no sea de suelo (`standing` o `either`)
+  y apto para reuniones (`yes` o `partial`).
+- Todo el material se usa en algún ejercicio o actividad. Si no, marcarlo no aportaría nada.
+- Hay al menos una actividad principal sin material que no sea solo para reuniones.
 
-**No cambies ni reutilices un id que ya exista.** El historial, el XP y los planes guardados
-de los usuarios apuntan a ellos.
+## Cambiar ids
 
-Para quitar algo, déjalo en el archivo con `"retired": true`. Desde ese momento:
-- la app ya no lo propone ni lo muestra en el onboarding ni en Ajustes;
-- el historial sigue sabiendo cómo se llamaba.
-
-## Qué pasa con los usuarios que ya usan la app
-
-- **Zonas nuevas:** empiezan en 0, así que no cambian nada hasta que el usuario las puntúe en
-  Ajustes.
-- **Zonas retiradas:** desaparecen del onboarding y de Ajustes, y su puntuación guardada se
-  ignora.
-- **Material nuevo:** nadie lo tiene marcado hasta que lo marque.
-- **Material retirado:** se quita de los ajustes de cada usuario. La jornada en curso sigue
-  igual y las siguientes ya no lo usan.
-- **Ejercicios y actividades nuevos:** entran en los planes desde la siguiente jornada.
+Todavía no hay usuarios, así que se puede cambiar o quitar cualquier cosa. Los datos guardados que
+apunten a un id que ya no existe se ignoran: no hace falta marcar nada como retirado.

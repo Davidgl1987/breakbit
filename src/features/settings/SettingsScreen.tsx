@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { settingsPath } from '@/app/routes';
-import { BODY_AREAS } from '@/domain/types';
 import { toDateKey } from '@/domain/time';
+import { equipmentIn } from '@/content/catalog';
+import { areaName, equipmentIcon, priorityAreas } from '@/features/day/catalogDisplay';
 import { estimateDay } from '@/features/onboarding/estimate';
 import { LOCALES, weekdayName, type Locale } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
@@ -12,7 +13,6 @@ import { Card } from '@/ui/components/Card/Card';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { SegmentedControl } from '@/ui/components/SegmentedControl/SegmentedControl';
-import { EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
@@ -35,9 +35,8 @@ export function SettingsScreen() {
   const setLocale = useAppStore((state) => state.setLocale);
   const { schedule } = settings;
   const pauses = useMemo(() => estimateDay(settings, toDateKey(clock.now())).pauses, [settings]);
-  const priorities = BODY_AREAS.filter((area) => settings.discomfort[area] > 0)
-    .sort((a, b) => settings.discomfort[b] - settings.discomfort[a])
-    .slice(0, 3);
+  const priorities = priorityAreas(settings.discomfort).slice(0, 3);
+  const equipment = equipmentIn(settings.equipment);
   const times: { icon: IconName; label: string; value: string }[] = [
     { icon: 'sunrise', label: t('settings.start'), value: schedule.workStart },
     { icon: 'sunset', label: t('settings.end'), value: schedule.workEnd },
@@ -92,7 +91,7 @@ export function SettingsScreen() {
         title={t('settings.discomfort')}
         subtitle={
           priorities.length > 0
-            ? priorities.map((area) => t(`areas.${area}`)).join(', ')
+            ? priorities.map(({ area }) => areaName(area, locale)).join(', ')
             : t('onboarding.summary.noPriorities')
         }
         to={settingsPath('discomfort')}
@@ -112,12 +111,12 @@ export function SettingsScreen() {
             <LineIcon name="chevron-right" size={20} />
           </Link>
         </div>
-        {settings.equipment.length > 0 ? (
+        {equipment.length > 0 ? (
           <ul className={styles.gear}>
-            {settings.equipment.map((item) => (
-              <li key={item} className={styles.gearItem}>
-                <PixelIcon name={EQUIPMENT_ICONS[item]} size={32} />
-                <span>{t(`equipment.${item}`)}</span>
+            {equipment.map((item) => (
+              <li key={item.id} className={styles.gearItem}>
+                <PixelIcon name={equipmentIcon(item.id)} size={32} />
+                <span>{item.name[locale]}</span>
               </li>
             ))}
           </ul>

@@ -24,8 +24,8 @@ describe('validatePersistedState', () => {
     ['malformed time', (s) => (s.settings.schedule.workStart = '9am')],
     ['lunch outside work hours', (s) => (s.settings.schedule.lunch.start = '20:00')],
     ['discomfort above 5', (s) => (s.settings.discomfort.neck = 6)],
-    ['missing discomfort area', (s) => delete s.settings.discomfort.eyes],
-    ['unknown equipment', (s) => (s.settings.equipment = ['treadmill'])],
+    ['discomfort as text', (s) => (s.settings.discomfort.eyes = 'high')],
+    ['equipment that is not an id', (s) => (s.settings.equipment = [3])],
     ['notification flag not boolean', (s) => (s.settings.notifications.enabled = 'yes')],
     [
       'override keyed by a non-date',

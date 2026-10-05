@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { areaName, equipmentName } from '@/features/day/catalogDisplay';
 import { LOCALES, weekdayName, type Locale } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { useAppStore, type ThemePreference } from '@/state/store';
@@ -309,8 +310,8 @@ export function DevKitScreen() {
       </Section>
 
       <Section title={t('kit.sections.sliders')}>
-        <Slider05 label={t('areas.neck')} icon="neck" value={neck} onChange={setNeck} />
-        <Slider05 label={t('areas.eyes')} icon="eyes" value={eyes} onChange={setEyes} />
+        <Slider05 label={areaName('neck', locale)} icon="neck" value={neck} onChange={setNeck} />
+        <Slider05 label={areaName('eyes', locale)} icon="eyes" value={eyes} onChange={setEyes} />
       </Section>
 
       <Section title={t('kit.sections.cards')}>
@@ -399,8 +400,8 @@ export function DevKitScreen() {
 
       <Section title={t('kit.sections.tags')}>
         <div className={styles.row}>
-          <Tag icon="neck">{t('areas.neck')}</Tag>
-          <Tag icon="dumbbell">{t('equipment.dumbbells')}</Tag>
+          <Tag icon="neck">{areaName('neck', locale)}</Tag>
+          <Tag icon="dumbbell">{equipmentName('dumbbells', locale)}</Tag>
           <Tag>{t('intensity.normal')}</Tag>
         </div>
       </Section>
@@ -461,7 +462,7 @@ export function DevKitScreen() {
         <ListRow
           leading={<PixelIcon name="neck" size={32} />}
           title={t('settings.discomfort')}
-          subtitle={`${t('areas.neck')}, ${t('areas.eyes')}, ${t('areas.shoulders')}`}
+          subtitle={['neck', 'eyes', 'shoulders'].map((area) => areaName(area, locale)).join(', ')}
           onClick={() => {}}
         />
       </Section>

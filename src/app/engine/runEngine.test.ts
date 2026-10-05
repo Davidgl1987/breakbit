@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import type { PlannedNotification } from '@/domain/notifications/schedule';
 import { generateDayPlan } from '@/domain/planner/generateDayPlan';
 import { atTime } from '@/domain/time';
 import type { DateKey } from '@/domain/types';
+import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { notificationContent } from './notificationContent';
 import { runEngine } from './runEngine';
@@ -21,11 +22,14 @@ const plan = generateDayPlan({
 const first = plan.activities.find((item) => item.kind === 'micro')!;
 
 beforeEach(() => store().completeOnboarding(DEFAULT_SETTINGS));
+// The store's actions read the app clock: keep it with the engine, not the real time.
+afterEach(() => clock.setOffset(0));
 
 describe('runEngine', () => {
   it('moves the day forward, hands over the reminders and flags a due pause', () => {
     store().startDay(plan);
     const sync = vi.fn();
+    clock.travelTo(first.scheduledAt + MIN);
     runEngine(first.scheduledAt + MIN, { sync });
 
     const updated = store().days[DATE]!.plan!.activities.find((item) => item.id === first.id);
@@ -34,6 +38,7 @@ describe('runEngine', () => {
     expect(agenda.map((item) => item.id)).toContain(`pause:${first.id}:0`);
     expect(document.title).toBe('Pausa ahora · Breakbit');
 
+    clock.travelTo(first.scheduledAt + 2 * MIN);
     store().startPause(DATE, first.id);
     runEngine(first.scheduledAt + 2 * MIN, { sync });
     expect(document.title).toBe('Breakbit');

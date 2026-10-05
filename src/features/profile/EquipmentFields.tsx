@@ -1,13 +1,14 @@
-import { EQUIPMENT, type EquipmentId } from '@/domain/types';
+import { CATALOG } from '@/content/catalog';
+import type { EquipmentId } from '@/domain/types';
+import { equipmentIcon } from '@/features/day/catalogDisplay';
 import { useT } from '@/i18n/useT';
 import { Card } from '@/ui/components/Card/Card';
 import { Checkbox } from '@/ui/components/Checkbox/Checkbox';
-import { EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './profile.module.css';
 
 /**
- * Equipment at hand, only for variety. Nothing ticked is `[]`: gear-free moves and
+ * The catalog's equipment the user has at hand, only for variety. Nothing ticked is `[]`: gear-free moves and
  * walking are the base of Breakbit and always available.
  */
 export function EquipmentFields({
@@ -17,25 +18,27 @@ export function EquipmentFields({
   value: readonly EquipmentId[];
   onChange: (equipment: EquipmentId[]) => void;
 }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const toggle = (item: EquipmentId, checked: boolean) =>
-    onChange(EQUIPMENT.filter((other) => (other === item ? checked : value.includes(other))));
+    onChange(
+      CATALOG.equipment
+        .map((other) => other.id)
+        .filter((other) => (other === item ? checked : value.includes(other))),
+    );
   return (
     <>
       <Card className={styles.section}>
-        {EQUIPMENT.map((item) => (
+        {CATALOG.equipment.map((item) => (
           <Checkbox
-            key={item}
-            checked={value.includes(item)}
-            onChange={(checked) => toggle(item, checked)}
+            key={item.id}
+            checked={value.includes(item.id)}
+            onChange={(checked) => toggle(item.id, checked)}
             label={
               <span className={styles.option}>
-                <PixelIcon name={EQUIPMENT_ICONS[item]} size={32} />
+                <PixelIcon name={equipmentIcon(item.id)} size={32} />
                 <span className={styles.optionTexts}>
-                  {t(`equipment.${item}`)}
-                  <span className={styles.optionHint}>
-                    {t(`onboarding.equipment.hints.${item}`)}
-                  </span>
+                  {item.name[locale]}
+                  <span className={styles.optionHint}>{item.hint[locale]}</span>
                 </span>
               </span>
             }

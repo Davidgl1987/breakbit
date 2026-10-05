@@ -6,6 +6,7 @@ import { isMainRunning, mainElapsedSec } from '@/domain/main/session';
 import { isOpen } from '@/domain/pause/window';
 import type { MainActivity, ScheduledActivity } from '@/domain/types';
 import { ActivityHero } from '@/features/day/ActivityHero';
+import { equipmentIcon, equipmentName } from '@/features/day/catalogDisplay';
 import { contentItems, type ContentItem } from '@/features/day/contentItems';
 import { ExerciseDetails } from '@/features/day/ExerciseDetails';
 import { mainActivityInfo, mainWhere } from '@/features/day/mainActivity';
@@ -24,7 +25,6 @@ import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { Tag } from '@/ui/components/Tag/Tag';
 import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
-import { EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './main.module.css';
@@ -115,8 +115,8 @@ function MainIntro({ activity, info }: MainViewProps) {
       {info.equipment.length > 0 && (
         <div className={styles.tags}>
           {info.equipment.map((item) => (
-            <Tag key={item} icon={EQUIPMENT_ICONS[item]}>
-              {t(`equipment.${item}`)}
+            <Tag key={item} icon={equipmentIcon(item)}>
+              {equipmentName(item, locale)}
             </Tag>
           ))}
         </div>
@@ -189,7 +189,7 @@ function MainSession({ activity, info }: MainViewProps) {
     if (timeUp) runScreenTransition(() => completeMain(date, activity.id));
   }, [timeUp, date, activity.id, completeMain]);
 
-  const moves = info.routineId ? contentItems({ kind: 'routine', routineId: info.routineId }) : [];
+  const moves = info.routine ? contentItems({ kind: 'routine', routineId: info.routine }) : [];
   const move = currentMove(moves, elapsed);
   const following = move && moves[move.index + 1];
   const subtitle = move

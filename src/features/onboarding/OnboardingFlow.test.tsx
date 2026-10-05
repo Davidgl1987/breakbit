@@ -2,6 +2,7 @@ import { act, fireEvent, screen, within } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
+import { CATALOG } from '@/content/catalog';
 import type { UserSettings } from '@/domain/types';
 import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
@@ -195,10 +196,36 @@ describe('onboarding: workday', () => {
   });
 });
 
+describe('onboarding: discomfort', () => {
+  it("rates exactly the catalog's areas, from 0 to 5", () => {
+    renderWithRouter(<AppRoutes />, { route: '/onboarding/discomfort' });
+    const sliders = screen.getAllByRole('slider');
+    expect(sliders).toHaveLength(CATALOG.areas.length);
+    CATALOG.areas.forEach((area, index) => {
+      expect(sliders[index]).toHaveAccessibleName(area.name.es);
+    });
+    for (const slider of sliders) {
+      expect(slider).toHaveAttribute('min', '0');
+      expect(slider).toHaveAttribute('max', '5');
+      expect(slider).toHaveValue('0');
+    }
+    expect(screen.queryByRole('slider', { name: 'Tiempo sentado' })).not.toBeInTheDocument();
+  });
+});
+
 describe('onboarding: equipment', () => {
+  it("lists exactly the catalog's equipment, with its name and hint", () => {
+    renderWithRouter(<AppRoutes />, { route: '/onboarding/equipment' });
+    const boxes = screen.getAllByRole('checkbox');
+    expect(boxes).toHaveLength(CATALOG.equipment.length);
+    CATALOG.equipment.forEach((item, index) => {
+      expect(boxes[index]).toHaveAccessibleName(`${item.name.es}${item.hint.es}`);
+    });
+    expect(screen.getByRole('checkbox', { name: /Banda elástica/ })).toBeInTheDocument();
+  });
+
   it('has no "none" option: nothing ticked is an empty list', async () => {
     const { user } = renderWithRouter(<AppRoutes />, { route: '/onboarding/equipment' });
-    expect(screen.getAllByRole('checkbox')).toHaveLength(5);
     expect(screen.queryByRole('checkbox', { name: /Ninguno/ })).not.toBeInTheDocument();
     expect(
       screen.getByText(
@@ -208,7 +235,7 @@ describe('onboarding: equipment', () => {
 
     await user.click(screen.getByRole('checkbox', { name: /Esterilla/ }));
     await user.click(screen.getByRole('checkbox', { name: /Kettlebell/ }));
-    expect(draft().equipment).toEqual(['kettlebell', 'mat']);
+    expect(draft().equipment).toEqual(['mat', 'kettlebell']);
 
     await user.click(screen.getByRole('checkbox', { name: /Esterilla/ }));
     await user.click(screen.getByRole('checkbox', { name: /Kettlebell/ }));

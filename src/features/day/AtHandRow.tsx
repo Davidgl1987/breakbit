@@ -1,13 +1,13 @@
 import type { EquipmentId } from '@/domain/types';
 import { useT } from '@/i18n/useT';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
-import { EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { equipmentIcon, equipmentName } from './catalogDisplay';
 import styles from './day.module.css';
 
 /** "A mano hoy": the equipment today's plan uses, as icons. Only shown when there is some. */
 export function AtHandRow({ equipment }: { equipment: readonly EquipmentId[] }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   return (
     <ListRow
       title={t('today.atHand')}
@@ -16,9 +16,9 @@ export function AtHandRow({ equipment }: { equipment: readonly EquipmentId[] }) 
           {equipment.map((item) => (
             <PixelIcon
               key={item}
-              name={EQUIPMENT_ICONS[item]}
+              name={equipmentIcon(item)}
               size={32}
-              label={t(`equipment.${item}`)}
+              label={equipmentName(item, locale)}
             />
           ))}
         </span>

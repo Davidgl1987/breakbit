@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toDateKey } from '@/domain/time';
-import { BODY_AREAS, type TimeBlock } from '@/domain/types';
+import type { TimeBlock } from '@/domain/types';
 import { weekdayName } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
@@ -16,11 +16,12 @@ import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { Tag } from '@/ui/components/Tag/Tag';
-import { AREA_ICONS, EQUIPMENT_ICONS } from '@/ui/icons/domainIcons';
 import type { IconName } from '@/ui/icons/iconNames';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
+import { equipmentIn } from '@/content/catalog';
+import { areaIcon, areaName, equipmentIcon, priorityAreas } from '@/features/day/catalogDisplay';
 import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
 import { rangeFromBlock } from '@/features/schedule/timeRange';
 import { useOnboardingDraft } from '../draftContext';
@@ -46,9 +47,7 @@ export function SummaryStep() {
     block: TimeBlock,
   ) => t(key, { ...rangeFromBlock(block) });
   // Most bothersome first (ties keep the usual order), each with the value it was given.
-  const priorities = BODY_AREAS.filter((area) => draft.discomfort[area] > 0).sort(
-    (a, b) => draft.discomfort[b] - draft.discomfort[a],
-  );
+  const priorities = priorityAreas(draft.discomfort);
 
   const [permission, setPermission] = useState<NotificationPermissionState>(notificationPermission);
   // Only reads the state (e.g. after allowing it in the browser settings); never asks.
@@ -106,20 +105,20 @@ export function SummaryStep() {
         <SectionHeader title={t('onboarding.summary.priorities')} edit="discomfort" />
         {priorities.length > 0 ? (
           <ul className={styles.tags}>
-            {priorities.map((area) => (
+            {priorities.map(({ area, level }) => (
               <li key={area}>
                 <Tag
-                  icon={AREA_ICONS[area]}
+                  icon={areaIcon(area)}
                   trailing={
                     <span className={styles.level}>
-                      <span aria-hidden="true">{draft.discomfort[area]}</span>
+                      <span aria-hidden="true">{level}</span>
                       <span className="visually-hidden">
-                        {t('onboarding.summary.level', { value: draft.discomfort[area] })}
+                        {t('onboarding.summary.level', { value: level })}
                       </span>
                     </span>
                   }
                 >
-                  {t(`areas.${area}`)}
+                  {areaName(area, locale)}
                 </Tag>
               </li>
             ))}
@@ -133,9 +132,9 @@ export function SummaryStep() {
         <SectionHeader title={t('onboarding.summary.equipment')} edit="equipment" />
         {draft.equipment.length > 0 ? (
           <ul className={styles.tags}>
-            {draft.equipment.map((item) => (
-              <li key={item}>
-                <Tag icon={EQUIPMENT_ICONS[item]}>{t(`equipment.${item}`)}</Tag>
+            {equipmentIn(draft.equipment).map((item) => (
+              <li key={item.id}>
+                <Tag icon={equipmentIcon(item.id)}>{item.name[locale]}</Tag>
               </li>
             ))}
           </ul>

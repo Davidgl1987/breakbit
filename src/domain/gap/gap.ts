@@ -6,6 +6,8 @@ import { byScheduledAt, createActivity } from '../planner/activities';
 import {
   choosePauseContent,
   contentExerciseIds,
+  isRoutineEligible,
+  routineWeight,
   type ChosenContent,
   type ContentContext,
   type VarietyState,
@@ -13,7 +15,6 @@ import {
 import { rebalance } from '../planner/rebalance';
 import {
   hasEquipment,
-  isExerciseEligible,
   pauseTypeForDuration,
   pickExercise,
   routineDurationSec,
@@ -229,7 +230,8 @@ export function addExtraPause(
 /**
  * Content for the time available: 30 s, a single move; 1 min, one move up to a minute;
  * 3 min, a short routine (quiet moves in a meeting); 10+ min, the longest routine that
- * fits, or a short one.
+ * fits, or a short one. The user chose this time, so floor work fits (outside meetings)
+ * and equipment is likelier than at the desk.
  */
 function chooseGapContent(
   option: GapOption,
@@ -238,6 +240,7 @@ function chooseGapContent(
   variety: VarietyState,
   rng: ReturnType<typeof createRng>,
 ): ChosenContent | undefined {
+  const free = { freeTime: true };
   if (option === 's30') {
     const pick = pickExercise(
       context.catalog.exercises,
@@ -245,6 +248,7 @@ function chooseGapContent(
         discomfort: context.discomfort,
         equipment: context.equipment,
         slot,
+        freeTime: true,
         maxDurationSec: 30,
         previousExerciseIds: variety.previousExerciseIds,
         recentExerciseIds: variety.recentExerciseIds,
@@ -258,15 +262,15 @@ function chooseGapContent(
         state: variety,
       };
     }
-    return choosePauseContent('single', slot, context, variety, rng);
+    return choosePauseContent('single', slot, context, variety, rng, free);
   }
-  if (option === 'm1') return choosePauseContent('single', slot, context, variety, rng);
-  if (slot === 'meeting') return choosePauseContent('combined', slot, context, variety, rng);
+  if (option === 'm1') return choosePauseContent('single', slot, context, variety, rng, free);
+  if (slot === 'meeting') return choosePauseContent('combined', slot, context, variety, rng, free);
   if (option === 'm10') {
     const long = longRoutine(slot, context, rng);
     if (long) return { ...long, state: variety };
   }
-  return choosePauseContent('routine', slot, context, variety, rng);
+  return choosePauseContent('routine', slot, context, variety, rng, free);
 }
 
 /** A routine longer than a planned pause, up to 10 min; longer ones are likelier. */
@@ -275,19 +279,19 @@ function longRoutine(
   context: ContentContext,
   rng: ReturnType<typeof createRng>,
 ): Omit<ChosenContent, 'state'> | undefined {
-  const exercises = new Map(context.catalog.exercises.map((item) => [item.id, item]));
   const fits = context.catalog.routines.filter((routine) => {
     const seconds = routineDurationSec(routine);
     return (
       seconds > PAUSE_SIZE.activeMaxSec &&
       seconds <= 10 * 60 &&
-      routine.steps.every((step) => {
-        const exercise = exercises.get(step.exerciseId);
-        return exercise !== undefined && isExerciseEligible(exercise, { ...context, slot });
-      })
+      isRoutineEligible(routine, slot, context, { freeTime: true })
     );
   });
-  const routine = weightedPick(fits, routineDurationSec, rng);
+  const routine = weightedPick(
+    fits,
+    (item) => routineDurationSec(item) * routineWeight(item, slot, context, { freeTime: true }),
+    rng,
+  );
   return routine
     ? {
         content: { kind: 'routine', routineId: routine.id },

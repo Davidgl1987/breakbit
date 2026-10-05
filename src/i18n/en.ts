@@ -655,21 +655,6 @@ export const en: Messages = {
       noWorkdays: 'Choose at least one workday.',
     },
   },
-  areas: {
-    neck: 'Neck',
-    back: 'Back',
-    shoulders: 'Shoulders',
-    wrists: 'Wrists',
-    eyes: 'Eyes',
-    sedentary: 'Sitting time',
-  },
-  equipment: {
-    mat: 'Mat',
-    dumbbells: 'Dumbbells',
-    kettlebell: 'Kettlebell',
-    pullup_bar: 'Pull-up bar',
-    standing_desk: 'Standing desk',
-  },
   week: {
     label: 'Your week',
     stage: 'Your avatar after the week',
@@ -741,13 +726,6 @@ export const en: Messages = {
       title: 'Your gear',
       subtitle:
         "It's optional: most of your breaks will be gentle moves with no gear. If you have any of these at hand, tick them for more variety.",
-      hints: {
-        pullup_bar: 'Adds bar exercises',
-        dumbbells: 'Adds short dumbbell sets',
-        kettlebell: 'Adds short kettlebell sets',
-        mat: 'Adds floor mobility',
-        standing_desk: 'Lets us suggest some standing work',
-      },
       always: 'If you have none, leave it as it is: Breakbit works just as well without gear.',
     },
     intensity: {

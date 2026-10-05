@@ -10,8 +10,8 @@ import {
 } from '@/test/arbitraries';
 import { makeSchedule, makeSettings } from '@/test/builders';
 import { exerciseIdsOf, microbreakViolations } from '@/test/planInvariants';
-import { atTime, minutesOfDay, toMinutes } from '../time';
-import type { DayPlan, ScheduledActivity } from '../types';
+import { addDays, atTime, minutesOfDay, toMinutes } from '../time';
+import type { DayPlan, Exercise, ScheduledActivity, UserSettings } from '../types';
 import { generateDayPlan, type PlanInput } from './generateDayPlan';
 import { buildTimeline, overlaps } from './timeline';
 
@@ -159,6 +159,140 @@ describe('generateDayPlan', () => {
     );
     expect(types.filter((type) => type === 'micro').length).toBeGreaterThan(types.length / 2);
     expect(types).toContain('reset');
+  });
+});
+
+describe('generateDayPlan: what the pauses ask for', () => {
+  const exercise = (id: string) => CATALOG.exercises.find((item) => item.id === id)!;
+  const movesOf = (item: ScheduledActivity): Exercise[] =>
+    exerciseIdsOf(item, CATALOG).map(exercise);
+  /** Six weeks of plans with the default workday and these settings. */
+  const weeks = (overrides: Partial<UserSettings>, extra: Partial<PlanInput> = {}) =>
+    Array.from({ length: 42 }, (_, index) =>
+      generateDayPlan({
+        date: addDays(DATE, index),
+        schedule: settings.schedule,
+        settings: { ...settings, ...overrides },
+        catalog: CATALOG,
+        ...extra,
+      }),
+    ).flatMap(micros);
+  const share = (items: ScheduledActivity[], test: (item: ScheduledActivity) => boolean) =>
+    items.filter(test).length / items.length;
+  const getsUp = (item: ScheduledActivity) =>
+    movesOf(item).some((move) => move.posture === 'standing');
+  /** The main activity takes one break; the other gets a pause. */
+  const TWO_BREAKS = makeSchedule({
+    breaks: [
+      { start: '11:00', durationMin: 15 },
+      { start: '16:00', durationMin: 15 },
+    ],
+  });
+  const aimsAt = (area: string) => (item: ScheduledActivity) =>
+    movesOf(item).some((move) => move.areas[0] === area);
+
+  it('plans a full day without any equipment', () => {
+    const result = plan({ settings: { ...settings, equipment: [] } });
+    expect(micros(result)).toHaveLength(result.targetMicroCount);
+    for (const item of micros(result)) {
+      for (const move of movesOf(item)) expect(move.equipment).toEqual([]);
+    }
+    const main = mainOf(result)!;
+    const activity = CATALOG.mainActivities.find(
+      (item) => main.content.kind === 'main' && item.id === main.content.activityId,
+    );
+    expect(activity?.equipment).toEqual([]);
+  });
+
+  it.each(['resistance_band', 'pullup_bar', 'dumbbells', 'kettlebell', 'mat'])(
+    'brings in content for %s once it is at hand, without making it the norm',
+    (item) => {
+      const needsIt = (activity: ScheduledActivity) =>
+        activity.content.kind === 'main'
+          ? CATALOG.mainActivities
+              .find(
+                (entry) =>
+                  activity.content.kind === 'main' && entry.id === activity.content.activityId,
+              )!
+              .equipment.includes(item)
+          : movesOf(activity).some((move) => move.equipment.includes(item));
+      const days = (equipment: string[]) =>
+        Array.from({ length: 42 }, (_, index) =>
+          generateDayPlan({
+            date: addDays(DATE, index),
+            schedule: TWO_BREAKS,
+            settings: { ...settings, equipment },
+            catalog: CATALOG,
+          }),
+        ).flatMap((day) => day.activities);
+      expect(days([]).some(needsIt)).toBe(false);
+      const activities = days([item]);
+      expect(activities.some(needsIt)).toBe(true);
+      const pauses = activities.filter((activity) => activity.kind === 'micro');
+      expect(share(pauses, needsIt)).toBeLessThan(0.35);
+    },
+  );
+
+  it('keeps floor work for breaks, and rare', () => {
+    const pauses = weeks({ equipment: ['mat'] }, { schedule: TWO_BREAKS });
+    const floor = pauses.filter((item) => movesOf(item).some((move) => move.posture === 'floor'));
+    expect(floor.length).toBeGreaterThan(0);
+    expect(floor.every((item) => item.slot === 'break')).toBe(true);
+    expect(floor.length / pauses.length).toBeLessThan(0.2);
+  });
+
+  it('respects meetingFriendly: quiet or movable moves in a "puedo moverme" meeting, never "no"', () => {
+    const pauses = weeks(
+      { equipment: CATALOG.equipment.map((item) => item.id) },
+      {
+        schedule: makeSchedule({ lunch: undefined, breaks: [] }),
+        meetings: [{ id: 'm', start: '09:00', end: '17:00', canMove: true }],
+      },
+    );
+    const moves = pauses.filter((item) => item.slot === 'meeting').flatMap(movesOf);
+    expect(moves.length).toBeGreaterThan(0);
+    expect(moves.every((move) => move.meetingFriendly !== 'no' && move.posture !== 'floor')).toBe(
+      true,
+    );
+    expect(new Set(moves.map((move) => move.meetingFriendly))).toEqual(new Set(['yes', 'partial']));
+  });
+
+  it("plans nothing during a meeting where the user can't move", () => {
+    const busy = { start: toMinutes('10:00'), end: toMinutes('12:30') };
+    const pauses = weeks(
+      {},
+      { meetings: [{ id: 'm', start: '10:00', end: '12:30', canMove: false }] },
+    );
+    for (const item of pauses) {
+      const start = minute(item);
+      expect(overlaps({ start, end: start + Math.ceil(item.durationSec / 60) }, busy)).toBe(false);
+    }
+  });
+
+  it('gives high-rated areas more attention without losing general movement', () => {
+    const flat = weeks({ discomfort: {} });
+    const neck = weeks({ discomfort: { neck: 5 } });
+    expect(share(neck, aimsAt('neck'))).toBeGreaterThan(1.5 * share(flat, aimsAt('neck')));
+
+    // Getting up doesn't depend on the sliders: about every other pause at the desk.
+    const atDesk = (items: ScheduledActivity[]) => items.filter((item) => item.slot !== 'break');
+    for (const pauses of [flat, neck, weeks({ discomfort: { eyes: 5, wrists: 5, neck: 5 } })]) {
+      expect(share(atDesk(pauses), getsUp)).toBeGreaterThanOrEqual(0.5);
+    }
+  });
+
+  it('gets the user up in the first pause of the day and in every combined reset', () => {
+    const pauses = weeks(
+      { discomfort: { eyes: 5 } },
+      { schedule: makeSchedule({ lunch: undefined, breaks: [] }) },
+    );
+    const firsts = pauses.filter((item) => item.id.endsWith(':p0'));
+    expect(firsts.every(getsUp)).toBe(true);
+    const resets = pauses.filter(
+      (item) => item.content.kind === 'exercises' && item.pauseType === 'reset',
+    );
+    expect(resets.length).toBeGreaterThan(0);
+    expect(resets.every(getsUp)).toBe(true);
   });
 });
 
