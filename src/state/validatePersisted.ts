@@ -130,7 +130,7 @@ function validateSettings(v: Validator, settings: unknown, path: string): void {
   v.array(settings.equipment, `${path}.equipment`, (item, itemPath) => v.string(item, itemPath));
   v.integer(settings.preferredMainActivityMin, `${path}.preferredMainActivityMin`, 1, 240);
   if (v.record(settings.notifications, `${path}.notifications`)) {
-    for (const key of ['enabled', 'dayStart', 'microbreaks', 'dayEnd']) {
+    for (const key of ['enabled', 'dayStart', 'microbreaks', 'dayEnd', 'sound']) {
       v.boolean(settings.notifications[key], `${path}.notifications.${key}`);
     }
   }

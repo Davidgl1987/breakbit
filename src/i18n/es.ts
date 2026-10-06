@@ -447,6 +447,8 @@ export const es = {
       pauses: 'Pausas y actividad principal',
       dayEnd: 'Fin de jornada',
       enable: 'Activar notificaciones',
+      sound: 'Sonido de las pausas',
+      testSound: 'Probar sonido',
       off: 'Actívalas para recibir avisos aunque no tengas Breakbit delante.',
       denied:
         'Las notificaciones están bloqueadas en este navegador. Permítelas en la configuración de este sitio y vuelve aquí. Mientras, verás tus pausas al abrir Breakbit.',

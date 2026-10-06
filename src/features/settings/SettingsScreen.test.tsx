@@ -204,13 +204,44 @@ describe('Settings notifications', () => {
     );
   });
 
-  it('explains how to turn them on when blocked', () => {
+  it('turns the pause sound off and lets you hear it', async () => {
+    stubNotifications('granted');
+    const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
+    const { user } = ui();
+    const sound = screen.getByRole('switch', { name: 'Sonido de las pausas' });
+    expect(sound).toHaveAttribute('aria-checked', 'true');
+    await user.click(sound);
+    expect(store().settings.notifications.sound).toBe(false);
+
+    await user.click(screen.getByRole('button', { name: 'Probar sonido' }));
+    expect(play).toHaveBeenCalledOnce();
+
+    // Without pause reminders there is nothing to sound.
+    await user.click(screen.getByRole('switch', { name: 'Pausas y actividad principal' }));
+    expect(screen.getByRole('switch', { name: 'Sonido de las pausas' })).toBeDisabled();
+  });
+
+  it('explains how to turn them on when blocked, the app’s own sound still on offer', () => {
     stubNotifications('denied');
     ui();
     expect(
       screen.getByText(/Permítelas en la configuración de este sitio y vuelve aquí/),
     ).toBeInTheDocument();
+    expect(screen.getAllByRole('switch').map((item) => item.textContent)).toEqual([
+      'Sonido de las pausas',
+    ]);
+  });
+
+  it('offers no sound when reminders are off', () => {
+    useAppStore.setState((state) => ({
+      settings: {
+        ...state.settings,
+        notifications: { ...state.settings.notifications, enabled: false },
+      },
+    }));
+    ui();
     expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Probar sonido' })).not.toBeInTheDocument();
   });
 });
 

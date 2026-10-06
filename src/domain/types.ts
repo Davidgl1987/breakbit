@@ -47,6 +47,8 @@ export interface NotificationPrefs {
   dayStart: boolean;
   microbreaks: boolean;
   dayEnd: boolean;
+  /** Breakbit's sound when a pause comes, while the app is open. */
+  sound: boolean;
 }
 
 export interface UserSettings {

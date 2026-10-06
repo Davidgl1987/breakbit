@@ -901,3 +901,25 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - **Simular jornada**: `generateDayPlan` con los ajustes del usuario, hoy y una semilla nueva en
   cada "Otra jornada". Lista hora y contenido, y resume zonas principales, material y ejercicios
   repetidos. Tocar un ejercicio lo abre en el Lab.
+
+## Sonido de las pausas
+
+- **Notificación + sonido**: cuando llega una pausa, además de la notificación suena
+  `public/sounds/breakbit-notify.mp3` (0,2 s, volumen fijo 0,7) una sola vez. Lo reproduce la propia
+  app (`services/notifications/sound`), nunca la notificación ni el service worker: solo suena con
+  Breakbit abierta, aunque esté en segundo plano o sin el foco. Con la app cerrada, solo hay
+  notificación.
+- **Cuándo**: al aviso de la pausa (también cuando vuelve una aplazada), no en sus recordatorios cada
+  10 min ni en los demás avisos. Va por el mismo punto que la notificación (`onDue` del canal local),
+  así que hereda su deduplicación: una vez por aviso, con Strict Mode, recargas y varias pestañas
+  (los ids entregados se releen de `localStorage` en cada ciclo). Suena aunque la app esté delante
+  o sin permiso de notificaciones; no suena por avisos de hace más de 5 min (tras un reposo).
+- **Autoplay**: los navegadores solo dejan sonar tras una interacción. El primer clic o tecla de la
+  sesión (p. ej. "Empezar jornada", o cualquiera tras recargar) lo reproduce silenciado un instante
+  y lo para: Safari necesita que sea el mismo elemento de audio. Si `play()` falla, se ignora.
+- **Ajustes › Notificaciones**: "Sonido de las pausas" (activado por defecto, en
+  `settings.notifications.sound`; migración v3) y "Probar sonido". Se muestran mientras los avisos
+  estén activos, aunque el navegador no dé permiso; el interruptor se desactiva sin avisos de pausas.
+- **Avisos de pausa persistentes**: `requireInteraction` (donde exista) para que la notificación no
+  desaparezca sola. La app la cierra en cuanto deja de tocar (la pausa se responde, empieza o se
+  pasa), para que no se quede en pantalla una pausa ya hecha.

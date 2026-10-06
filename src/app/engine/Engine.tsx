@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { clock } from '@/services/clock';
 import { createLocalScheduler } from '@/services/notifications/scheduler';
+import { playPauseSound, unlockPauseSoundOnInteraction } from '@/services/notifications/sound';
 import { onServiceWorkerNavigate } from '@/services/pwa/serviceWorker';
 import { selectIsOnboarded } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
@@ -13,7 +14,8 @@ const TICK_MS = 15_000;
 
 /**
  * Keeps the day in step with the clock: on start, every 15 s, after the user's actions,
- * when the app comes back to the front and on dev time travel. Renders nothing.
+ * when the app comes back to the front and on dev time travel. When a pause comes, it
+ * also plays Breakbit's sound (once, like its notification). Renders nothing.
  */
 export function Engine() {
   const navigate = useNavigate();
@@ -28,7 +30,14 @@ export function Engine() {
     const scheduler = createLocalScheduler({
       render: (notification) => notificationContent(notification, useAppStore.getState()),
       onOpen: (url) => navigateRef.current(url),
+      // The pause itself, not its reminders or other notices.
+      onDue: (notification) => {
+        if (notification.kind === 'pause' && useAppStore.getState().settings.notifications.sound) {
+          playPauseSound();
+        }
+      },
     });
+    const stopUnlocking = unlockPauseSoundOnInteraction();
     let lastSlot = -1;
     const tick = (force: boolean) => {
       const now = clock.now();
@@ -49,6 +58,7 @@ export function Engine() {
     document.addEventListener('visibilitychange', wake);
     const stopListening = onServiceWorkerNavigate((path) => navigateRef.current(path));
     return () => {
+      stopUnlocking();
       unsubscribe();
       unsubscribeStore();
       window.removeEventListener('focus', wake);
