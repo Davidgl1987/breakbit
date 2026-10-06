@@ -444,6 +444,8 @@ export const en: Messages = {
       pauses: 'Breaks and main activity',
       dayEnd: 'End of the workday',
       enable: 'Turn on notifications',
+      sound: 'Break sound',
+      testSound: 'Test the sound',
       off: "Turn them on to get reminders even when Breakbit isn't in front of you.",
       denied:
         "Notifications are blocked in this browser. Allow them in this site's settings and come back here. Meanwhile, you'll see your breaks when you open Breakbit.",

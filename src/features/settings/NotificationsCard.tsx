@@ -6,6 +6,7 @@ import {
   requestNotificationPermission,
   type NotificationPermissionState,
 } from '@/services/notifications/permission';
+import { playPauseSound } from '@/services/notifications/sound';
 import { useAppStore } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
@@ -25,8 +26,9 @@ const ALERTS: {
 ];
 
 /**
- * Which reminders to get. They need the browser's permission: until then it says how to
- * turn them on (asking only when the user taps), and the in-app banner covers the rest.
+ * Which reminders to get, and whether pauses sound. They need the browser's permission:
+ * until then it says how to turn them on (asking only when the user taps), and the in-app
+ * banner covers the rest.
  */
 export function NotificationsCard() {
   const { t } = useT();
@@ -81,6 +83,27 @@ export function NotificationsCard() {
           <p className={styles.muted}>{t('settings.alerts.off')}</p>
           <Button variant="secondary" onClick={() => void enable()}>
             {t('settings.alerts.enable')}
+          </Button>
+        </>
+      )}
+      {/* The app plays it itself, so it sounds even without the browser's permission. It
+          comes with the pause reminders: without them there is nothing to sound. */}
+      {prefs.enabled && (
+        <>
+          <Toggle
+            labelPosition="start"
+            checked={prefs.sound}
+            disabled={!prefs.microbreaks}
+            onChange={(sound) => set({ sound })}
+            label={
+              <span className={styles.toggleLabel}>
+                <PixelIcon name="speaker" size={24} />
+                {t('settings.alerts.sound')}
+              </span>
+            }
+          />
+          <Button variant="secondary" onClick={playPauseSound}>
+            {t('settings.alerts.testSound')}
           </Button>
         </>
       )}

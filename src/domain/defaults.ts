@@ -14,5 +14,5 @@ export const DEFAULT_SETTINGS: UserSettings = {
   discomfort: {},
   equipment: [],
   preferredMainActivityMin: 20,
-  notifications: { enabled: true, dayStart: true, microbreaks: true, dayEnd: true },
+  notifications: { enabled: true, dayStart: true, microbreaks: true, dayEnd: true, sound: true },
 };

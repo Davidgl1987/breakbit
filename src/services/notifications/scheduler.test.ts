@@ -19,7 +19,7 @@ const render = () => ({
   icon: '',
 });
 
-let shown: { title: string; options?: NotificationOptions }[];
+let shown: { title: string; options?: NotificationOptions; closed?: boolean }[];
 
 beforeEach(() => {
   localStorage.clear();
@@ -27,10 +27,14 @@ beforeEach(() => {
   class FakeNotification {
     static permission: NotificationPermission = 'granted';
     onclick: (() => void) | null = null;
+    private readonly entry: (typeof shown)[number];
     constructor(title: string, options?: NotificationOptions) {
-      shown.push({ title, options });
+      this.entry = { title, options };
+      shown.push(this.entry);
     }
-    close() {}
+    close() {
+      this.entry.closed = true;
+    }
   }
   vi.stubGlobal('Notification', FakeNotification);
   vi.spyOn(document, 'hasFocus').mockReturnValue(false);
@@ -78,5 +82,84 @@ describe('local notification scheduler', () => {
     createLocalScheduler({ render, onOpen: () => {} }).sync([planned('a', NOW)], NOW);
     await flush();
     expect(shown).toEqual([]);
+  });
+});
+
+describe('due notifications', () => {
+  it('reports each one once as it comes due, even with the app in front', async () => {
+    vi.spyOn(document, 'hasFocus').mockReturnValue(true);
+    const onDue = vi.fn();
+    const scheduler = createLocalScheduler({ render, onOpen: () => {}, onDue });
+    const agenda = [planned('a', NOW - MIN), planned('b', NOW + 10 * MIN)];
+    scheduler.sync(agenda, NOW);
+    scheduler.sync(agenda, NOW + MIN);
+    await flush();
+    expect(onDue).toHaveBeenCalledOnce();
+    expect(onDue).toHaveBeenCalledWith(agenda[0]);
+    expect(shown).toEqual([]);
+  });
+
+  it('reports nothing long overdue', () => {
+    const onDue = vi.fn();
+    createLocalScheduler({ render, onOpen: () => {}, onDue }).sync(
+      [planned('a', NOW - 20 * MIN)],
+      NOW,
+    );
+    expect(onDue).not.toHaveBeenCalled();
+  });
+
+  it('delivers once between two schedulers alive at once (Strict Mode, two tabs)', async () => {
+    const onDue = vi.fn();
+    const first = createLocalScheduler({ render, onOpen: () => {}, onDue });
+    const second = createLocalScheduler({ render, onOpen: () => {}, onDue });
+    first.sync([planned('a', NOW)], NOW);
+    second.sync([planned('a', NOW)], NOW);
+    await flush();
+    expect(onDue).toHaveBeenCalledOnce();
+    expect(shown).toHaveLength(1);
+  });
+});
+
+describe('notifications kept on screen', () => {
+  const kept = () => ({ ...render(), requireInteraction: true });
+
+  it('stay while the pause waits for an answer and go once it is answered', async () => {
+    const scheduler = createLocalScheduler({ render: kept, onOpen: () => {} });
+    scheduler.sync([planned('a', NOW)], NOW);
+    await flush();
+    expect(shown[0]?.options).toMatchObject({ requireInteraction: true });
+
+    scheduler.sync([planned('a', NOW)], NOW + MIN);
+    await flush();
+    expect(shown[0]?.closed).toBeUndefined();
+
+    // Answered (or started, or missed): it is no longer on the agenda.
+    scheduler.sync([], NOW + 2 * MIN);
+    await flush();
+    expect(shown[0]?.closed).toBe(true);
+  });
+
+  it('are closed through the service worker too, leaving the others alone', async () => {
+    const answered = { tag: 'pause:a', requireInteraction: true, close: vi.fn() };
+    const waiting = { tag: 'pause:b', requireInteraction: true, close: vi.fn() };
+    const fading = { tag: 'day-start', requireInteraction: false, close: vi.fn() };
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: {
+        getRegistration: async () => ({
+          showNotification: vi.fn(),
+          getNotifications: async () => [answered, waiting, fading],
+        }),
+      },
+    });
+    try {
+      createLocalScheduler({ render: kept, onOpen: () => {} }).sync([planned('b', NOW)], NOW);
+      await flush();
+      expect(answered.close).toHaveBeenCalled();
+      expect(waiting.close).not.toHaveBeenCalled();
+      expect(fading.close).not.toHaveBeenCalled();
+    } finally {
+      Reflect.deleteProperty(navigator, 'serviceWorker');
+    }
   });
 });

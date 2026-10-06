@@ -71,12 +71,14 @@ export function notificationContent(
     };
   }
   const url = `${pausePath(activity.id)}?src=notif`;
+  // A pause is easy to miss while looking elsewhere: it stays until answered.
   if (notification.kind === 'pause') {
     return {
       title: t('notifications.pause.title'),
       body: t('notifications.pause.body', { name, duration: formatSeconds(activity.durationSec) }),
       url,
       icon: ICONS.pause,
+      requireInteraction: true,
     };
   }
   const minutesLeft = Math.ceil((windowEnd(activity) - notification.at) / 60_000);
@@ -85,5 +87,6 @@ export function notificationContent(
     body: t('notifications.reminder.body', { name, minutes: minutesLeft }),
     url,
     icon: ICONS.pause,
+    requireInteraction: true,
   };
 }
