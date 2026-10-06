@@ -17,3 +17,14 @@ const AVATARS: Partial<Record<`${EvolutionPhase}:${AvatarPose}`, string>> = Obje
 export function avatarAsset(phase: EvolutionPhase, pose: AvatarPose): string | undefined {
   return AVATARS[`${phase}:${pose}`] ?? AVATARS[`${phase}:idle`];
 }
+
+/**
+ * Art showing how each exercise is done (an image or animation), by exercise id. None
+ * exists yet: until it does, screens keep the avatar's demo pose and Exercise Lab marks
+ * the exercise as still needing its visual.
+ */
+const EXERCISE_VISUALS: Partial<Record<string, string>> = {};
+
+export function exerciseVisual(exerciseId: string): string | undefined {
+  return EXERCISE_VISUALS[exerciseId];
+}

@@ -873,3 +873,31 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   de margen y un máximo de 32 colores. Así todos tienen el mismo tamaño óptico.
 - Los avisos usan los mismos iconos a 192 px (`public/icons/notify`).
 - "Reuniones de hoy" se cierra como cualquier hoja (fuera o deslizando), sin botón "Listo".
+
+## Exercise Lab
+
+- **`/dev/exercises`** (solo en desarrollo, como `/dev/kit`; fuera de las guardas de onboarding y a
+  pantalla completa, no en la columna de la app): revisar el catálogo de ejercicios probándolos de
+  verdad. Enlazado desde el DevPanel. Con `pnpm dev` también se abre desde el móvil en la red local.
+- **Lee el catálogo real** (`CATALOG.exercises`): no hay un segundo catálogo. Las decisiones no
+  cambian ni borran nada; solo se recogen y se exportan.
+- **Vista del usuario**: la pantalla de ejercicio se extrajo de `PlayScreen` a
+  `features/pause/MovePlayer` (avatar, temporizador, zonas, pasos y botones), que usan la app y el
+  Lab. En pantallas anchas va en un marco del tamaño de un móvil; en el móvil es la propia pantalla.
+  "Probar ejercicio" usa el temporizador real (`useStepTimer`) con la duración del catálogo;
+  al terminar se marca como probado y se pasa a la valoración. Sin XP, rachas ni eventos.
+- **Revisión**: valoración (😍 Muy bueno 4 · 👍 Está bien 3 · 😐 Sin más 2 · 👎 Malo 1), calidad del
+  ejercicio y calidad como micropausa (1–5), decisión (`pending` · `keep` · `rework` · `delete`),
+  "lo he probado" y notas. Un ejercicio cuenta como revisado cuando tiene decisión. "Siguiente
+  pendiente" busca después del actual dentro de los filtros y, si no queda ninguno, en todo el
+  catálogo.
+- **Guardado** en IndexedDB (`idb-keyval`), en su propia base `breakbit-lab` con una clave por
+  ejercicio, como el registro de eventos. Está aparte de los datos de la app: "Borrar datos", los
+  escenarios del DevPanel y las copias no la tocan.
+- **Exportar revisión** descarga `breakbit-revision-ejercicios-<fecha>.json`: resumen, escalas y los
+  ejercicios con revisión, en el orden del catálogo y con su nombre en español.
+- **Visual del ejercicio**: `exerciseVisual(id)` en `assets/registry.ts` (vacío de momento). Si
+  existe se muestra en la ficha; si no, "Sin visual todavía".
+- **Simular jornada**: `generateDayPlan` con los ajustes del usuario, hoy y una semilla nueva en
+  cada "Otra jornada". Lista hora y contenido, y resume zonas principales, material y ejercicios
+  repetidos. Tocar un ejercicio lo abre en el Lab.
