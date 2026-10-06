@@ -251,6 +251,13 @@ export function DevPanel() {
           >
             {t('dev.designSystem')}
           </Link>
+          <Link
+            to={ROUTES.devExercises}
+            onClick={close}
+            className={buttonClassName({ variant: 'ghost', size: 'sm' })}
+          >
+            {t('dev.exerciseLab')}
+          </Link>
         </section>
 
         <section className={styles.section} aria-label={t('dev.scenarios')}>

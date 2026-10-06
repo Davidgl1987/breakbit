@@ -7,6 +7,7 @@ export const ROUTES = {
   dayStart: '/day/start',
   dayEnd: '/day/end',
   devKit: '/dev/kit',
+  devExercises: '/dev/exercises',
 } as const;
 
 /** The decision screen of a pause ("Vamos" / postpone / discard). */
