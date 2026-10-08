@@ -143,6 +143,11 @@ SHEETS = [
 SHEET_SIZE = 1024
 SPRITE = 32
 
+# Drawn on the sheets but no longer in the app (the pull-up bar left the equipment): the
+# cell stays so the sheets still line up, and the import skips it.
+RETIRED = {'pullup_bar'}
+
 
 def all_icons() -> list[str]:
-    return [name for *_, icons in SHEETS for name, _ in icons]
+    """The icons the app uses."""
+    return [name for *_, icons in SHEETS for name, _ in icons if name not in RETIRED]

@@ -43,12 +43,12 @@ export function catalogCheck(): Plugin {
   };
 }
 
-/** `section "id" → icon` for every icon the catalog names without an SVG in public/icons. */
+/** `section "id" → icon` for every icon the catalog names without a sprite in public/icons. */
 export function missingIcons(data: unknown, iconsDir: string): string[] {
   const available = existsSync(iconsDir)
     ? new Set(
         readdirSync(iconsDir)
-          .filter((file) => file.endsWith('.svg'))
+          .filter((file) => file.endsWith('.png'))
           .map((file) => file.slice(0, -4)),
       )
     : new Set<string>();

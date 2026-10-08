@@ -56,8 +56,18 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
   const last = timer.index === items.length - 1;
   const following = items[timer.index + 1];
   const stepLabel = t('pause.play.step', { current: timer.index + 1, total: items.length });
+  // A routine done more than once counts its moves per round: "Vuelta 2 · Movimiento 1 de 5".
+  const rounds = activity.content.kind === 'routine' ? (activity.content.rounds ?? 1) : 1;
+  const perRound = items.length / rounds;
+  const round = Math.floor(timer.index / perRound);
   const subtitle = multi
-    ? [activity.content.kind === 'routine' && contentName(activity.content, locale), stepLabel]
+    ? [
+        activity.content.kind === 'routine' && contentName(activity.content, locale),
+        round > 0 && t('main.round', { round: round + 1 }),
+        rounds > 1
+          ? t('pause.play.step', { current: (timer.index % perRound) + 1, total: perRound })
+          : stepLabel,
+      ]
         .filter(Boolean)
         .join(' · ')
     : undefined;

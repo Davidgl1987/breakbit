@@ -60,10 +60,11 @@ function movesOf(
   if (content.kind === 'routine') {
     const routineId = content.routineId;
     const routine = catalog.routines.find((item) => item.id === routineId);
-    return (routine?.steps ?? []).flatMap((step) => {
+    const round = (routine?.steps ?? []).flatMap((step) => {
       const found = exercise(step.exercise);
       return found ? [{ areas: found.areas, seconds: step.seconds }] : [];
     });
+    return Array.from({ length: content.rounds ?? 1 }, () => round).flat();
   }
   return [];
 }

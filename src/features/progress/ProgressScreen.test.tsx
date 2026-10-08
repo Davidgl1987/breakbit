@@ -122,7 +122,7 @@ describe('Progress with some history', () => {
 
     renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
     const likes = section('Tus ejercicios');
-    expect(likes).toHaveTextContent('Te gustan másMarcha en el sitio1 voto');
+    expect(likes).toHaveTextContent('Te gustan másMarcha con palmada en rodilla1 voto');
     expect(likes).toHaveTextContent('Te gustan menosZancada1 voto');
   });
 

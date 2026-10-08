@@ -25,7 +25,6 @@ const ROOM_ITEM_ICONS: Partial<Record<string, IconName>> = {
   skate: 'skate',
   mat: 'mat',
   kettlebell: 'kettlebell',
-  pullup_bar: 'pullup_bar',
   wall_decor: 'plant_decor',
   monitor: 'monitor',
   standing_desk: 'desk',

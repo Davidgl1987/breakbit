@@ -251,6 +251,23 @@ describe('routines in the player', () => {
   });
 });
 
+describe('a routine done twice', () => {
+  const routine = CATALOG.routines.find((item) => item.id === 'mobility_5')!;
+  beforeEach(() => setUp({ content: { kind: 'routine', routineId: routine.id, rounds: 2 } }));
+
+  it('counts its moves per round', async () => {
+    const { user } = ui(pausePlayPath(first.id));
+    expect(screen.getByText(`${routine.name.es} · Movimiento 1 de 5`)).toBeInTheDocument();
+    for (let n = 1; n <= 5; n++) {
+      await wait(STEP_TAP_GUARD_MS + 100);
+      await user.click(screen.getByRole('button', { name: 'Saltar' }));
+    }
+    expect(
+      screen.getByText(`${routine.name.es} · Vuelta 2 · Movimiento 1 de 5`),
+    ).toBeInTheDocument();
+  });
+});
+
 describe('pause done', () => {
   beforeEach(() => setUp());
 

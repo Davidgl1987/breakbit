@@ -151,6 +151,7 @@ export const en: Messages = {
     stage: 'Your avatar showing the activity',
     continuous: 'Continuous · {minutes}',
     accumulated: 'In blocks · {minutes}',
+    round: 'Round {round}',
     start: 'Start',
     startBlock: 'Start a block',
     change: 'Change activity or time',
@@ -203,6 +204,7 @@ export const en: Messages = {
     howTo: 'How to do it',
     standing: 'If you can, do it standing up.',
     meeting: 'Discreet: you can do it in the meeting.',
+    rounds: { one: 'Once through the sequence', other: '{count} rounds of the sequence' },
     close: 'Close',
     title: 'Time to move',
     combined: { one: '{count} move', other: '{count} moves in a row' },
@@ -532,9 +534,9 @@ export const en: Messages = {
     bubble: 'Any moment is a good moment to move!',
     stage: 'Your avatar cheering you on',
     options: {
-      s30: { title: '30 seconds', body: 'One quick exercise', proposal: '30-second idea' },
       m1: { title: '1 minute', body: 'Great for a quick boost', proposal: '1-minute idea' },
       m3: { title: '3 minutes', body: 'A full mini routine', proposal: '3-minute idea' },
+      m5: { title: '5 minutes', body: 'Five exercises in a row', proposal: '5-minute idea' },
       m10: { title: '10+ minutes', body: 'A longer reset', proposal: '10+ minute idea' },
     },
     mainBody: 'A good time for your activity',
@@ -729,7 +731,7 @@ export const en: Messages = {
       title: 'Move a little, every day',
       subtitle: "Very short breaks spread across your workday, so you don't sit for hours.",
       points: {
-        pauses: 'Breaks from 30 seconds to 3 minutes',
+        pauses: 'Breaks of 1 to 3 minutes',
         main: 'One slightly longer moment a day, like a walk',
         habit: 'Consistency counts, not effort',
         private: 'No account: your data stays on this device',
@@ -754,13 +756,6 @@ export const en: Messages = {
       title: 'Your gear',
       subtitle:
         'What do you have at hand? Most of your breaks will be gentle moves with no gear. Anything you tick adds variety.',
-      hints: {
-        pullup_bar: 'Adds bar exercises',
-        dumbbells: 'Adds short dumbbell sets',
-        kettlebell: 'Adds short kettlebell sets',
-        mat: 'Adds floor mobility',
-        standing_desk: 'Lets us suggest some standing work',
-      },
       always: 'Gear-free moves and walking are always available.',
     },
     intensity: {

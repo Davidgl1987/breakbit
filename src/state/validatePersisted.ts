@@ -224,6 +224,9 @@ function validateActivity(v: Validator, activity: unknown, path: string): void {
       );
     } else if (content.kind === 'routine') {
       v.string(content.routineId, `${path}.content.routineId`);
+      v.optional(content.rounds, `${path}.content.rounds`, (item, itemPath) =>
+        v.integer(item, itemPath, 1, 10),
+      );
     } else if (content.kind === 'main') {
       v.string(content.activityId, `${path}.content.activityId`);
     } else {

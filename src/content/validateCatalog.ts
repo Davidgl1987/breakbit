@@ -12,12 +12,12 @@ export interface CatalogIssue {
   problem: string;
 }
 
-/** Exercise length for a microbreak, in seconds. */
-export const EXERCISE_SECONDS = { min: 20, max: 120 } as const;
+/** 1 exercise = 1 minute: alone as a microbreak or as a step of a routine. */
+export const EXERCISE_SECONDS = 60;
+/** The longest routine that is a pause (PAUSE_SIZE.activeMaxSec): 3 exercises. */
+export const PAUSE_ROUTINE_MAX_SEC = 180;
 /** Main activity length, in minutes. */
 export const MAIN_MINUTES = { min: 5, max: 30 } as const;
-/** Length of each step of a routine, in seconds. */
-export const ROUTINE_STEP_SECONDS = { min: 10, max: 120 } as const;
 /** Equipment-free exercises every area needs, so a day can be planned without equipment. */
 export const MIN_GEAR_FREE_PER_AREA = 2;
 
@@ -131,7 +131,7 @@ export function validateCatalog(data: unknown): CatalogIssue[] {
     textList(exercise.steps, `${at} → steps`, 2, fail);
     references(exercise.areas, ids.areas, 'areas', `${at} → areas`, 1, fail);
     references(exercise.equipment, ids.equipment, 'equipment', `${at} → equipment`, 0, fail);
-    integerIn(exercise.durationSec, EXERCISE_SECONDS, 'segundos', `${at} → durationSec`, fail);
+    oneMinute(exercise.durationSec, `${at} → durationSec`, fail);
     oneOf(exercise.posture, POSTURES, `${at} → posture`, fail);
     oneOf(exercise.meetingFriendly, MEETING_FRIENDLY, `${at} → meetingFriendly`, fail);
     optionalIcon(exercise.icon, at, fail);
@@ -154,7 +154,7 @@ export function validateCatalog(data: unknown): CatalogIssue[] {
         if (typeof step.exercise !== 'string' || !ids.exercises.has(step.exercise)) {
           fail(`${stepAt} → exercise`, `"${String(step.exercise)}" no existe en exercises`);
         }
-        integerIn(step.seconds, ROUTINE_STEP_SECONDS, 'segundos', `${stepAt} → seconds`, fail);
+        oneMinute(step.seconds, `${stepAt} → seconds`, fail);
       });
     }
     optionalIcon(routine.icon, at, fail);
@@ -180,8 +180,10 @@ export function validateCatalog(data: unknown): CatalogIssue[] {
     }
     if (typeof activity.whileWorking !== 'boolean')
       fail(`${at} → whileWorking`, 'debe ser true o false');
-    if (activity.routine !== undefined && !ids.routines.has(String(activity.routine))) {
-      fail(`${at} → routine`, `"${String(activity.routine)}" no existe en routines`);
+    if (activity.routine !== undefined) {
+      const routine = sections.routines.find((item) => item.id === activity.routine);
+      if (routine) guidedRoutine(routine, activity, `${at} → routine`, fail);
+      else fail(`${at} → routine`, `"${String(activity.routine)}" no existe en routines`);
     }
     optionalIcon(activity.icon, at, fail);
   });
@@ -369,6 +371,46 @@ function integerIn(
     fail(at, `debe ser un número entero de ${unit}`);
   } else if (value < range.min || value > range.max) {
     fail(at, `${value} está fuera de ${range.min}–${range.max} ${unit}`);
+  }
+}
+
+/**
+ * A main activity's routine is a long sequence of its own, never a pause routine, and the
+ * whole of it fits the activity at least once: a longer block repeats it from the start.
+ */
+function guidedRoutine(
+  routine: Item,
+  activity: Item,
+  at: string,
+  fail: (where: string, problem: string) => void,
+): void {
+  const seconds = (asArray(routine.steps) ?? []).reduce<number>(
+    (total, step) =>
+      total + (isObject(step) && typeof step.seconds === 'number' ? step.seconds : 0),
+    0,
+  );
+  if (seconds <= PAUSE_ROUTINE_MAX_SEC) {
+    fail(
+      at,
+      `"${String(routine.id)}" es una rutina de pausa (hasta 3 minutos): un bloque necesita una rutina propia más larga`,
+    );
+  }
+  const minMinutes = isObject(activity.durationMin) ? activity.durationMin.min : undefined;
+  if (typeof minMinutes === 'number' && seconds > minMinutes * 60) {
+    fail(
+      at,
+      `"${String(routine.id)}" dura ${seconds / 60} min y no cabe entera en los ${minMinutes} min de la actividad`,
+    );
+  }
+}
+
+function oneMinute(
+  value: unknown,
+  at: string,
+  fail: (where: string, problem: string) => void,
+): void {
+  if (value !== EXERCISE_SECONDS) {
+    fail(at, `${String(value)} no vale: cada ejercicio dura ${EXERCISE_SECONDS} segundos`);
   }
 }
 

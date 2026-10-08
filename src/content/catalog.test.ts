@@ -2,7 +2,13 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { CATALOG } from './catalog';
-import { formatCatalogIssues, validateCatalog, type CatalogIssue } from './validateCatalog';
+import { PAUSE_SIZE } from '@/domain/config';
+import {
+  formatCatalogIssues,
+  PAUSE_ROUTINE_MAX_SEC,
+  validateCatalog,
+  type CatalogIssue,
+} from './validateCatalog';
 
 const FILE = fileURLToPath(new URL('./catalogo-breakbit.json', import.meta.url));
 type Section = 'areas' | 'equipment' | 'exercises' | 'routines' | 'mainActivities';
@@ -37,7 +43,7 @@ describe('validateCatalog', () => {
       data.exercises[0].durationSec = 130;
     });
     expect(problems(issues)).toEqual([
-      'exercises[0] "chin_tuck" → durationSec: 130 está fuera de 20–120 segundos',
+      'exercises[0] "chin_tuck" → durationSec: 130 no vale: cada ejercicio dura 60 segundos',
     ]);
   });
 
@@ -87,7 +93,31 @@ describe('validateCatalog', () => {
     );
   });
 
-  it('keeps exercises between 20 and 120 s, with two steps, a valid posture and meeting fit', () => {
+  it('gives a main activity a long routine of its own that fits it whole', () => {
+    expect(PAUSE_ROUTINE_MAX_SEC).toBe(PAUSE_SIZE.activeMaxSec);
+    const issues = broken((data) => {
+      data.mainActivities.find((item) => item.id === 'band_block').routine = 'band_upper_reset';
+      // One more minute than the 5-minute activity.
+      data.routines
+        .find((item) => item.id === 'mobility_5')
+        .steps.push({ exercise: 'march', seconds: 60 });
+    });
+    expect(problems(issues)).toEqual([
+      'mainActivities[3] "mobility_routine" → routine: "mobility_5" dura 6 min y no cabe entera en los 5 min de la actividad',
+      'mainActivities[5] "band_block" → routine: "band_upper_reset" es una rutina de pausa (hasta 3 minutos): un bloque necesita una rutina propia más larga',
+    ]);
+  });
+
+  it('times every step of a routine at one minute too', () => {
+    const issues = broken((data) => {
+      data.routines[0].steps[0].seconds = 45;
+    });
+    expect(problems(issues)).toEqual([
+      'routines[0] "wake_up" → steps[0] → seconds: 45 no vale: cada ejercicio dura 60 segundos',
+    ]);
+  });
+
+  it('keeps every exercise at one minute, with two steps, a valid posture and meeting fit', () => {
     const issues = broken((data) => {
       data.exercises[0].durationSec = 10;
       data.exercises[1].steps = data.exercises[1].steps.slice(0, 1);
@@ -96,7 +126,7 @@ describe('validateCatalog', () => {
     });
     expect(problems(issues)).toEqual(
       expect.arrayContaining([
-        'exercises[0] "chin_tuck" → durationSec: 10 está fuera de 20–120 segundos',
+        'exercises[0] "chin_tuck" → durationSec: 10 no vale: cada ejercicio dura 60 segundos',
         'exercises[1] "neck_rotation" → steps: debe ser una lista con al menos 2 pasos',
         'exercises[2] "neck_side_tilt" → posture: "seated" no es válido; usa standing, either, floor',
         'exercises[3] "neck_isometrics" → meetingFriendly: "maybe" no es válido; usa yes, partial, no',

@@ -27,7 +27,7 @@ from PIL import Image
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
-from sheets import SHEET_SIZE, SHEETS, SPRITE  # noqa: E402
+from sheets import RETIRED, SHEET_SIZE, SHEETS, SPRITE  # noqa: E402
 
 OUT = ROOT / 'public/icons'
 NAMES_TS = ROOT / 'src/ui/icons/iconNames.ts'
@@ -59,7 +59,8 @@ def main() -> None:
             drawings = icon_masks(sheet, (cols, rows), len(items), file)
             pixels = sheet.load()
             for (name, _), mask in zip(items, drawings):
-                sprites[name] = convert(pixels, mask)
+                if name not in RETIRED:
+                    sprites[name] = convert(pixels, mask)
 
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / 'notify').mkdir(exist_ok=True)

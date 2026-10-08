@@ -16,6 +16,12 @@ describe('validatePersistedState', () => {
 
   const firstActivity = (state: any) => state.days[DATE].plan.activities[0]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
+  it('accepts a routine done twice', () => {
+    const state = fullState();
+    firstActivity(state).content = { kind: 'routine', routineId: 'mobility_5', rounds: 2 };
+    expect(validatePersistedState(state)).toEqual([]);
+  });
+
   it.each<[string, Mutation]>([
     ['unknown theme', (s) => (s.prefs.theme = 'neon')],
     ['unsupported language', (s) => (s.prefs.locale = 'fr')],
@@ -38,6 +44,10 @@ describe('validatePersistedState', () => {
     ['activity time as text', (s) => (firstActivity(s).scheduledAt = '10:00')],
     ['activity with negative duration', (s) => (firstActivity(s).durationSec = -30)],
     ['activity with unknown content', (s) => (firstActivity(s).content = { kind: 'video' })],
+    [
+      'routine done zero times',
+      (s) => (firstActivity(s).content = { kind: 'routine', routineId: 'wake_up', rounds: 0 }),
+    ],
     ['meeting without times', (s) => delete s.days[DATE].plan.meetings[0].end],
     ['summary with text counts', (s) => (s.days['2026-10-02'].summary.completed = 'four')],
     ['unknown mood', (s) => (s.days['2026-10-02'].mood = 'meh')],
