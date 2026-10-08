@@ -154,6 +154,7 @@ export const es = {
     stage: 'Tu avatar te enseña la actividad',
     continuous: 'Continua · {minutes}',
     accumulated: 'En bloques · {minutes}',
+    round: 'Vuelta {round}',
     start: 'Empezar',
     startBlock: 'Empezar un bloque',
     change: 'Cambiar actividad u hora',
@@ -206,6 +207,7 @@ export const es = {
     howTo: 'Cómo hacerlo',
     standing: 'Si puedes, hazlo mejor de pie.',
     meeting: 'Discreto: puedes hacerlo en la reunión.',
+    rounds: { one: 'Una vuelta a la secuencia', other: '{count} vueltas a la secuencia' },
     close: 'Cerrar',
     title: 'Es hora de moverte',
     combined: { one: '{count} movimiento', other: '{count} movimientos seguidos' },
@@ -535,13 +537,13 @@ export const es = {
     bubble: '¡Cualquier momento es bueno para moverte!',
     stage: 'Tu avatar te anima',
     options: {
-      s30: {
-        title: '30 segundos',
-        body: 'Un ejercicio rápido',
-        proposal: 'Propuesta de 30 segundos',
-      },
       m1: { title: '1 minuto', body: 'Ideal para activarte', proposal: 'Propuesta de 1 minuto' },
       m3: { title: '3 minutos', body: 'Mini rutina completa', proposal: 'Propuesta de 3 minutos' },
+      m5: {
+        title: '5 minutos',
+        body: 'Cinco ejercicios seguidos',
+        proposal: 'Propuesta de 5 minutos',
+      },
       m10: {
         title: '10+ minutos',
         body: 'Un reset más largo',
@@ -744,7 +746,7 @@ export const es = {
       title: 'Muévete un poco, cada día',
       subtitle: 'Pausas muy cortas repartidas por tu jornada, para no pasar horas sentado.',
       points: {
-        pauses: 'Pausas de 30 segundos a 3 minutos',
+        pauses: 'Pausas de 1 a 3 minutos',
         main: 'Un rato algo más largo al día, como un paseo',
         habit: 'Cuenta la constancia, no el esfuerzo',
         private: 'Sin cuenta: tus datos se quedan en este dispositivo',
@@ -769,13 +771,6 @@ export const es = {
       title: 'Tu material',
       subtitle:
         '¿Qué tienes a mano? La mayoría de tus pausas serán movimientos suaves sin material. Lo que marques nos dará más variedad.',
-      hints: {
-        pullup_bar: 'Añade ejercicios con barra',
-        dumbbells: 'Añade pequeños bloques con mancuernas',
-        kettlebell: 'Añade pequeños bloques con kettlebell',
-        mat: 'Añade movilidad en el suelo',
-        standing_desk: 'Permite proponerte ratos de trabajo de pie',
-      },
       always: 'Los movimientos sin material y caminar siempre estarán disponibles.',
     },
     intensity: {

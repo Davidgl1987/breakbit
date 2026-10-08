@@ -177,7 +177,6 @@ describe('contentExerciseIds', () => {
       'chest_opener',
       'desk_thoracic_extension',
       'side_reach',
-      'march',
     ]);
     expect(contentExerciseIds({ kind: 'routine', routineId: 'nope' }, CATALOG)).toEqual([]);
     expect(contentExerciseIds({ kind: 'main', activityId: 'walk_outside' }, CATALOG)).toEqual([]);
@@ -209,7 +208,7 @@ describe('isContentValidFor', () => {
   });
 
   it('requires the equipment and known exercises', () => {
-    const dumbbells = { kind: 'exercises' as const, exerciseIds: ['farmer_hold'] };
+    const dumbbells = { kind: 'exercises' as const, exerciseIds: ['dumbbell_shrug'] };
     expect(isContentValidFor(dumbbells, 'break', withMat)).toBe(false);
     expect(isContentValidFor({ kind: 'exercises', exerciseIds: ['nope'] }, 'work', withMat)).toBe(
       false,

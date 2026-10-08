@@ -98,7 +98,7 @@ export function DevKitScreen() {
   const setLocale = useAppStore((state) => state.setLocale);
 
   const [intensity, setIntensity] = useState<'soft' | 'normal' | 'active'>('normal');
-  const [duration, setDuration] = useState<'30s' | '1m' | '3m' | '10m'>('1m');
+  const [duration, setDuration] = useState<'1m' | '3m' | '5m' | '10m'>('1m');
   const [times, setTimes] = useState({
     start: '08:30',
     end: '17:00',
@@ -112,7 +112,7 @@ export function DevKitScreen() {
   const [eyes, setEyes] = useState(4);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [workDays, setWorkDays] = useState<(typeof WEEKDAYS)[number][]>(['1', '2', '3', '4', '5']);
-  const [gap, setGap] = useState<'s30' | 'm1' | 'm3'>('m1');
+  const [gap, setGap] = useState<'m1' | 'm3' | 'm5'>('m1');
   const [iconSize, setIconSize] = useState<(typeof ICON_SIZES)[number]>('32');
 
   return (
@@ -229,9 +229,9 @@ export function DevKitScreen() {
           value={duration}
           onChange={setDuration}
           options={[
-            { value: '30s', label: t('common.seconds', { count: 30 }) },
             { value: '1m', label: t('common.minutes', { count: 1 }) },
             { value: '3m', label: t('common.minutes', { count: 3 }) },
+            { value: '5m', label: t('common.minutes', { count: 5 }) },
             { value: '10m', label: `${t('common.minutes', { count: 10 })}+` },
           ]}
         />
@@ -239,11 +239,11 @@ export function DevKitScreen() {
           label={t('gap.subtitle')}
           value={gap}
           onChange={setGap}
-          options={(['s30', 'm1', 'm3'] as const).map((value) => ({
+          options={(['m1', 'm3', 'm5'] as const).map((value) => ({
             value,
             label: t(`gap.options.${value}.title`),
             description: t(`gap.options.${value}.body`),
-            icon: value === 's30' ? 'gap' : value === 'm1' ? 'stretch' : 'exercise',
+            icon: value === 'm1' ? 'gap' : value === 'm3' ? 'stretch' : 'exercise',
           }))}
         />
         <MultiChipGroup

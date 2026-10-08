@@ -195,7 +195,8 @@ export type SkipReason =
 /** What the user does: one exercise (micro), 2–3 combined (reset), a routine, or the main activity. */
 export type ActivityContent =
   | { kind: 'exercises'; exerciseIds: string[] }
-  | { kind: 'routine'; routineId: string }
+  /** `rounds`: times through the whole routine (10 minutes of a 5-minute one is 2); 1 if absent. */
+  | { kind: 'routine'; routineId: string; rounds?: number }
   | { kind: 'main'; activityId: string };
 
 export interface ScheduledActivity {

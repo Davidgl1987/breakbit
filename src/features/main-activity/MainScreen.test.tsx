@@ -227,13 +227,33 @@ describe('guided activity', () => {
     setUp(MOBILITY, '11:00');
     const { user } = ui();
     await user.click(screen.getByRole('button', { name: 'Empezar' }));
-    expect(screen.getByText('Movimiento 1 de 6')).toBeInTheDocument();
+    expect(screen.getByText('Movimiento 1 de 5')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: 'Retracción cervical suave' }),
     ).toBeInTheDocument();
 
-    await wait(46_000);
-    expect(screen.getByText('Movimiento 2 de 6')).toBeInTheDocument();
+    // Each move lasts a minute.
+    await wait(61_000);
+    expect(screen.getByText('Movimiento 2 de 5')).toBeInTheDocument();
+  });
+
+  it('goes through its sequence again in a longer block, never stretching the last move', async () => {
+    setUp({ activityId: 'band_block', start: '11:00', durationMin: 10 }, '11:00');
+    const { user } = ui();
+    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    expect(screen.getByText('Movimiento 1 de 5')).toBeInTheDocument();
+
+    // The fifth move, and the first one next: the block goes on.
+    await wait(4 * MIN + 30_000);
+    expect(screen.getByText('Movimiento 5 de 5')).toBeInTheDocument();
+    expect(screen.getByText('Después: Apertura con banda')).toBeInTheDocument();
+    await wait(MIN);
+    expect(screen.getByText('Vuelta 2 · Movimiento 1 de 5')).toBeInTheDocument();
+
+    // The block's last move: nothing after it.
+    await wait(4 * MIN);
+    expect(screen.getByText('Vuelta 2 · Movimiento 5 de 5')).toBeInTheDocument();
+    expect(screen.queryByText(/^Después:/)).not.toBeInTheDocument();
   });
 });
 

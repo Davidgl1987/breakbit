@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CATALOG } from '@/content/catalog';
-import { contentAreas } from './contentItems';
+import { contentAreas, contentItems } from './contentItems';
 
 const exercise = (id: string) => CATALOG.exercises.find((item) => item.id === id)!;
 
@@ -19,5 +19,17 @@ describe('contentAreas', () => {
       expect(areas).toEqual([...new Set(main)]);
       expect(new Set(areas).size).toBe(areas.length);
     }
+  });
+});
+
+describe('contentItems', () => {
+  it('goes through a routine whole for each round', () => {
+    const once = contentItems({ kind: 'routine', routineId: 'mobility_5' });
+    expect(once.map((item) => item.seconds)).toEqual([60, 60, 60, 60, 60]);
+    const twice = contentItems({ kind: 'routine', routineId: 'mobility_5', rounds: 2 });
+    expect(twice.map((item) => item.exercise.id)).toEqual([
+      ...once.map((item) => item.exercise.id),
+      ...once.map((item) => item.exercise.id),
+    ]);
   });
 });

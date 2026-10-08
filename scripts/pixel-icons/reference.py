@@ -57,9 +57,10 @@ def reference(icons, cols: int, rows: int, names: list[str]) -> Image.Image:
             outline=GRID,
             width=1,
         )
-        art = Image.open(icons[names[index]]).convert('RGBA')
-        art = art.resize((cell // 2, cell // 2), Image.Resampling.NEAREST)
-        sheet.paste(art, (x + cell // 4, y + cell // 4), art)
+        if names[index] in icons:
+            art = Image.open(icons[names[index]]).convert('RGBA')
+            art = art.resize((cell // 2, cell // 2), Image.Resampling.NEAREST)
+            sheet.paste(art, (x + cell // 4, y + cell // 4), art)
         draw.text((x + inset + 6, y + inset + 4), str(index + 1), fill=NUMBER, font=font)
     return sheet
 

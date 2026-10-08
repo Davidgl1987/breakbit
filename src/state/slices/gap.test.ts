@@ -72,7 +72,7 @@ describe('gap actions', () => {
     store().completePause(DATE, first.id!, 40);
     expect(xp()).toEqual([[`extra:${first.id}`, 10]]);
 
-    const second = take('s30', '09:25');
+    const second = take('m1', '09:25');
     expect(second.proposal).toMatchObject({ kind: 'extra', noXp: 'cooldown' });
     clock.travelTo(at('09:26'));
     store().completePause(DATE, second.id!, 25);

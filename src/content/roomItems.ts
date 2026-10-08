@@ -24,7 +24,6 @@ export const ROOM_ITEMS: RoomItem[] = [
   { id: 'skate', name: l('Skate', 'Skateboard') },
   { id: 'mat', name: l('Esterilla', 'Mat') },
   { id: 'kettlebell', name: l('Kettlebell', 'Kettlebell') },
-  { id: 'pullup_bar', name: l('Barra de dominadas', 'Pull-up bar') },
   { id: 'wall_decor', name: l('Decoración de pared', 'Wall decoration') },
   { id: 'monitor', name: l('Segundo monitor', 'Second monitor') },
   { id: 'standing_desk', name: l('Escritorio elevable', 'Standing desk') },

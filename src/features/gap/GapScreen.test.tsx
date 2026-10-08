@@ -26,9 +26,9 @@ describe('Tengo un hueco', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Tengo un hueco' })).toBeInTheDocument();
     expect(screen.getByText('¡Cualquier momento es bueno para moverte!')).toBeInTheDocument();
     for (const [title, href] of [
-      ['30 segundos', gapPath('s30')],
       ['1 minuto', gapPath('m1')],
       ['3 minutos', gapPath('m3')],
+      ['5 minutos', gapPath('m5')],
       ['10+ minutos', gapPath('m10')],
     ]) {
       expect(
@@ -67,7 +67,7 @@ describe('Tengo un hueco', () => {
 
   it('is an extra pause otherwise, that leaves the plan as it is', async () => {
     setUp('09:20');
-    const { user } = ui(gapPath('s30'));
+    const { user } = ui(gapPath('m1'));
     expect(screen.getByText('Pausa extra')).toBeInTheDocument();
     expect(screen.getByText('Tus pausas siguen igual.')).toBeInTheDocument();
     expect(screen.getByText('+10 XP')).toBeInTheDocument();
@@ -85,13 +85,13 @@ describe('Tengo un hueco', () => {
 
   it('says when an extra pause earns no XP, and why', async () => {
     setUp('09:20');
-    const { user } = ui(gapPath('s30'));
+    const { user } = ui(gapPath('m1'));
     await user.click(screen.getByRole('button', { name: 'Empezar ahora' }));
     await user.click(screen.getByRole('button', { name: 'Hecho' }));
     await user.click(screen.getByRole('button', { name: 'Volver a lo mío' }));
 
     await user.click(screen.getByRole('link', { name: 'Tengo un hueco' }));
-    await user.click(screen.getByRole('link', { name: /30 segundos/ }));
+    await user.click(screen.getByRole('link', { name: /^1 minuto/ }));
     expect(screen.getByText('Pausa extra · sin XP esta vez')).toBeInTheDocument();
     expect(
       screen.getByText('Te has movido hace poco. Muévete igualmente: tus pausas siguen igual.'),

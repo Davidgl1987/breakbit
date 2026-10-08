@@ -80,12 +80,13 @@ const extraEntry = (n: number): XpEntry => ({
 
 describe('what to do with a gap', () => {
   it('knows its options', () => {
-    expect(isGapOption('m3')).toBe(true);
-    expect(isGapOption('m5')).toBe(false);
+    expect(isGapOption('m5')).toBe(true);
+    // 1 exercise = 1 minute: nothing lasts 30 seconds.
+    expect(isGapOption('s30')).toBe(false);
   });
 
   it('goes for the pause already waiting for an answer', () => {
-    expect(propose(plan, 's30', '10:05')).toEqual({ kind: 'due', activity: plan.activities[0] });
+    expect(propose(plan, 'm1', '10:05')).toEqual({ kind: 'due', activity: plan.activities[0] });
   });
 
   it('does the next pause now when it is close and enough time has passed', () => {
@@ -162,18 +163,21 @@ describe('what to do with a gap', () => {
   it('fits the content to the time available', () => {
     const seconds = (proposal: GapProposal) =>
       'durationSec' in proposal ? proposal.durationSec : 0;
-    const s30 = propose(plan, 's30', '09:20');
-    expect(s30).toMatchObject({ content: { kind: 'exercises' }, slot: 'work' });
-    expect(seconds(s30)).toBeLessThanOrEqual(30);
     const m1 = propose(plan, 'm1', '09:20');
-    expect(seconds(m1)).toBeLessThanOrEqual(60);
+    expect(m1).toMatchObject({ content: { kind: 'exercises' }, slot: 'work' });
+    expect(seconds(m1)).toBe(60);
     const m3 = propose(plan, 'm3', '09:20');
     expect(m3).toMatchObject({ content: { kind: 'routine' } });
-    expect(seconds(m3)).toBeLessThanOrEqual(180);
+    expect(seconds(m3)).toBe(180);
+    // A long routine once…
+    const m5 = propose(plan, 'm5', '09:20');
+    expect(m5).toMatchObject({ content: { kind: 'routine', routineId: 'mobility_5' } });
+    expect(m5).not.toHaveProperty('content.rounds');
+    expect(seconds(m5)).toBe(300);
+    // …and twice through it for 10 minutes, rather than a longer last move.
     const m10 = propose(plan, 'm10', '09:20');
-    expect(m10).toMatchObject({ content: { kind: 'routine' } });
-    expect(seconds(m10)).toBeGreaterThan(180);
-    expect(seconds(m10)).toBeLessThanOrEqual(600);
+    expect(m10).toMatchObject({ content: { kind: 'routine', routineId: 'mobility_5', rounds: 2 } });
+    expect(seconds(m10)).toBe(600);
   });
 
   it('makes room for floor work and equipment: the user chose this time', () => {
@@ -198,30 +202,19 @@ describe('what to do with a gap', () => {
   });
 
   it('falls back when nothing fits the time exactly', () => {
-    // No move as short as 30 s: a single move up to a minute instead.
-    const longer = {
-      ...context,
-      catalog: {
-        ...CATALOG,
-        exercises: CATALOG.exercises.map((item) => ({
-          ...item,
-          durationSec: Math.max(item.durationSec, 40),
-        })),
-      },
-    };
-    const s30 = proposeGap(plan, 's30', at('09:20'), longer, 'seed');
-    expect(s30).toMatchObject({ kind: 'extra', content: { kind: 'exercises' } });
-    // No routine longer than a planned pause: a short one for 10+ minutes.
+    // No routine longer than a planned pause: a short one for 5 or 10+ minutes.
     const short = {
       ...context,
       catalog: {
         ...CATALOG,
-        routines: CATALOG.routines.filter((item) => item.id !== 'mobility_5'),
+        routines: CATALOG.routines.filter((item) => item.steps.length <= 3),
       },
     };
-    const m10 = proposeGap(plan, 'm10', at('09:20'), short, 'seed')!;
-    expect(m10).toMatchObject({ content: { kind: 'routine' } });
-    expect('durationSec' in m10 && m10.durationSec).toBeLessThanOrEqual(180);
+    for (const option of ['m5', 'm10'] as const) {
+      const proposal = proposeGap(plan, option, at('09:20'), short, 'seed')!;
+      expect(proposal).toMatchObject({ content: { kind: 'routine' } });
+      expect('durationSec' in proposal && proposal.durationSec).toBe(180);
+    }
   });
 
   it('has nothing to propose without exercises', () => {

@@ -204,7 +204,7 @@ describe('generateDayPlan: what the pauses ask for', () => {
     expect(activity?.equipment).toEqual([]);
   });
 
-  it.each(['resistance_band', 'pullup_bar', 'dumbbells', 'kettlebell', 'mat'])(
+  it.each(['resistance_band', 'dumbbells', 'kettlebell', 'mat'])(
     'brings in content for %s once it is at hand, without making it the norm',
     (item) => {
       const needsIt = (activity: ScheduledActivity) =>

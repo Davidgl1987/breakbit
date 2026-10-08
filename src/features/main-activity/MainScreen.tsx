@@ -191,9 +191,15 @@ function MainSession({ activity, info }: MainViewProps) {
 
   const moves = info.routine ? contentItems({ kind: 'routine', routineId: info.routine }) : [];
   const move = currentMove(moves, elapsed);
-  const following = move && moves[move.index + 1];
+  // The next move, if there is time for it (the sequence starts over after the last one).
+  const following = move && move.end < target ? moves[(move.index + 1) % moves.length] : undefined;
   const subtitle = move
-    ? t('pause.play.step', { current: move.index + 1, total: moves.length })
+    ? [
+        move.round > 0 && t('main.round', { round: move.round + 1 }),
+        t('pause.play.step', { current: move.index + 1, total: moves.length }),
+      ]
+        .filter(Boolean)
+        .join(' · ')
     : accumulated
       ? t('main.accumulated', { minutes })
       : undefined;
@@ -311,15 +317,22 @@ function formatDone(seconds: number): string {
     : formatDuration(Math.floor(seconds / 60));
 }
 
-/** The guided move for the time done so far; the last one holds until the end. */
+/**
+ * The guided move for the time done so far. Once the sequence is done it starts over (a
+ * 10-minute block goes twice through a 5-minute routine): no move is stretched to fill.
+ */
 function currentMove(
   moves: readonly ContentItem[],
   elapsedSec: number,
-): { index: number; item: ContentItem } | undefined {
-  let start = 0;
+): { index: number; item: ContentItem; round: number; end: number } | undefined {
+  const total = moves.reduce((sum, item) => sum + item.seconds, 0);
+  if (total <= 0) return undefined;
+  const round = Math.floor(elapsedSec / total);
+  let start = round * total;
   for (const [index, item] of moves.entries()) {
-    if (elapsedSec < start + item.seconds || index === moves.length - 1) return { index, item };
-    start += item.seconds;
+    const end = start + item.seconds;
+    if (elapsedSec < end) return { index, item, round, end };
+    start = end;
   }
   return undefined;
 }

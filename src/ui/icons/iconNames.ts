@@ -55,7 +55,6 @@ export const ICON_NAMES = [
   'plant_decor',
   'postponed',
   'progress',
-  'pullup_bar',
   'reading',
   'resistance_band',
   'rest',

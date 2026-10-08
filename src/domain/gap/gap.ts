@@ -13,12 +13,7 @@ import {
   type VarietyState,
 } from '../planner/pauseContent';
 import { rebalance } from '../planner/rebalance';
-import {
-  hasEquipment,
-  pauseTypeForDuration,
-  pickExercise,
-  routineDurationSec,
-} from '../planner/selectExercise';
+import { hasEquipment, pauseTypeForDuration, routineDurationSec } from '../planner/selectExercise';
 import { buildTimeline, slotAt } from '../planner/timeline';
 import { createRng, weightedPick } from '../rng';
 import { atTime, minutesOfDay } from '../time';
@@ -33,8 +28,8 @@ import type {
 
 const MINUTE = 60_000;
 
-/** "Tengo un hueco": how much time the user has. */
-export const GAP_OPTIONS = ['s30', 'm1', 'm3', 'm10'] as const;
+/** "Tengo un hueco": how much time the user has, in whole minutes (1 exercise = 1 minute). */
+export const GAP_OPTIONS = ['m1', 'm3', 'm5', 'm10'] as const;
 export type GapOption = (typeof GAP_OPTIONS)[number];
 
 export function isGapOption(value: string): value is GapOption {
@@ -228,9 +223,9 @@ export function addExtraPause(
 }
 
 /**
- * Content for the time available: 30 s, a single move; 1 min, one move up to a minute;
- * 3 min, a short routine (quiet moves in a meeting); 10+ min, the longest routine that
- * fits, or a short one. The user chose this time, so floor work fits (outside meetings)
+ * Content for the time available: 1 min, one exercise; 3 min, a short routine (quiet moves
+ * in a meeting); 5 min, a long routine; 10+ min, a long routine done twice, or a short one
+ * when no long one fits. The user chose this time, so floor work fits (outside meetings)
  * and equipment is likelier than at the desk.
  */
 function chooseGapContent(
@@ -241,49 +236,31 @@ function chooseGapContent(
   rng: ReturnType<typeof createRng>,
 ): ChosenContent | undefined {
   const free = { freeTime: true };
-  if (option === 's30') {
-    const pick = pickExercise(
-      context.catalog.exercises,
-      {
-        discomfort: context.discomfort,
-        equipment: context.equipment,
-        slot,
-        freeTime: true,
-        maxDurationSec: 30,
-        previousExerciseIds: variety.previousExerciseIds,
-        recentExerciseIds: variety.recentExerciseIds,
-      },
-      rng,
-    );
-    if (pick) {
-      return {
-        content: { kind: 'exercises', exerciseIds: [pick.exercise.id] },
-        durationSec: pick.exercise.durationSec,
-        state: variety,
-      };
-    }
-    return choosePauseContent('single', slot, context, variety, rng, free);
-  }
   if (option === 'm1') return choosePauseContent('single', slot, context, variety, rng, free);
   if (slot === 'meeting') return choosePauseContent('combined', slot, context, variety, rng, free);
-  if (option === 'm10') {
-    const long = longRoutine(slot, context, rng);
+  if (option === 'm5' || option === 'm10') {
+    const long = longRoutine(slot, context, rng, option === 'm5' ? 5 : 10);
     if (long) return { ...long, state: variety };
   }
   return choosePauseContent('routine', slot, context, variety, rng, free);
 }
 
-/** A routine longer than a planned pause, up to 10 min; longer ones are likelier. */
+/**
+ * A routine longer than a planned pause for the minutes there are, longer ones likelier.
+ * It is done whole as many times as fit: 10 minutes of a 5-minute routine is twice
+ * through it, never its last move stretched.
+ */
 function longRoutine(
   slot: ActivitySlot,
   context: ContentContext,
   rng: ReturnType<typeof createRng>,
+  minutes: number,
 ): Omit<ChosenContent, 'state'> | undefined {
   const fits = context.catalog.routines.filter((routine) => {
     const seconds = routineDurationSec(routine);
     return (
       seconds > PAUSE_SIZE.activeMaxSec &&
-      seconds <= 10 * 60 &&
+      seconds <= minutes * 60 &&
       isRoutineEligible(routine, slot, context, { freeTime: true })
     );
   });
@@ -292,12 +269,13 @@ function longRoutine(
     (item) => routineDurationSec(item) * routineWeight(item, slot, context, { freeTime: true }),
     rng,
   );
-  return routine
-    ? {
-        content: { kind: 'routine', routineId: routine.id },
-        durationSec: routineDurationSec(routine),
-      }
-    : undefined;
+  if (!routine) return undefined;
+  const seconds = routineDurationSec(routine);
+  const rounds = Math.floor((minutes * 60) / seconds);
+  return {
+    content: { kind: 'routine', routineId: routine.id, ...(rounds > 1 && { rounds }) },
+    durationSec: seconds * rounds,
+  };
 }
 
 /** What today has used so far, so the proposal adds variety. */

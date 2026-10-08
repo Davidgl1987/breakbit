@@ -6,7 +6,10 @@ export interface ContentItem {
   seconds: number;
 }
 
-/** The moves of a pause, in order: one exercise, a combined reset or a routine's steps. */
+/**
+ * The moves of a pause, in order: one exercise, a combined reset or a routine's steps (all
+ * of them again for each round).
+ */
 export function contentItems(content: ActivityContent): ContentItem[] {
   const exercises = (ids: readonly string[]) =>
     ids
@@ -21,9 +24,10 @@ export function contentItems(content: ActivityContent): ContentItem[] {
   if (content.kind === 'routine') {
     const routineId = content.routineId;
     const routine = CATALOG.routines.find((item) => item.id === routineId);
-    return (routine?.steps ?? []).flatMap((step) =>
+    const round = (routine?.steps ?? []).flatMap((step) =>
       exercises([step.exercise]).map((exercise) => ({ exercise, seconds: step.seconds })),
     );
+    return Array.from({ length: content.rounds ?? 1 }, () => round).flat();
   }
   return [];
 }

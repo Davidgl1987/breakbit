@@ -12,7 +12,7 @@ cumple las reglas, el build falla con un mensaje que dice qué elemento y qué p
 
 ```text
 El catálogo de contenido tiene 2 problemas:
-  • exercises[0] "chin_tuck" → durationSec: 150 está fuera de 20–120 segundos
+  • exercises[0] "chin_tuck" → durationSec: 150 no vale: cada ejercicio dura 60 segundos
   • routines[0] "wake_up" → steps[0] → exercise: "trunk_twist" no existe en exercises
 ```
 
@@ -20,7 +20,7 @@ El catálogo de contenido tiene 2 problemas:
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "areas": [],
   "equipment": [],
   "exercises": [],
@@ -88,10 +88,15 @@ Cada movimiento suelto. El planificador los elige solos o los combina para las p
 | `steps` | lista de textos es/en | sí | Al menos 2 pasos: cómo hacerlo |
 | `areas` | lista de ids de `areas` | sí | Al menos 1. Zonas que trabaja, por importancia: la primera es la principal (cuenta más para esa zona y es la de su icono) |
 | `equipment` | lista de ids de `equipment` | sí | `[]` si no necesita nada |
-| `durationSec` | número | sí | Entre 20 y 120 segundos |
+| `durationSec` | número | sí | Siempre `60`: 1 ejercicio = 1 minuto (ver abajo) |
 | `posture` | `standing` · `either` · `floor` | sí | Ver abajo |
 | `meetingFriendly` | `yes` · `partial` · `no` | sí | Ver abajo |
 | `icon` | texto | no | Nombre del icono |
+
+**`durationSec`:** siempre 60. Es la micropausa entera, no un minuto de esfuerzo seguido: los pasos
+pueden incluir mantener, cambiar de lado, descansar unos segundos o seguir apartado de la pantalla.
+Un ejercicio por lados reparte el minuto entre ambos (un estiramiento, unos 20–30 s por lado). No
+hace falta añadir repeticiones solo para llenarlo.
 
 **`posture`:**
 - `standing`: hay que ponerse de pie. Son los que rompen el rato sentado: cada dos pausas de
@@ -129,7 +134,7 @@ recientes; y levantarte con regularidad.
   ],
   "areas": ["neck"],
   "equipment": [],
-  "durationSec": 40,
+  "durationSec": 60,
   "posture": "either",
   "meetingFriendly": "yes"
 }
@@ -137,16 +142,18 @@ recientes; y levantarte con regularidad.
 
 ## `routines`: rutinas
 
-Secuencias de ejercicios del catálogo, por id: los ejercicios no se repiten dentro de la rutina.
-Las de hasta 3 minutos pueden salir como pausas en un descanso o en "Tengo un hueco"; las más largas
-guían una actividad principal (con su campo `routine`) o un hueco de 10 minutos o más. El material y
-la postura de una rutina salen de sus ejercicios.
+Secuencias de ejercicios del catálogo, por id: los ejercicios no se repiten dentro de la rutina, y
+cada uno dura 1 minuto también aquí. Las de hasta 3 ejercicios (3 minutos) pueden salir como pausas
+en un descanso o en "Tengo un hueco" de 3 minutos; las más largas guían una actividad principal (con
+su campo `routine`) o un hueco de 5 o 10 minutos. Si la actividad o el hueco duran más que la
+rutina, se repite entera; el último ejercicio nunca se alarga. El material y la postura de una
+rutina salen de sus ejercicios.
 
 | Campo | Tipo | Obligatorio | Qué es |
 |---|---|---|---|
 | `id` | texto | sí | `wake_up` |
 | `name` | texto es/en | sí | "Despertar" |
-| `steps` | lista de `{ "exercise": id, "seconds": número }` | sí | Ejercicios existentes, en orden; de 10 a 120 segundos cada uno |
+| `steps` | lista de `{ "exercise": id, "seconds": 60 }` | sí | Ejercicios existentes, en orden; 60 segundos cada uno |
 | `icon` | texto | no | Nombre del icono |
 
 ```json
@@ -154,17 +161,16 @@ la postura de una rutina salen de sus ejercicios.
   "id": "wake_up",
   "name": { "es": "Despertar", "en": "Wake up" },
   "steps": [
-    { "exercise": "march", "seconds": 30 },
-    { "exercise": "arm_swing", "seconds": 30 },
-    { "exercise": "high_twist", "seconds": 30 },
-    { "exercise": "wave", "seconds": 30 }
+    { "exercise": "march", "seconds": 60 },
+    { "exercise": "arm_swing", "seconds": 60 },
+    { "exercise": "wave", "seconds": 60 }
   ]
 }
 ```
 
-Tamaños de pausa, como referencia: **micro**, 30–60 s (un ejercicio); **reset**, 90–120 s (de 1
-a 4 movimientos que combina el planificador, empezando por uno de pie; un ejercicio largo como el
-paseo corto vale por sí solo); **activa**, 2–3 minutos (una rutina).
+Tamaños de pausa, como referencia: **micro**, 1 minuto (un ejercicio); **reset**, 2 minutos (dos
+ejercicios que combina el planificador, empezando por uno de pie); **activa**, 3 minutos (una rutina
+de 3 ejercicios).
 
 ## `mainActivities`: actividades principales
 
@@ -182,7 +188,7 @@ La "misión" del día, de 5 a 30 minutos.
 | `completionMode` | `continuous` · `accumulated` | sí | `continuous`: de una vez, con temporizador. `accumulated`: se suma en bloques a lo largo del día |
 | `slots` | lista de `break` · `work` · `meeting` | sí | Dónde encaja: en un descanso, en horas de trabajo o en una reunión "puedo moverme" |
 | `whileWorking` | sí/no | sí | Se hace mientras trabajas (escritorio elevable, reunión caminando): no cuenta como interrupción ni aparta las pausas de su alrededor |
-| `routine` | id de `routines` | no | Rutina que guía la actividad |
+| `routine` | id de `routines` | no | Rutina propia que guía la actividad: más de 3 ejercicios y que quepa entera en `durationMin.min` |
 | `icon` | texto | no | Nombre del icono |
 
 ```json
@@ -215,16 +221,18 @@ La "misión" del día, de 5 a 30 minutos.
   diagnóstico, en ninguno de los dos idiomas. Breakbit crea hábitos; no promete salud.
 
 **Ejercicios**
-- De 20 a 120 segundos, con al menos 2 pasos y al menos 1 zona.
+- 60 segundos, con al menos 2 pasos y al menos 1 zona.
 - `posture` y `meetingFriendly` con uno de sus valores.
 
 **Rutinas**
-- Al menos un paso, cada uno con un ejercicio existente y de 10 a 120 segundos.
+- Al menos un paso, cada uno con un ejercicio existente y de 60 segundos.
 
 **Actividades principales**
 - Entre 5 y 30 minutos, con `min` ≤ `max`.
 - Si hay versión corta, está dentro del rango y por debajo del máximo.
 - Al menos un `slot`, sin repetir.
+- Si tiene `routine`, es una rutina propia de más de 3 minutos (no una de pausa) que cabe entera en
+  su duración mínima.
 
 **Cobertura** (para que siempre haya algo que proponer)
 - Cada zona tiene al menos 2 ejercicios sin material, para planificar una jornada aunque el usuario

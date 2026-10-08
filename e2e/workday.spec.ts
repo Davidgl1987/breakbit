@@ -30,7 +30,7 @@ test('a workday: start it, do a pause, use a gap and close the day', async ({ pa
   // A gap a little later: an extra pause.
   await travelTo(page, new Date((await page.evaluate(() => Date.now())) + 5 * 60_000));
   await page.getByRole('link', { name: 'Tengo un hueco' }).click();
-  await page.getByRole('link', { name: /30 segundos/ }).click();
+  await page.getByRole('link', { name: /^1 minuto/ }).click();
   await page.getByRole('button', { name: 'Empezar ahora' }).click();
   await page.getByRole('button', { name: 'Hecho' }).click();
   await expect(page.getByRole('heading', { level: 1, name: '¡Pausa hecha!' })).toBeVisible();

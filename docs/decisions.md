@@ -923,3 +923,41 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - **Avisos de pausa persistentes**: `requireInteraction` (donde exista) para que la notificación no
   desaparezca sola. La app la cierra en cuanto deja de tocar (la pausa se responde, empieza o se
   pasa), para que no se quede en pantalla una pausa ya hecha.
+
+## Catálogo v2
+
+- `catalogo-breakbit.json` sustituido entero por el v2: 82 ejercicios (42 sin material y 10 por
+  pack: banda elástica, esterilla, mancuernas y kettlebell), 9 rutinas y 9 actividades principales.
+  Sin migración: un plan guardado que nombre un ejercicio o actividad retirados lo muestra sin
+  nombre (todas las búsquedas por id son tolerantes).
+- **Barra de dominadas retirada**: fuera del material y de su actividad (`pullup_block`), del objeto
+  de la habitación del avatar (17 objetos), del icono y de las pistas de material huérfanas de
+  `onboarding.equipment.hints` (las pistas salen del catálogo). En `scripts/pixel-icons` su celda
+  queda como `RETIRED` para que la hoja de material dibujada siga cuadrando al reimportar. Quien la
+  tuviera marcada no recibe nada por ella; al cambiar el material, desaparece.
+- **1 ejercicio = 1 minuto**: los 82 ejercicios duran 60 s, también como paso de una rutina, y el
+  validador lo exige. Es la micropausa entera (mantener, cambiar de lado, descansar o seguir sin
+  mirar la pantalla cuentan); los estiramientos por lados reparten el minuto (unos 20–30 s por lado)
+  y los ejercicios de vista dicen qué hacer el resto del minuto. No se añadieron repeticiones.
+- **Rutinas de pausa de 3 ejercicios**: `PAUSE_SIZE.activeMaxSec` sigue en 180 s, así que las
+  rutinas que salen como pausa tienen 3 ejercicios (3 minutos): `wake_up`, `desk_reset`,
+  `active_legs`, `active_reset`, `meeting_reset`, `band_upper_reset`, `wrists_reset` y
+  `floor_reset`, reducidas a sus 3 movimientos más representativos y evitando repetir los de otras
+  rutinas cortas.
+- **Bloques largos con secuencia propia**: cada actividad guiada tiene su rutina larga de 5
+  ejercicios (5 minutos): `mobility_5` ("Mini rutina de movilidad", toda junto al escritorio:
+  "Rodilla al pecho de pie" sustituye al estiramiento de cadera de rodillas), `band_block_5`
+  ("Mini bloque con banda": aperturas, rotación externa, remo, caminata lateral y press anti-giro)
+  y `mat_mobility_5` ("Movilidad en esterilla": gato-vaca, enhebrar la aguja, postura del niño,
+  rotación lumbar y figura 4). Si el bloque dura más que su rutina, la secuencia se repite entera
+  ("Vuelta 2 · Movimiento 1 de 5"); el último ejercicio nunca se alarga. El validador exige que la
+  rutina de una actividad sea propia (más de 3 minutos, no una de pausa) y quepa entera en su
+  duración mínima.
+- **"Tengo un hueco": 1, 3, 5 y 10+ minutos**. Fuera la opción de 30 segundos, que contradecía la
+  regla. 1 minuto, un ejercicio; 3, una rutina corta; 5, una rutina larga; 10+, la actividad
+  principal si toca o una rutina larga dos veces (`rounds: 2` en el contenido, que el estado
+  guardado acepta). La bienvenida dice ahora "Pausas de 1 a 3 minutos".
+- **Exercise Lab**: las revisiones de ejercicios retirados dejan de contar y de exportarse; las de
+  los que siguen (mismo id) se conservan aunque su contenido haya cambiado.
+- La comprobación de iconos del build buscaba `.svg`; desde los iconos de 16 bits son `.png`, así
+  que avisaba de que faltaban todos.
