@@ -156,6 +156,8 @@ export interface MainActivity {
   slots: ActivitySlot[];
   /** Done while working (standing desk, walking meeting): it does not interrupt work. */
   whileWorking: boolean;
+  /** Body areas moved by this activity, when the catalog declares them. */
+  areas?: BodyArea[];
   /** Optional guided routine for the activity (a routine id). */
   routine?: string;
   icon?: string;

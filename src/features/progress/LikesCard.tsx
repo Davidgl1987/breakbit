@@ -7,7 +7,6 @@ import {
 } from '@/domain/stats/ratings';
 import { useT } from '@/i18n/useT';
 import { Card } from '@/ui/components/Card/Card';
-import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './progress.module.css';
 
@@ -65,18 +64,15 @@ function RatingList({
     <ul className={styles.list}>
       {group.items.map((stat) => (
         <li key={stat.exerciseId}>
-          <ListRow
-            leading={<PixelIcon name={group.icon} size={24} />}
-            title={name(stat.exerciseId)}
-            trailing={
-              <span className={styles.muted}>
-                {t('progress.likes.votes', {
-                  count: group.key === 'liked' ? stat.liked : stat.disliked,
-                })}
-              </span>
-            }
-            chevron={false}
-          />
+          <div className={styles.ratingRow}>
+            <PixelIcon name={group.icon} size={24} />
+            <span className={styles.ratingName}>{name(stat.exerciseId)}</span>
+            <span className={styles.ratingVotes}>
+              {t('progress.likes.votes', {
+                count: group.key === 'liked' ? stat.liked : stat.disliked,
+              })}
+            </span>
+          </div>
         </li>
       ))}
     </ul>

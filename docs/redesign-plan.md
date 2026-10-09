@@ -21,3 +21,13 @@ Se reutilizan los planificadores, validaciones y componentes existentes. Los cam
 - Sin cambios en `src/app/navigation`; el checkout original permanece limpio en `main`.
 
 Vista previa de desarrollo: http://127.0.0.1:5201/ (datos de ejemplo en un origen independiente).
+
+## Correcciones de revisión · 9 de octubre
+
+- Press Start 2P para los títulos, Chakra Petch para texto y controles; fuentes locales con licencia OFL y precarga sin conexión. El menú mantiene Nunito y su estructura original.
+- Cards de Hoy y evolución con un único radio exterior, sin esquinas superpuestas. X de los paneles restaurada a su icono de línea.
+- Hoy: título y fecha compactos, tiempo restante a la derecha, icono de actividad difuminado, zonas del catálogo, enlace a la actividad, reuniones en filas y cierre de jornada como enlace rojo. El material se consulta en el panel de actividad.
+- Progreso: comparación discreta, iniciales en constancia, barras de zonas corregidas y favoritos/comentarios en filas. El escenario de revisión incluye valoraciones.
+- Ajustes: apariencia, idioma y notificaciones sin fondo; datos en card con Exportar/Importar y borrado centrado. Los editores de rutina siguen compartiendo los campos del onboarding.
+- Revisión visual en 320 y 390 píxeles y escritorio, sin desbordamiento horizontal; los botones de datos usan textos cortos y conservan nombres accesibles completos.
+- 818 pruebas completas correctas, 63 comprobaciones de contraste/caché correctas y 19 pruebas de Ajustes repetidas tras compactar los botones. 20 pruebas de navegador correctas, incluyendo accesibilidad en ambos temas, jornada, teclado y uso sin conexión.

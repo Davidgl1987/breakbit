@@ -8,7 +8,6 @@ import { SettingsEditSheet, type RoutineSection } from './SettingsEditSheet';
 import { LOCALES, type Locale } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { useAppStore, type ThemePreference } from '@/state/store';
-import { Card } from '@/ui/components/Card/Card';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { SegmentedControl } from '@/ui/components/SegmentedControl/SegmentedControl';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
@@ -45,8 +44,7 @@ export function SettingsScreen({
       <ScreenHeader title={t('settings.title')} subtitle={t('settings.subtitle')} />
 
       <section className={styles.appSettings}>
-        <h2 className={styles.sectionTitle}>{t('redesign.appSettings')}</h2>
-        <Card className={styles.prefRow}>
+        <div className={styles.prefRow}>
           <span className={styles.prefLabel}>
             <PixelIcon name="monitor" size={24} />
             {t('settings.appearance')}
@@ -57,9 +55,9 @@ export function SettingsScreen({
             onChange={setTheme}
             options={THEMES.map((value) => ({ value, label: t(`settings.theme.${value}`) }))}
           />
-        </Card>
+        </div>
 
-        <Card className={styles.prefRow}>
+        <div className={styles.prefRow}>
           <span className={styles.prefLabel}>
             <PixelIcon name="reading" size={24} />
             {t('settings.language')}
@@ -70,7 +68,7 @@ export function SettingsScreen({
             onChange={setLocale}
             options={LOCALES.map((value) => ({ value, label: t(`settings.languages.${value}`) }))}
           />
-        </Card>
+        </div>
       </section>
       <NotificationsCard />
       <section className={styles.routine}>

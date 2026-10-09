@@ -15,7 +15,7 @@
 }
 
 .pageTitle {
-  font-size: var(--text-3xl);
+  font-size: clamp(1rem, 4.5vw, 1.2rem);
 }
 
 .subtitle {

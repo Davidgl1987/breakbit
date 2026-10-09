@@ -3,6 +3,7 @@ import { ROOM_ITEMS } from '@/content/roomItems';
 import { closePlan, dayGoalXp, summarizeDay } from '@/domain/day/closeDay';
 import { dayProgress } from '@/domain/day/progress';
 import { generateDayPlan } from '@/domain/planner/generateDayPlan';
+import { contentExerciseIds } from '@/domain/planner/pauseContent';
 import { completionXp } from '@/domain/progress/awards';
 import { evaluateWeeks } from '@/domain/progress/weekly';
 import { createRng } from '@/domain/rng';
@@ -57,11 +58,27 @@ export function historyScenarioState(current: PersistedState): PersistedState {
           remindersSent: 2,
         };
       }
+      // Stable preferences make populated favourites and disliked exercises reviewable.
+      const preference =
+        [...(contentExerciseIds(item.content, CATALOG)[0] ?? '')].reduce(
+          (sum, letter) => sum + letter.charCodeAt(0),
+          0,
+        ) % 5;
       const firstPrompt = item.kind === 'micro' && rng.next() < 0.7;
       const postponed = !firstPrompt && rng.next() < 0.4;
       return {
         ...item,
         status: 'completed',
+        ...(item.kind === 'micro'
+          ? {
+              rating:
+                preference === 0
+                  ? ('disliked' as const)
+                  : preference === 1
+                    ? ('okay' as const)
+                    : ('liked' as const),
+            }
+          : {}),
         startedAt: item.currentScheduledAt,
         completedAt: item.currentScheduledAt + item.durationSec * 1000,
         elapsedSec: item.durationSec,

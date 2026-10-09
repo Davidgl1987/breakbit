@@ -6,6 +6,8 @@ import { useT } from '@/i18n/useT';
 import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Button } from '@/ui/components/Button/Button';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
+import { equipmentIcon, equipmentName } from './catalogDisplay';
+import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ExerciseDetails } from './ExerciseDetails';
 import { mainActivityInfo } from './mainActivity';
 import styles from './day.module.css';
@@ -43,6 +45,16 @@ export function MainActivityPreviewSheet({
         <p>
           {formatClock(activity.currentScheduledAt)} · {formatDuration(activity.durationSec / 60)}
         </p>
+        {info.equipment.length > 0 && (
+          <p className={styles.contentMeta}>
+            {info.equipment.map((gear) => (
+              <span key={gear}>
+                <PixelIcon name={equipmentIcon(gear)} size={24} />
+                {equipmentName(gear, locale)}
+              </span>
+            ))}
+          </p>
+        )}
         <ExerciseDetails exercise={info} />
       </div>
     </BottomSheet>

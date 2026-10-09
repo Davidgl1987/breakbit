@@ -9,7 +9,6 @@ import {
 import { playPauseSound } from '@/services/notifications/sound';
 import { useAppStore } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
-import { Card } from '@/ui/components/Card/Card';
 import { Toggle } from '@/ui/components/Toggle/Toggle';
 import type { IconName } from '@/ui/icons/iconNames';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
@@ -52,7 +51,7 @@ export function NotificationsCard() {
   const on = permission === 'granted' && prefs.enabled;
 
   return (
-    <Card as="section" className={styles.card}>
+    <section className={styles.notifications}>
       <h2 className={styles.cardTitle}>{t('settings.notifications')}</h2>
       {on ? (
         <div className={styles.toggles}>
@@ -104,6 +103,6 @@ export function NotificationsCard() {
           </Button>
         </>
       )}
-    </Card>
+    </section>
   );
 }

@@ -6,8 +6,8 @@
  */
 :root {
   /* Typography */
-  --font-display: 'Pixelify Sans', ui-monospace, monospace;
-  --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Press Start 2P', ui-monospace, monospace;
+  --font-body: 'Chakra Petch', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-md: 1rem;
@@ -140,7 +140,7 @@
 
   --color-danger: #e07b6d;
   --color-danger-pressed: #c96a5d;
-  --color-danger-text: #ec8a7d;
+  --color-danger-text: #f29f92;
   --color-danger-soft: #43282a;
   --color-danger-soft-border: #643a38;
   --color-on-danger: #2a0f0c;

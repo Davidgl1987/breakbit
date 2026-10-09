@@ -10,6 +10,9 @@
 .title {
   font-size: var(--text-xl);
   font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.85rem;
+  line-height: 1.65;
 }
 
 .list {
