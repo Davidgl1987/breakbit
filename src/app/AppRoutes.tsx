@@ -21,17 +21,17 @@ import { RequireOnboarding, RequirePendingOnboarding } from './OnboardingGate';
 import { ScreenStart } from './ScreenStart';
 import { useScreenLocation } from './transitions/useScreenLocation';
 
-// Dev-only screens; the dynamic imports are dropped from production builds.
+// Dev-only screen; the dynamic import is dropped from production builds.
 const DevKitScreen = import.meta.env.DEV
   ? lazy(() => import('./dev/DevKitScreen').then((module) => ({ default: module.DevKitScreen })))
   : null;
-const ExerciseLabScreen = import.meta.env.DEV
-  ? lazy(() =>
-      import('./dev/exercise-lab/ExerciseLabScreen').then((module) => ({
-        default: module.ExerciseLabScreen,
-      })),
-    )
-  : null;
+// Internal tool, in production too: nothing links to it, it opens from its URL. Loaded only
+// when opened.
+const ExerciseLabScreen = lazy(() =>
+  import('./dev/exercise-lab/ExerciseLabScreen').then((module) => ({
+    default: module.ExerciseLabScreen,
+  })),
+);
 
 /**
  * URL → layout/screen. Declarative mode only: no loaders, actions or business logic. The
@@ -84,16 +84,14 @@ export function AppRoutes() {
           </Route>
         )}
         {/* A desk tool: the whole window, outside the app's column and its guards. */}
-        {ExerciseLabScreen && (
-          <Route
-            path="dev/exercises"
-            element={
-              <Suspense fallback={null}>
-                <ExerciseLabScreen />
-              </Suspense>
-            }
-          />
-        )}
+        <Route
+          path="dev/exercises"
+          element={
+            <Suspense fallback={null}>
+              <ExerciseLabScreen />
+            </Suspense>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
