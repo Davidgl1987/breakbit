@@ -876,9 +876,11 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 
 ## Exercise Lab
 
-- **`/dev/exercises`** (solo en desarrollo, como `/dev/kit`; fuera de las guardas de onboarding y a
-  pantalla completa, no en la columna de la app): revisar el catálogo de ejercicios probándolos de
-  verdad. Enlazado desde el DevPanel. Con `pnpm dev` también se abre desde el móvil en la red local.
+- **`/dev/exercises`** (fuera de las guardas de onboarding y a pantalla completa, no en la columna de
+  la app): revisar el catálogo de ejercicios probándolos de verdad. También en producción, pero
+  sin enlace: se abre conociendo la URL (en GitHub Pages, `/breakbit/dev/exercises`), y su código
+  solo se descarga al abrirla. En desarrollo, enlazado desde el DevPanel. `/dev/kit` sigue siendo
+  solo de desarrollo.
 - **Lee el catálogo real** (`CATALOG.exercises`): no hay un segundo catálogo. Las decisiones no
   cambian ni borran nada; solo se recogen y se exportan.
 - **Vista del usuario**: la pantalla de ejercicio se extrajo de `PlayScreen` a

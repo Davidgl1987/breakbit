@@ -29,9 +29,10 @@ import { useExerciseReviews, type ExerciseReviews } from './useExerciseReviews';
 const EXERCISE_IDS = CATALOG.exercises.map((exercise) => exercise.id);
 
 /**
- * /dev/exercises — Exercise Lab (development only): go through the catalog trying each
- * exercise as the user sees it, rate it and decide whether it stays. Reviews are saved on
- * this device and exported as JSON; the catalog itself is never touched.
+ * /dev/exercises — Exercise Lab (internal: not linked from the app, reachable by its URL):
+ * go through the catalog trying each exercise as the user sees it, rate it and decide
+ * whether it stays. Reviews are saved on this device and exported as JSON; the catalog
+ * itself is never touched.
  */
 export function ExerciseLabScreen() {
   const { reviews, update, saveFailed } = useExerciseReviews();
