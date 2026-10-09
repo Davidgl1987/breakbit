@@ -26,5 +26,5 @@ export async function onboard(page: Page): Promise<void> {
   }
   await expect(page.getByRole('heading', { level: 1, name: 'Todo listo' })).toBeVisible();
   await page.getByRole('button', { name: 'Empezar' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: '¡Hola!' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Muévete a tu ritmo' })).toBeVisible();
 }

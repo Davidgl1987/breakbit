@@ -36,12 +36,13 @@ export function ProgressScreen() {
   const monday = startOfWeek(today);
 
   const likes = useMemo(() => exerciseRatings(history.days, CATALOG), [history]);
-  const { current, insights, areas } = useMemo(() => {
+  const { current, previous, insights, areas } = useMemo(() => {
     const thisWeek = weekStats(monday, history, ledger);
     // The same stretch of last week (Monday up to the same weekday), for a fair comparison.
     const lastWeek = weekStats(addDays(monday, -7), history, ledger, weekdayOf(today));
     return {
       current: thisWeek,
+      previous: lastWeek,
       insights: weekInsights(thisWeek, lastWeek),
       areas: areaStats(addDays(today, -(AREA_DAYS - 1)), today, history.days, CATALOG),
     };
@@ -55,11 +56,14 @@ export function ProgressScreen() {
         trailing={<PixelIcon name="progress" size={32} />}
       />
       <EvolutionCard history={history} />
+      <WeekSummaryCard stats={current} previous={previous} from={monday} to={addDays(monday, 6)} />
       <ConstancyCard history={history} />
-      <WeekSummaryCard stats={current} from={monday} to={addDays(monday, 6)} />
-      <AreasCard areas={areas} />
       <LikesCard stats={likes} />
-      <InsightsCard insights={insights} today={today} />
+      <AreasCard areas={areas} />
+      <details>
+        <summary>{t('common.seeMore')}</summary>
+        <InsightsCard insights={insights} today={today} />
+      </details>
       <HistoryCard results={results} />
     </>
   );

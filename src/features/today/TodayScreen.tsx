@@ -1,14 +1,11 @@
-import { ROUTES } from '@/app/routes';
 import { useToday } from '@/features/day/useToday';
 import { WeekResultCard } from '@/features/week/WeekResultCard';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { selectXpOn, useLevel, useStreak } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
-import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { Wordmark } from '@/ui/components/Wordmark/Wordmark';
 import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
-import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ActiveDay } from './ActiveDay';
 import { DayClock } from './DayClock';
 import { DayOffCard, NotStartedCard, RestCard } from './DayStateCards';
@@ -27,16 +24,21 @@ export function TodayScreen() {
     <>
       <header className={styles.header}>
         <Wordmark />
+        <div className={styles.eyebrow}>
+          <span>{t('redesign.jornada')}</span>
+          {state.kind === 'active' && <DayClock plan={state.plan} now={now} />}
+        </div>
         <div className={styles.greetingRow}>
           <div className={styles.greeting}>
-            <h1 className={styles.title}>{t('today.greeting')}</h1>
+            <h1 className={styles.title}>{t('redesign.heading')}</h1>
             <p className={styles.subtitle}>{formatLongDate(locale, date)}</p>
           </div>
-          {state.kind === 'active' && <DayClock plan={state.plan} now={now} />}
         </div>
       </header>
 
-      <AvatarCard phase={phase} streak={streak} xpToday={xpToday} level={level} />
+      {state.kind !== 'active' && (
+        <AvatarCard phase={phase} streak={streak} xpToday={xpToday} level={level} />
+      )}
       <WeekResultCard />
 
       {state.kind === 'active' && <ActiveDay plan={state.plan} over={state.over} now={now} />}
@@ -46,18 +48,6 @@ export function TodayScreen() {
       {state.kind === 'rest' && <RestCard date={date} />}
       {state.kind === 'day_off' && <DayOffCard date={date} />}
       {state.kind === 'closed' && <RestCard date={date} closed />}
-
-      {/* Development shortcut: close the day at any time, only while there is one. */}
-      {import.meta.env.DEV && state.kind === 'active' && (
-        <div className={styles.devLinks}>
-          <ListRow
-            leading={<PixelIcon name="moon" size={24} />}
-            title={t('dayEnd.title')}
-            subtitle={t('dayEnd.subtitle')}
-            to={ROUTES.dayEnd}
-          />
-        </div>
-      )}
     </>
   );
 }

@@ -264,10 +264,7 @@ describe('the activity on Today', () => {
     setUp(WALK, '09:10');
     ui('/');
     expect(card()).toHaveTextContent('Hoy a las 13:00');
-    expect(within(card()).getByRole('link', { name: 'Ver actividad' })).toHaveAttribute(
-      'href',
-      mainPath(`${DATE}:main`),
-    );
+    expect(within(card()).getByRole('button', { name: 'Ver actividad' })).toBeInTheDocument();
 
     await act(() => travel('13:01'));
     expect(card()).toHaveTextContent('Es la hora');

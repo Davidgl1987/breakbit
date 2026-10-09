@@ -5,6 +5,7 @@ import styles from './ListRow.module.css';
 
 interface ListRowProps {
   title: ReactNode;
+  ariaLabel?: string;
   subtitle?: ReactNode;
   leading?: ReactNode;
   /** Short value shown before the chevron (e.g. the current language). */
@@ -18,6 +19,7 @@ interface ListRowProps {
 
 export function ListRow({
   title,
+  ariaLabel,
   subtitle,
   leading,
   trailing,
@@ -48,7 +50,7 @@ export function ListRow({
   }
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={styles.row}>
+      <button type="button" aria-label={ariaLabel} onClick={onClick} className={styles.row}>
         {content}
       </button>
     );

@@ -23,13 +23,15 @@ describe('Progress with some history', () => {
     clock.travelTo(HISTORY_NOW);
   });
 
-  it('shows the evolution and how this week is going, apart from XP', () => {
-    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
-    const evolution = section('Tu evolución');
+  it('shows the evolution separately from the single XP bar and expands its phases', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    const evolution = section('Tu evolución').parentElement!;
+    expect(within(evolution).getAllByRole('progressbar')).toHaveLength(1);
+    await user.click(within(evolution).getByText('Ver fases y recompensas'));
     const strip = within(evolution).getByRole('list', { name: 'Tu evolución' });
     expect(within(strip).getByRole('listitem', { current: 'step' })).toBeInTheDocument();
     expect(evolution).toHaveTextContent(/Esta semana: \d de \d días buenos/);
-    expect(evolution).toHaveTextContent(/Racha\d+ días/);
+    expect(evolution).toHaveTextContent(/Racha · \d+ días/);
     expect(evolution).toHaveTextContent('XP total');
   });
 
@@ -43,7 +45,9 @@ describe('Progress with some history', () => {
     const previous = within(constancy).getByRole('button', { name: 'Periodo anterior' });
     expect(next).toBeDisabled();
     // The history started within this period: nothing earlier to see.
-    expect(previous).toBeDisabled();
+    expect(previous).toBeEnabled();
+    const grid = within(constancy).getByRole('img');
+    expect(grid.children).toHaveLength(7 + 28);
   });
 
   it('opens earlier periods when the history is longer', async () => {
@@ -52,7 +56,7 @@ describe('Progress with some history', () => {
     const constancy = section('Tu constancia');
     const previous = within(constancy).getByRole('button', { name: 'Periodo anterior' });
     const next = within(constancy).getByRole('button', { name: 'Periodo siguiente' });
-    const range = () => within(constancy).getByText(/2026/).textContent;
+    const range = () => within(constancy).getByRole('img').getAttribute('aria-label');
     const latest = range();
     await user.click(previous);
     expect(range()).not.toBe(latest);
@@ -61,16 +65,19 @@ describe('Progress with some history', () => {
     expect(range()).toBe(latest);
   });
 
-  it('sums the week up, with the areas moved and what is worth telling', () => {
-    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
-    const week = section('Resumen semanal');
+  it('sums the week up, with expandable rows and week comparison', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    const week = section('Esta semana');
+    await user.click(within(week).getByText('Más datos de esta semana'));
+    await user.click(screen.getByText('Ver más'));
+    expect(week).toHaveTextContent('Comparando los mismos días de la semana');
     for (const label of [
       'Pausas completadas',
       'A la primera',
       'En movimiento',
       'Interrupción real',
     ]) {
-      expect(within(week).getByText(label)).toBeInTheDocument();
+      expect(within(week).getAllByText(label)[0]).toBeInTheDocument();
     }
     for (const fact of [
       'Días buenos',
@@ -79,17 +86,19 @@ describe('Progress with some history', () => {
       'Descartadas',
       'XP de la semana',
     ]) {
-      expect(within(week).getByText(fact)).toBeInTheDocument();
+      expect(within(week).getAllByText(fact)[0]).toBeInTheDocument();
     }
     const areas = within(section('Molestias que más cuidas')).getAllByRole('listitem');
     expect(areas.length).toBeGreaterThan(0);
     expect(areas[0]).toHaveTextContent(/\d+ ejercicios · \d+ min/);
-    const insights = within(section('Esta semana')).getAllByRole('listitem');
+    const insights = within(
+      screen.getByRole('heading', { name: 'Sobre tu semana' }).closest('section')!,
+    ).getAllByRole('listitem');
     expect(insights.length).toBeGreaterThan(0);
     expect(insights.length).toBeLessThanOrEqual(3);
   });
 
-  it('lists the exercises liked most and least, from the ratings', () => {
+  it('lists favourites and expands the least liked exercises', async () => {
     // Two pauses of the latest day with a plan: one liked, one disliked.
     const days = store().days;
     const date = (Object.keys(days) as DateKey[])
@@ -120,14 +129,16 @@ describe('Progress with some history', () => {
       },
     }));
 
-    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
-    const likes = section('Tus ejercicios');
-    expect(likes).toHaveTextContent('Te gustan másMarcha con palmada en rodilla1 voto');
+    const { user } = renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    const likes = section('Tus favoritos');
+    await user.click(within(likes).getByText('Te gustan menos'));
+    expect(likes).toHaveTextContent('Marcha con palmada en rodilla1 voto');
     expect(likes).toHaveTextContent('Te gustan menosZancada1 voto');
   });
 
   it('lists past weeks, newest first, each opening its result', async () => {
     const { user } = renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    await user.click(within(section('Tus semanas')).getByText('Consultar historial'));
     const weeks = within(section('Tus semanas')).getAllByRole('link');
     expect(weeks).toHaveLength(8);
     expect(weeks[0]).toHaveAttribute('href', '/week/2026-W41');

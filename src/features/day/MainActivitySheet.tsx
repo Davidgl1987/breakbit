@@ -13,6 +13,7 @@ import { Button } from '@/ui/components/Button/Button';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { OptionList } from '@/ui/components/OptionList/OptionList';
 import { TimeField } from '@/ui/components/TimeField/TimeField';
+import { ExerciseDetails } from './ExerciseDetails';
 import { mainActivityIcon } from './catalogDisplay';
 import styles from './day.module.css';
 
@@ -48,6 +49,7 @@ export function MainActivitySheet({
     (available ? current?.activityId : activities[0]?.id) ?? '',
   );
   const [start, setStart] = useState<string>(current?.start ?? schedule.workStart);
+  const selected = activities.find((activity) => activity.id === activityId);
   const durationMin = durationOf(activityId);
   const check = checkTime(schedule, meetings, start, durationMin);
 
@@ -84,6 +86,7 @@ export function MainActivitySheet({
           }))}
         />
         <TimeField label={t('mainActivity.time')} icon="clock" value={start} onChange={setStart} />
+        {selected && <ExerciseDetails exercise={selected} />}
         {check.kind === 'invalid' && (
           <InlineMessage tone="danger">{t('mainActivity.outside')}</InlineMessage>
         )}
