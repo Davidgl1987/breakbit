@@ -13,13 +13,7 @@ import type { NotificationContent } from '@/services/notifications/scheduler';
 import { selectActivity } from '@/state/selectors';
 import type { AppState } from '@/state/store';
 
-// Bitmaps: notifications don't take SVG everywhere (scripts/pixel-icons builds these).
-const ICONS = {
-  pause: `${import.meta.env.BASE_URL}icons/notify/stretch.png`,
-  day: `${import.meta.env.BASE_URL}icons/notify/sun.png`,
-  main: `${import.meta.env.BASE_URL}icons/notify/goal.png`,
-  dayEnd: `${import.meta.env.BASE_URL}icons/notify/moon.png`,
-} as const;
+const APP_ICON = `${import.meta.env.BASE_URL}app-icons/icon-192.png`;
 
 /** Localised text and link for a planned notification, from the current state. */
 export function notificationContent(
@@ -33,7 +27,7 @@ export function notificationContent(
       title: t('notifications.dayEnd.title'),
       body: t('notifications.dayEnd.body'),
       url: `${ROUTES.dayEnd}?src=notif`,
-      icon: ICONS.dayEnd,
+      icon: APP_ICON,
     };
   }
   if (notification.kind === 'day_start') {
@@ -41,7 +35,7 @@ export function notificationContent(
       title: t('notifications.dayStart.title'),
       body: t('notifications.dayStart.body'),
       url: `${ROUTES.dayStart}?src=notif`,
-      icon: ICONS.day,
+      icon: APP_ICON,
     };
   }
 
@@ -58,7 +52,7 @@ export function notificationContent(
         duration: formatDuration(activity.durationSec / 60),
       }),
       url: `${mainPath(activity.id)}?src=notif`,
-      icon: ICONS.main,
+      icon: APP_ICON,
     };
   }
   if (notification.kind === 'main_done') {
@@ -67,7 +61,7 @@ export function notificationContent(
       title: t('notifications.mainDone.title'),
       body: t('notifications.mainDone.body', { name, xp: xp?.amount ?? 0 }),
       url: `${mainDonePath(activity.id)}?src=notif`,
-      icon: ICONS.main,
+      icon: APP_ICON,
     };
   }
   const url = `${pausePath(activity.id)}?src=notif`;
@@ -77,7 +71,7 @@ export function notificationContent(
       title: t('notifications.pause.title'),
       body: t('notifications.pause.body', { name, duration: formatSeconds(activity.durationSec) }),
       url,
-      icon: ICONS.pause,
+      icon: APP_ICON,
       requireInteraction: true,
     };
   }
@@ -86,7 +80,7 @@ export function notificationContent(
     title: t('notifications.reminder.title'),
     body: t('notifications.reminder.body', { name, minutes: minutesLeft }),
     url,
-    icon: ICONS.pause,
+    icon: APP_ICON,
     requireInteraction: true,
   };
 }

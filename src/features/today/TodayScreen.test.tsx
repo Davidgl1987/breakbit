@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
 import { areaById, CATALOG } from '@/content/catalog';
@@ -35,13 +35,13 @@ describe('Today', () => {
   it('only offers closing the day while there is one under way', () => {
     travel(MONDAY, '08:40');
     const { unmount } = renderWithRouter(<AppRoutes />);
-    expect(screen.queryByRole('link', { name: /Fin de jornada/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Cerrar jornada/ })).not.toBeInTheDocument();
     unmount();
 
     startMonday();
     travel(MONDAY, '10:00');
     renderWithRouter(<AppRoutes />);
-    expect(screen.getByRole('link', { name: /Fin de jornada/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Cerrar jornada/ })).toHaveAttribute(
       'href',
       '/day/end',
     );
@@ -64,20 +64,19 @@ describe('Today', () => {
     renderWithRouter(<AppRoutes />);
 
     // Next to the greeting: what's left of the workday.
-    const dayClock = screen.getByText('Te quedan 7 h 50 min de jornada').closest('p')!;
-    expect(dayClock).toHaveTextContent('Te quedan7 h 50 min');
+    const dayClock = screen.getByText('Quedan 7 h 50 min');
     expect(screen.getByRole('banner')).toContainElement(dayClock);
     expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();
     expect(screen.getByText(/^en \d+/)).toBeInTheDocument();
     // The areas the next pause works, by name for screen readers.
     const next = nextPause(store().days[MONDAY]!.plan!, clock.now())!;
-    const card = screen.getByRole('heading', { name: 'Próxima pausa' }).parentElement!;
+    const card = screen.getByRole('heading', { name: 'Próxima pausa' }).closest('section')!;
     const names = contentAreas(next.content).map((area) => areaById(area)!.name.es);
     expect(names.length).toBeGreaterThan(0);
     for (const name of names.slice(0, 3)) {
-      expect(within(card).getByRole('img', { name })).toBeInTheDocument();
+      expect(within(card).getByText(name)).toBeInTheDocument();
     }
-    expect(screen.getByRole('heading', { name: 'Actividad de hoy' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Actividad de hoy' })).toBeInTheDocument();
     expect(screen.getByText('0/5 pausas')).toBeInTheDocument();
     const timeline = screen.getByRole('heading', { name: 'Tu jornada' }).parentElement!;
     expect(within(timeline).getByText('Empieza tu jornada')).toBeInTheDocument();
@@ -92,6 +91,33 @@ describe('Today', () => {
     await user.click(screen.getByRole('button', { name: 'Ver ejercicio' }));
     const sheet = screen.getByRole('dialog');
     expect(within(sheet).getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
+  });
+
+  it('changes the activity hour through the shared editor and moves conflicting pauses', async () => {
+    startMonday();
+    travel(MONDAY, '09:10');
+    const before = store().days[MONDAY]!.plan!;
+    const { user } = renderWithRouter(<AppRoutes />);
+    await user.click(screen.getByRole('button', { name: 'Ver actividad' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Empezar' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cambiar actividad u hora' }));
+    const sheet = screen.getByRole('dialog', { name: 'Actividad de hoy' });
+    expect(within(sheet).getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
+    fireEvent.change(within(sheet).getByLabelText('Hora'), { target: { value: '12:00' } });
+    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+    const after = store().days[MONDAY]!.plan!;
+    expect(after.activities.find((item) => item.kind === 'main')?.currentScheduledAt).toBe(
+      atTime(MONDAY, '12:00'),
+    );
+    const pausesBefore = before.activities.filter((item) => item.kind === 'micro');
+    const pausesAfter = after.activities.filter((item) => item.kind === 'micro');
+    expect(pausesAfter.map((item) => item.id)).toEqual(pausesBefore.map((item) => item.id));
+    expect(pausesAfter.every((item) => item.currentScheduledAt >= item.scheduledAt)).toBe(true);
+    expect(pausesAfter.map((item) => item.content)).toEqual(
+      pausesBefore.map((item) => item.content),
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('marks the day off before starting it, and brings it back', async () => {
@@ -112,9 +138,7 @@ describe('Today', () => {
     startMonday();
     travel(MONDAY, '08:40');
     renderWithRouter(<AppRoutes />);
-    expect(screen.getByText('Tu jornada empieza a las 09:00').closest('p')).toHaveTextContent(
-      'Empieza a las09:00',
-    );
+    expect(screen.getByText('Tu jornada empieza a las 09:00')).toBeInTheDocument();
   });
 
   it('"Reuniones" lists today\'s meetings: add, change or remove them', async () => {
@@ -124,7 +148,7 @@ describe('Today', () => {
     const sheet = () => screen.getByRole('dialog', { name: 'Reuniones de hoy' });
     const { user } = renderWithRouter(<AppRoutes />);
 
-    expect(screen.getByRole('button', { name: /Reuniones/ })).toHaveTextContent('Ninguna hoy');
+    expect(screen.getByText('Ninguna hoy')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Reuniones/ }));
     // Only the meetings: closing the day lives elsewhere.
     expect(within(sheet()).queryByRole('link', { name: 'Cerrar jornada' })).not.toBeInTheDocument();
@@ -197,7 +221,9 @@ describe('Today', () => {
     const plan = store().days[MONDAY]!.plan!;
     const { user } = renderWithRouter(<AppRoutes />);
     await user.click(screen.getByRole('button', { name: 'Ver ejercicio' }));
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cerrar' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Cerrar panel' }),
+    );
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(store().days[MONDAY]!.plan).toBe(plan);
@@ -214,7 +240,7 @@ describe('Today', () => {
     expect(screen.queryByText('A mano hoy')).not.toBeInTheDocument();
   });
 
-  it('shows only the gear the plan needs', () => {
+  it('shows activity zones on Today and its gear in the activity panel', async () => {
     const settings = { ...DEFAULT_SETTINGS, equipment: ['mat', 'kettlebell'] as const };
     store().updateSettings({ equipment: [...settings.equipment] });
     store().startDay(
@@ -229,7 +255,13 @@ describe('Today', () => {
     );
     travel(MONDAY, '09:10');
     renderWithRouter(<AppRoutes />);
-    expect(screen.getByText('A mano hoy')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Esterilla' })).toBeInTheDocument();
+    expect(screen.queryByText('A mano hoy')).not.toBeInTheDocument();
+    const activity = screen.getByRole('region', { name: 'Actividad de hoy' });
+    expect(
+      within(activity).getByRole('heading', { name: 'Movilidad en esterilla' }),
+    ).toBeInTheDocument();
+    expect(within(activity).getByRole('img', { name: 'Cadera y piernas' })).toBeInTheDocument();
+    fireEvent.click(within(activity).getByRole('button', { name: 'Ver actividad' }));
+    expect(within(screen.getByRole('dialog')).getByText('Esterilla')).toBeInTheDocument();
   });
 });

@@ -39,7 +39,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     }
     await scan('onboarding/summary');
     await page.getByRole('button', { name: 'Empezar' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: '¡Hola!' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Tu plan de hoy' })).toBeVisible();
     await scan('today (before the day)');
 
     await page.getByRole('link', { name: 'Empezar jornada' }).click();
@@ -67,10 +67,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
     // Back to the options, then closed: it returns to Today, where it was opened.
     await page.getByRole('link', { name: 'Volver' }).click();
     await page.getByRole('link', { name: 'Cerrar' }).click();
-    await page
-      .getByRole('link', { name: /Ver actividad|Vamos/ })
-      .last()
-      .click();
+    await page.getByRole('button', { name: 'Ver actividad' }).click();
+    await scan('main activity preview and editor');
+    await page.getByRole('dialog').getByRole('link', { name: 'Empezar' }).click();
     await scan('main activity');
     await page.getByRole('button', { name: 'Empezar' }).click();
     await scan('main activity (running)');
@@ -82,7 +81,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await page.getByRole('link', { name: 'Ajustes' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Ajustes' })).toBeVisible();
     await scan('settings');
-    await page.getByRole('link', { name: 'Editar Jornada habitual' }).click();
+    await page.getByRole('button', { name: 'Editar Jornada habitual' }).click();
     await scan('settings/schedule');
 
     await travelTo(page, monday('17:05'));
@@ -104,7 +103,7 @@ test('the keyboard reaches every control on Today and Settings, with a visible f
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
 
   for (const [path, title] of [
-    ['/', '¡Hola!'],
+    ['/', 'Tu plan de hoy'],
     ['/settings', 'Ajustes'],
   ] as const) {
     if (path !== '/') await page.getByRole('link', { name: 'Ajustes' }).click();

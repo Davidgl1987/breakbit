@@ -38,26 +38,19 @@ test('tabs slide, "Tengo un hueco" opens from its button and screens rise and dr
   await settled();
   await page.getByRole('link', { name: 'Hoy', exact: true }).click();
   await settled();
-  await page.getByRole('link', { name: 'Ver actividad' }).click();
-  await settled();
-  await page.getByRole('link', { name: 'Cerrar' }).click();
+  await page.getByRole('button', { name: 'Ver actividad' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Cerrar panel' }).click();
   await settled();
 
-  expect(await kinds()).toEqual([
-    'slide-forward',
-    'gap-open',
-    'gap-close',
-    'slide-back',
-    'push',
-    'pop',
-  ]);
+  expect(await kinds()).toEqual(['slide-forward', 'gap-open', 'gap-close', 'slide-back']);
 });
 
 test('a sheet slides up and back down', async ({ page }) => {
   await page.getByRole('button', { name: 'Ver ejercicio' }).click();
   const sheet = page.getByRole('dialog');
   await expect(sheet).toBeVisible();
-  await sheet.getByRole('button', { name: 'Cerrar' }).click();
+  await sheet.getByRole('button', { name: 'Cerrar panel' }).click();
   await expect(sheet).toHaveCount(0);
   // An inert copy plays the way out and goes.
   await expect(page.locator('[aria-hidden="true"][inert]')).toHaveCount(0);

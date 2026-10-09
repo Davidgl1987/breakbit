@@ -55,6 +55,20 @@ describe('runEngine', () => {
 describe('notificationContent', () => {
   beforeEach(() => store().startDay(plan));
 
+  it.each(['day_start', 'day_end', 'pause', 'pause_reminder', 'main', 'main_done'] as const)(
+    'uses the application icon for %s',
+    (kind) => {
+      const activity = plan.activities.find(
+        (item) => item.kind === (kind.startsWith('main') ? 'main' : 'micro'),
+      )!;
+      const content = notificationContent(
+        { id: kind, kind, date: DATE, at: first.scheduledAt, tag: kind, activityId: activity.id },
+        store(),
+      );
+      expect(content?.icon).toBe(`${import.meta.env.BASE_URL}app-icons/icon-192.png`);
+    },
+  );
+
   it('names the exercise and links to the decision screen', () => {
     const content = notificationContent(
       {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { HistoryInput } from '@/domain/stats/days';
 import { heatmapWeeks, type HeatLevel } from '@/domain/stats/heatmap';
 import { addDays, compareDateKeys, startOfWeek } from '@/domain/time';
-import { formatLongDate, formatMonthRange } from '@/i18n/translate';
+import { formatLongDate, formatDayRange, weekdayName } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { Card } from '@/ui/components/Card/Card';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
@@ -10,10 +10,10 @@ import { Heatmap } from '@/ui/game/Heatmap/Heatmap';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import styles from './progress.module.css';
 
-/** Weeks shown at once: about five months, still readable on a phone. */
-const WEEKS = 20;
+/** Four rows of weeks, with weekday columns. */
+const WEEKS = 4;
 
-/** "Tu constancia": a GitHub-style grid of the last months, period by period. */
+/** "Tu constancia": four weeks, with previous and next period controls. */
 export function ConstancyCard({ history }: { history: HistoryInput }) {
   const { t, locale } = useT();
   const [periodsBack, setPeriodsBack] = useState(0);
@@ -36,7 +36,6 @@ export function ConstancyCard({ history }: { history: HistoryInput }) {
       <div className={styles.head}>
         <div className={styles.headTexts}>
           <h2 className={styles.title}>{t('progress.heatmap.title')}</h2>
-          <p className={styles.muted}>{t('progress.heatmap.caption')}</p>
         </div>
         <div className={styles.nav}>
           <IconButton
@@ -46,7 +45,7 @@ export function ConstancyCard({ history }: { history: HistoryInput }) {
           >
             <LineIcon name="chevron-left" size={18} />
           </IconButton>
-          <span>{formatMonthRange(locale, from, to)}</span>
+          <span>{formatDayRange(locale, from, to)}</span>
           <IconButton
             label={t('progress.heatmap.next')}
             disabled={periodsBack === 0}
@@ -63,15 +62,9 @@ export function ConstancyCard({ history }: { history: HistoryInput }) {
           from: formatLongDate(locale, from),
           to: formatLongDate(locale, to),
         })}
-        dayLabels={[
-          t('progress.heatmap.days.mon'),
-          '',
-          t('progress.heatmap.days.wed'),
-          '',
-          t('progress.heatmap.days.fri'),
-          '',
-          '',
-        ]}
+        dayLabels={Array.from({ length: 7 }, (_, i) =>
+          weekdayName(locale, (i + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7, 'narrow'),
+        )}
         weeks={weeks.map((week) => ({
           key: week[0]!.date,
           days: week.map((cell) => ({

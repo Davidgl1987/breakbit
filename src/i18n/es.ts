@@ -4,6 +4,24 @@
  * Plural entries use `{ one, other }`; placeholders use `{name}`.
  */
 export const es = {
+  redesign: {
+    history: 'Consultar historial',
+    jornada: 'Tu jornada',
+    remaining: 'Quedan {time}',
+    heading: 'Tu plan de hoy',
+    closePanel: 'Cerrar panel',
+    noMaterial: 'Sin material',
+    details: 'Más datos de esta semana',
+    xpMissing: 'Faltan {xp} XP para el nivel {level}',
+    phases: 'Ver fases y recompensas',
+    appSettings: 'La app',
+    routine: 'Tu rutina',
+    comparison: 'Frente a la semana pasada',
+    comparable: 'Comparando los mismos días de la semana',
+    noComparison: 'Aún no hay jornadas de la semana pasada para comparar.',
+    blank: 'Sin registro / futuro',
+    heatLegend: 'Cada fila es una semana. Más verde = más pausas completadas.',
+  },
   app: {
     name: 'Breakbit',
     tagline: 'Pequeñas pausas, mejores hábitos.',
@@ -53,6 +71,7 @@ export const es = {
     },
     meetings: {
       row: 'Reuniones',
+      noMove: 'No puedes moverte',
       none: 'Ninguna hoy',
       title: 'Reuniones de hoy',
       hint: 'Tus pausas se reajustan solas a tus reuniones.',
@@ -354,7 +373,7 @@ export const es = {
       },
     },
     week: {
-      title: 'Resumen semanal',
+      title: 'Esta semana',
       completed: 'Pausas completadas',
       firstTry: 'A la primera',
       movement: 'En movimiento',
@@ -378,7 +397,7 @@ export const es = {
       empty: 'Cuando hagas tus pausas verás aquí qué zonas mueves más.',
     },
     likes: {
-      title: 'Tus ejercicios',
+      title: 'Tus favoritos',
       caption: 'Según cómo valoras tus pausas al terminarlas',
       liked: 'Te gustan más',
       disliked: 'Te gustan menos',
@@ -386,7 +405,7 @@ export const es = {
       empty: 'Valora tus pausas al terminarlas y verás aquí cuáles te gustan más.',
     },
     insights: {
-      title: 'Esta semana',
+      title: 'Sobre tu semana',
       upTo: 'Comparado hasta el {day}',
       firstPromptMore: {
         one: 'Hiciste {count} pausa más a la primera que la semana pasada',
@@ -468,14 +487,17 @@ export const es = {
       hint: 'Todo se guarda en este dispositivo: no hay cuentas ni servidor.',
       protected: 'Este navegador los conserva aunque le falte espacio.',
       protect: 'Proteger tus datos',
+      protectShort: 'Proteger',
       protectHint: 'Pide al navegador que no los borre si le falta espacio',
       protectedNow: 'Tus datos quedan protegidos en este navegador.',
       notProtected: 'El navegador no lo ha permitido. Instalar Breakbit suele ayudar.',
       export: 'Exportar copia',
+      exportAction: 'Exportar',
+      importAction: 'Importar',
       exportHint: 'Un archivo con todos tus datos',
       import: 'Importar copia',
       importHint: 'Sustituye los datos de este dispositivo',
-      reset: 'Borrar todos los datos',
+      reset: 'Borrar mis datos',
       resetHint: 'Empezarás de cero',
       importSheet: {
         title: '¿Importar esta copia?',

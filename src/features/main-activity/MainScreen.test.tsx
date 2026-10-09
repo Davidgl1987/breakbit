@@ -1,7 +1,7 @@
 import { act, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
-import { mainPath } from '@/app/routes';
+import { mainDonePath, mainPath } from '@/app/routes';
 import { ToastHost } from '@/app/ToastHost';
 import { CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
@@ -189,7 +189,7 @@ describe('continuous session', () => {
 
     // Today's clock moves in 5 s steps: clearly past the 5 minutes.
     await wait(5 * MIN + 6_000);
-    const card = screen.getByRole('heading', { name: 'Actividad de hoy' }).parentElement!;
+    const card = screen.getByRole('region', { name: 'Actividad de hoy' });
     expect(card).toHaveTextContent('En curso');
     expect(card).toHaveTextContent('5 de 20 min');
     await user.click(within(card).getByRole('link', { name: 'Continuar' }));
@@ -258,16 +258,13 @@ describe('guided activity', () => {
 });
 
 describe('the activity on Today', () => {
-  const card = () => screen.getByRole('heading', { name: 'Actividad de hoy' }).parentElement!;
+  const card = () => screen.getByRole('region', { name: 'Actividad de hoy' });
 
   it('is a preview before its time and the way in once it comes', async () => {
     setUp(WALK, '09:10');
     ui('/');
     expect(card()).toHaveTextContent('Hoy a las 13:00');
-    expect(within(card()).getByRole('link', { name: 'Ver actividad' })).toHaveAttribute(
-      'href',
-      mainPath(`${DATE}:main`),
-    );
+    expect(within(card()).getByRole('button', { name: 'Ver actividad' })).toBeInTheDocument();
 
     await act(() => travel('13:01'));
     expect(card()).toHaveTextContent('Es la hora');
@@ -279,7 +276,10 @@ describe('the activity on Today', () => {
     ui('/');
     await act(() => store().completeMain(DATE, `${DATE}:main`));
     expect(within(card()).getByText('Completada')).toBeInTheDocument();
-    expect(within(card()).queryByRole('link')).not.toBeInTheDocument();
+    expect(within(card()).getByRole('link', { name: 'Ver actividad' })).toHaveAttribute(
+      'href',
+      mainDonePath(`${DATE}:main`),
+    );
   });
 });
 
