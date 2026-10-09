@@ -188,6 +188,7 @@ La "misión" del día, de 5 a 30 minutos.
 | `completionMode` | `continuous` · `accumulated` | sí | `continuous`: de una vez, con temporizador. `accumulated`: se suma en bloques a lo largo del día |
 | `slots` | lista de `break` · `work` · `meeting` | sí | Dónde encaja: en un descanso, en horas de trabajo o en una reunión "puedo moverme" |
 | `whileWorking` | sí/no | sí | Se hace mientras trabajas (escritorio elevable, reunión caminando): no cuenta como interrupción ni aparta las pausas de su alrededor |
+| `areas` | lista de ids de `areas` | no | Zonas que trabaja la actividad, para mostrarlas en Hoy |
 | `routine` | id de `routines` | no | Rutina propia que guía la actividad: más de 3 ejercicios y que quepa entera en `durationMin.min` |
 | `icon` | texto | no | Nombre del icono |
 

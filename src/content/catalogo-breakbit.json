@@ -3399,7 +3399,10 @@
         "break"
       ],
       "whileWorking": false,
-      "icon": "outside"
+      "icon": "outside",
+      "areas": [
+        "hips_legs"
+      ]
     },
     {
       "id": "walk_indoors",
@@ -3432,7 +3435,10 @@
         "work"
       ],
       "whileWorking": false,
-      "icon": "walk"
+      "icon": "walk",
+      "areas": [
+        "hips_legs"
+      ]
     },
     {
       "id": "walking_meeting",
@@ -3464,7 +3470,10 @@
         "meeting"
       ],
       "whileWorking": true,
-      "icon": "call"
+      "icon": "call",
+      "areas": [
+        "hips_legs"
+      ]
     },
     {
       "id": "mobility_routine",
@@ -3498,7 +3507,13 @@
       ],
       "whileWorking": false,
       "routine": "mobility_5",
-      "icon": "stretch"
+      "icon": "stretch",
+      "areas": [
+        "neck",
+        "shoulders",
+        "upper_back",
+        "hips_legs"
+      ]
     },
     {
       "id": "standing_work",
@@ -3538,7 +3553,10 @@
         "meeting"
       ],
       "whileWorking": true,
-      "icon": "desk"
+      "icon": "desk",
+      "areas": [
+        "hips_legs"
+      ]
     },
     {
       "id": "band_block",
@@ -3578,7 +3596,13 @@
       ],
       "whileWorking": false,
       "routine": "band_block_5",
-      "icon": "resistance_band"
+      "icon": "resistance_band",
+      "areas": [
+        "shoulders",
+        "upper_back",
+        "hips_legs",
+        "lower_back"
+      ]
     },
     {
       "id": "dumbbell_block",
@@ -3620,7 +3644,13 @@
         "break"
       ],
       "whileWorking": false,
-      "icon": "dumbbell"
+      "icon": "dumbbell",
+      "areas": [
+        "upper_back",
+        "shoulders",
+        "lower_back",
+        "hips_legs"
+      ]
     },
     {
       "id": "kettlebell_block",
@@ -3662,7 +3692,12 @@
         "break"
       ],
       "whileWorking": false,
-      "icon": "kettlebell"
+      "icon": "kettlebell",
+      "areas": [
+        "shoulders",
+        "lower_back",
+        "hips_legs"
+      ]
     },
     {
       "id": "mat_mobility",
@@ -3701,7 +3736,13 @@
       ],
       "whileWorking": false,
       "icon": "mat",
-      "routine": "mat_mobility_5"
+      "routine": "mat_mobility_5",
+      "areas": [
+        "upper_back",
+        "lower_back",
+        "shoulders",
+        "hips_legs"
+      ]
     }
   ]
 }

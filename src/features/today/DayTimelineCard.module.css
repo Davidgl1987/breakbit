@@ -1,10 +1,18 @@
 .card {
   display: grid;
   gap: var(--space-3);
+  border: 0;
+  padding: 12px 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .title {
-  font-size: var(--text-md);
+  font-size: var(--text-xl);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.85rem;
+  line-height: 1.65;
 }
 
 .list {
@@ -49,7 +57,7 @@
   width: 12px;
   height: 12px;
   border: 2px solid var(--color-surface);
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   background: var(--dot);
   box-shadow: 0 0 0 1px var(--dot);
 }
@@ -79,7 +87,11 @@
   --dot: var(--color-text-subtle);
 }
 
-.past {
+.past .label {
+  color: var(--color-text-muted);
+}
+
+.past .dot {
   opacity: 0.55;
 }
 

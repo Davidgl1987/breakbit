@@ -7,47 +7,40 @@
 /* The greeting, and the workday's clock at its right. */
 .greetingRow {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
 }
 
 .greeting {
   display: grid;
-  gap: var(--space-1);
+  gap: 8px;
+  min-width: 0;
 }
 
 .clock {
-  display: flex;
+  display: inline;
   align-items: center;
   gap: var(--space-2);
   flex-shrink: 0;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-}
-
-.clockTexts {
-  display: grid;
-}
-
-.clockLabel {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-primary-hover);
   font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  color: var(--color-text-muted);
-}
-
-.clockValue {
-  font-weight: var(--weight-black);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  max-width: 115px;
+  text-transform: uppercase;
+  font-weight: 600;
+  text-align: right;
+  line-height: 1.5;
 }
 
 .title {
-  font-family: var(--font-body);
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-black);
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 3.4vw, 1.05rem);
+  line-height: 1.65;
+  font-weight: 400;
 }
 
 .subtitle,
@@ -82,12 +75,7 @@
   font-weight: var(--weight-black);
 }
 
-/* "Próxima pausa" and "Actividad de hoy" side by side. */
-.pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-}
+/* Empty pause state and the compact daily activity. */
 
 .halfCard {
   display: grid;
@@ -95,19 +83,9 @@
   gap: var(--space-3);
 }
 
-.cardTitle {
-  font-size: var(--text-md);
-}
-
 .halfBody {
   display: grid;
   align-content: start;
-  gap: var(--space-1);
-}
-
-/* The areas the next pause works, where "Actividad de hoy" has its icon. */
-.areaIcons {
-  display: flex;
   gap: var(--space-1);
 }
 
@@ -125,6 +103,10 @@
 .progressCard {
   display: grid;
   gap: var(--space-3);
+  padding: 10px 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .stats {
@@ -133,6 +115,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  margin-top: 12px;
+  font-size: var(--text-sm);
 }
 
 .stats li {
@@ -140,11 +124,6 @@
   align-items: center;
   gap: var(--space-2);
   font-weight: var(--weight-semibold);
-}
-
-.devLinks {
-  display: grid;
-  gap: var(--space-2);
 }
 
 /* "Tu jornada de hoy": its meetings and the way to close it. */
@@ -160,4 +139,218 @@
 .daySheetList {
   display: grid;
   gap: var(--space-2);
+}
+
+/* The main room scene holds the pause; the rest of the day reads as a quiet list. */
+
+.subtitle {
+  font-size: var(--text-sm);
+}
+.heroCard {
+  display: grid;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+  border-radius: var(--radius-xl);
+}
+.heroCard .cardTitle {
+  justify-self: start;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--color-surface);
+}
+.heroBody {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.heroBody .big {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.heroBody .small {
+  color: var(--color-text);
+  font-size: var(--text-lg);
+  line-height: 1.25;
+}
+.heroFooter {
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 16px;
+  background: var(--color-primary-soft);
+}
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.zones,
+.gear {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.metadata span span {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  font-weight: 400;
+}
+.progressFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.progressCard summary {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.activityCard {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: none;
+}
+.activityCard .halfBody {
+  padding-right: 65px;
+}
+.watermark {
+  position: absolute;
+  right: -8px;
+  top: 10px;
+  z-index: -1;
+  opacity: 0.23;
+  transform: rotate(-8deg);
+  mask-image: linear-gradient(120deg, transparent 8%, #000 45%, transparent 100%);
+}
+
+.duration {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.watermark img {
+  width: 120px;
+  height: 120px;
+}
+@media (max-width: 365px) {
+  .heroBody {
+    padding-bottom: 78px;
+  }
+  .heroCard .big {
+    max-width: calc(100% - 50px);
+  }
+}
+
+.activityTitle {
+  padding-right: 54px;
+  font-size: var(--text-lg);
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.activityZones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-right: 60px;
+}
+.activityBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+.activityBottom > .small {
+  flex: 1 1 auto;
+}
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+.activityBottom > .actionLink {
+  margin-left: auto;
+}
+
+.meetings {
+  display: grid;
+  gap: 12px;
+  padding: 8px 0;
+}
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.headingLink {
+  font: inherit;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.meetingRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.meetingTexts {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.dangerLink {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--color-danger-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.activityCard .halfBody > span {
+  justify-self: start;
 }

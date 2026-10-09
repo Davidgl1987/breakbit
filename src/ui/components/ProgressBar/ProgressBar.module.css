@@ -1,7 +1,7 @@
 .track {
   overflow: hidden;
   width: 100%;
-  border-radius: var(--radius-pill);
+  border-radius: 1px;
   background: var(--color-track);
 }
 

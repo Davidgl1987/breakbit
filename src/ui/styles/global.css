@@ -53,9 +53,10 @@ p {
 h1,
 h2 {
   font-family: var(--font-display);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.01em;
-  line-height: 1.15;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.65;
 }
 
 h3,
@@ -114,5 +115,24 @@ img {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Square corner cuts reinforce the sprites without changing control sizes or clipping
+   keyboard focus. Browsers without corner-shape use restrained square corners. */
+@supports (corner-shape: notch) {
+  *,
+  *::before,
+  *::after {
+    corner-shape: notch;
+  }
+}
+@supports not (corner-shape: notch) {
+  :root {
+    --radius-sm: 2px;
+    --radius-md: 2px;
+    --radius-lg: 2px;
+    --radius-xl: 2px;
+    --radius-pill: 2px;
   }
 }

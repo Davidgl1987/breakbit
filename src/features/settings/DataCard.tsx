@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { settingsPath } from '@/app/routes';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import { toDateKey } from '@/domain/time';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
@@ -11,7 +11,6 @@ import { showToast } from '@/state/toasts';
 import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
-import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './SettingsScreen.module.css';
 
@@ -67,35 +66,46 @@ export function DataCard() {
   };
 
   return (
-    <Card as="section" className={styles.card}>
+    <Card as="section" className={styles.dataCard}>
       <div className={styles.headTexts}>
-        <h2 className={styles.cardTitle}>
-          <PixelIcon name="home_place" size={24} />
-          {t('settings.data.title')}
-        </h2>
+        <div className={styles.dataHead}>
+          <h2 className={styles.cardTitle}>
+            <PixelIcon name="home_place" size={24} />
+            {t('settings.data.title')}
+          </h2>
+          {persisted === false && (
+            <button
+              className={styles.textLink}
+              aria-label={t('settings.data.protect')}
+              onClick={() => void protect()}
+              title={t('settings.data.protectHint')}
+            >
+              <PixelIcon name="shield" size={16} />
+              {t('settings.data.protectShort')}
+            </button>
+          )}
+        </div>
         <p className={styles.muted}>{t('settings.data.hint')}</p>
         {persisted && <p className={styles.muted}>{t('settings.data.protected')}</p>}
       </div>
-      {persisted === false && (
-        <ListRow
-          leading={<PixelIcon name="shield" size={24} />}
-          title={t('settings.data.protect')}
-          subtitle={t('settings.data.protectHint')}
-          onClick={() => void protect()}
-        />
-      )}
-      <ListRow
-        leading={<PixelIcon name="export" size={24} />}
-        title={t('settings.data.export')}
-        subtitle={t('settings.data.exportHint')}
-        onClick={() => void exportCopy()}
-      />
-      <ListRow
-        leading={<PixelIcon name="import" size={24} />}
-        title={t('settings.data.import')}
-        subtitle={t('settings.data.importHint')}
-        onClick={() => fileInput.current?.click()}
-      />
+      <div className={styles.dataActions}>
+        <Button
+          variant="secondary"
+          aria-label={t('settings.data.export')}
+          onClick={() => void exportCopy()}
+        >
+          <PixelIcon name="export" size={24} />
+          {t('settings.data.exportAction')}
+        </Button>
+        <Button
+          variant="secondary"
+          aria-label={t('settings.data.import')}
+          onClick={() => fileInput.current?.click()}
+        >
+          <PixelIcon name="import" size={24} />
+          {t('settings.data.importAction')}
+        </Button>
+      </div>
       <input
         ref={fileInput}
         type="file"
@@ -109,17 +119,13 @@ export function DataCard() {
           if (file) void readFile(file);
         }}
       />
-      <ListRow
-        leading={<PixelIcon name="trash" size={24} />}
-        title={t('settings.data.reset')}
-        subtitle={t('settings.data.resetHint')}
+      <button
+        className={`${styles.dataLink} ${styles.dangerLink}`}
         onClick={() => setConfirmReset(true)}
-      />
-      <ListRow
-        leading={<PixelIcon name="info" size={24} />}
-        title={t('settings.about.title')}
-        to={settingsPath('about')}
-      />
+      >
+        {t('settings.data.reset')}
+        <LineIcon name="chevron-right" size={18} />
+      </button>
 
       {pending && (
         <BottomSheet

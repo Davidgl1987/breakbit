@@ -29,36 +29,39 @@ export function HistoryCard({ results }: { results: readonly WeeklyResult[] }) {
       {results.length === 0 ? (
         <p className={styles.muted}>{t('progress.history.empty')}</p>
       ) : (
-        <ul className={styles.list}>
-          {[...results]
-            .reverse()
-            .slice(0, SHOWN)
-            .map((week) => (
-              <li key={week.week}>
-                <ListRow
-                  leading={<PixelIcon name={ICONS[week.result]} size={32} />}
-                  title={t(`week.results.${week.result}.title`)}
-                  subtitle={[
-                    t('progress.history.detail', {
-                      range: formatDayRange(locale, week.start, addDays(week.start, 6)),
-                      tally:
-                        week.result === 'neutral'
-                          ? phase(week.phaseAfter)
-                          : t('week.tally', { good: week.good, planned: week.planned }),
-                    }),
-                    week.phaseAfter !== week.phaseBefore &&
-                      t('progress.history.change', {
-                        from: phase(week.phaseBefore),
-                        to: phase(week.phaseAfter),
+        <details className={styles.archive}>
+          <summary>{t('redesign.history')}</summary>
+          <ul className={`${styles.list} ${styles.rowList}`}>
+            {[...results]
+              .reverse()
+              .slice(0, SHOWN)
+              .map((week) => (
+                <li key={week.week}>
+                  <ListRow
+                    leading={<PixelIcon name={ICONS[week.result]} size={32} />}
+                    title={t(`week.results.${week.result}.title`)}
+                    subtitle={[
+                      t('progress.history.detail', {
+                        range: formatDayRange(locale, week.start, addDays(week.start, 6)),
+                        tally:
+                          week.result === 'neutral'
+                            ? phase(week.phaseAfter)
+                            : t('week.tally', { good: week.good, planned: week.planned }),
                       }),
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-                  to={weekPath(week.week)}
-                />
-              </li>
-            ))}
-        </ul>
+                      week.phaseAfter !== week.phaseBefore &&
+                        t('progress.history.change', {
+                          from: phase(week.phaseBefore),
+                          to: phase(week.phaseAfter),
+                        }),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                    to={weekPath(week.week)}
+                  />
+                </li>
+              ))}
+          </ul>
+        </details>
       )}
     </Card>
   );

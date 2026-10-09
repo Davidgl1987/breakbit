@@ -43,3 +43,14 @@
   display: flex;
   gap: var(--space-2);
 }
+
+.contentMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.contentMeta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

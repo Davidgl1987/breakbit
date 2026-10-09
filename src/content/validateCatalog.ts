@@ -58,6 +58,7 @@ const FIELDS = {
   routines: ['id', 'name', 'steps', 'icon'],
   routineSteps: ['exercise', 'seconds'],
   mainActivities: [
+    'areas',
     'id',
     'name',
     'description',
@@ -167,6 +168,8 @@ export function validateCatalog(data: unknown): CatalogIssue[] {
     text(activity.description, `${at} → description`, fail);
     textList(activity.steps, `${at} → steps`, 1, fail);
     references(activity.equipment, ids.equipment, 'equipment', `${at} → equipment`, 0, fail);
+    if (activity.areas !== undefined)
+      references(activity.areas, ids.areas, 'areas', `${at} → areas`, 1, fail);
     mainDuration(activity, at, fail);
     oneOf(activity.completionMode, COMPLETION_MODES, `${at} → completionMode`, fail);
     if (!Array.isArray(activity.slots) || activity.slots.length === 0) {
