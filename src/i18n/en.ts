@@ -485,6 +485,7 @@ export const en: Messages = {
       hint: 'Everything stays on this device: no accounts, no server.',
       protected: 'This browser keeps it even when it runs low on space.',
       protect: 'Protect your data',
+      protectShort: 'Protect',
       protectHint: "Ask the browser not to delete it when it's low on space",
       protectedNow: 'Your data is now protected in this browser.',
       notProtected: "The browser didn't allow it. Installing Breakbit usually helps.",

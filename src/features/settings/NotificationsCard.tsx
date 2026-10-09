@@ -98,9 +98,9 @@ export function NotificationsCard() {
               </span>
             }
           />
-          <Button variant="secondary" onClick={playPauseSound}>
+          <button className={styles.textLink} onClick={playPauseSound}>
             {t('settings.alerts.testSound')}
-          </Button>
+          </button>
         </>
       )}
     </section>

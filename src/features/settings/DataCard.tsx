@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
 import { LineIcon } from '@/ui/icons/LineIcon';
-import { settingsPath } from '@/app/routes';
 import { toDateKey } from '@/domain/time';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
@@ -70,23 +68,26 @@ export function DataCard() {
   return (
     <Card as="section" className={styles.dataCard}>
       <div className={styles.headTexts}>
-        <h2 className={styles.cardTitle}>
-          <PixelIcon name="home_place" size={24} />
-          {t('settings.data.title')}
-        </h2>
+        <div className={styles.dataHead}>
+          <h2 className={styles.cardTitle}>
+            <PixelIcon name="home_place" size={24} />
+            {t('settings.data.title')}
+          </h2>
+          {persisted === false && (
+            <button
+              className={styles.textLink}
+              aria-label={t('settings.data.protect')}
+              onClick={() => void protect()}
+              title={t('settings.data.protectHint')}
+            >
+              <PixelIcon name="shield" size={16} />
+              {t('settings.data.protectShort')}
+            </button>
+          )}
+        </div>
         <p className={styles.muted}>{t('settings.data.hint')}</p>
         {persisted && <p className={styles.muted}>{t('settings.data.protected')}</p>}
       </div>
-      {persisted === false && (
-        <button
-          className={styles.dataLink}
-          onClick={() => void protect()}
-          title={t('settings.data.protectHint')}
-        >
-          <PixelIcon name="shield" size={24} />
-          {t('settings.data.protect')}
-        </button>
-      )}
       <div className={styles.dataActions}>
         <Button
           variant="secondary"
@@ -125,9 +126,6 @@ export function DataCard() {
         {t('settings.data.reset')}
         <LineIcon name="chevron-right" size={18} />
       </button>
-      <Link className={styles.dataLink} to={settingsPath('about')}>
-        {t('settings.about.title')}
-      </Link>
 
       {pending && (
         <BottomSheet

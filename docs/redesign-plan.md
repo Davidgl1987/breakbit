@@ -31,3 +31,11 @@ Vista previa de desarrollo: http://127.0.0.1:5201/ (datos de ejemplo en un orige
 - Ajustes: apariencia, idioma y notificaciones sin fondo; datos en card con Exportar/Importar y borrado centrado. Los editores de rutina siguen compartiendo los campos del onboarding.
 - Revisión visual en 320 y 390 píxeles y escritorio, sin desbordamiento horizontal; los botones de datos usan textos cortos y conservan nombres accesibles completos.
 - 818 pruebas completas correctas, 63 comprobaciones de contraste/caché correctas y 19 pruebas de Ajustes repetidas tras compactar los botones. 20 pruebas de navegador correctas, incluyendo accesibilidad en ambos temas, jornada, teclado y uso sin conexión.
+
+## Esquinas y ajustes compactos · 9 de octubre
+
+- Menú con Press Start 2P en las pestañas y Chakra Petch en la acción central. Conserva la disposición de tres pestañas y el botón elevado; su contorno sigue ahora pequeños escalones.
+- Esquinas con recortes cuadrados de 3–6 px en cards, botones, campos, selectores y paneles; indicadores finos con recortes de 1 px. Los navegadores sin `corner-shape` usan esquinas casi rectas de 2 px.
+- Instalar Breakbit es la primera card de Ajustes y sigue ocultándose cuando está instalada.
+- Tus datos comparte el fondo de Instalar Breakbit, reduce espaciado y reúne la protección junto al título. Acerca de Breakbit queda fuera, y Probar sonido usa un enlace visual con área de pulsación de 44 px.
+- Revisión visual en 320 y 390 px, en claro y oscuro, sin desbordamiento; paneles y menú comprobados. Compilación y lint correctos, 28 pruebas de Ajustes/navegación y 20 pruebas de navegador correctas.

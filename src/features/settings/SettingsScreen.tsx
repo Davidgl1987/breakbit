@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
+import { settingsPath } from '@/app/routes';
 import { equipmentIn } from '@/content/catalog';
 import { areaName } from '@/features/day/catalogDisplay';
 import type { BodyArea } from '@/domain/types';
@@ -42,6 +44,7 @@ export function SettingsScreen({
   return (
     <>
       <ScreenHeader title={t('settings.title')} subtitle={t('settings.subtitle')} />
+      <InstallCard />
 
       <section className={styles.appSettings}>
         <div className={styles.prefRow}>
@@ -117,8 +120,10 @@ export function SettingsScreen({
           </div>
         ))}
       </section>
-      <InstallCard />
       <DataCard />
+      <Link className={styles.aboutLink} to={settingsPath('about')}>
+        {t('settings.about.title')}
+      </Link>
       {section && <SettingsEditSheet key={section} section={section} onClose={close} />}
     </>
   );

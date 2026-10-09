@@ -1,6 +1,6 @@
 /**
- * Outline of the bottom bar around the raised "Tengo un hueco" button: flat → concave
- * fillet up → over the top of the button → concave fillet down → flat, like a wave.
+ * Outline of the bottom bar around the raised "Tengo un hueco" button. Small square
+ * steps at the joins and top corners follow the app’s discreet pixel cuts.
  *
  * Coordinates are in px inside an SVG whose bottom edge sits 1px below the bar's top
  * edge (so the fill hides the bar's hairline under the hump).
@@ -21,7 +21,7 @@ export interface WaveGeometry {
 export interface WaveOptions {
   /** Gap between the button and the wave. */
   pad: number;
-  /** Radius of the concave curves joining the flat bar. */
+  /** Width of the joins between the flat bar and the raised action. */
   fillet: number;
 }
 
@@ -30,9 +30,8 @@ export function waveGeometry(
   fabHeight: number,
   { pad, fillet }: WaveOptions,
 ): WaveGeometry {
-  // The hump is a pill around the button. Its sides are vertical at the pill's
-  // center height, so the button is lifted by `fillet` for the concave curve to meet
-  // the hump tangentially.
+  // Keep the original lift and clearance around the action so the three tabs
+  // retain their spacing beneath it.
   const radius = fabHeight / 2 + pad;
   const humpWidth = fabWidth + 2 * pad;
   const width = humpWidth + 2 * fillet;
@@ -42,13 +41,20 @@ export function waveGeometry(
   // The 1px outline is centered half a pixel above the bar edge, like the bar's hairline.
   const line = baseline - 0.5;
 
+  // Short 4px steps follow the new square-cut button corners. The rise and lift
+  // are unchanged, so the action stays centered with the same space above the tabs.
+  const step = Math.min(4, fillet / 2, radius / 4);
   const wave = [
     `M 0 ${line}`,
-    `A ${fillet} ${fillet - 0.5} 0 0 0 ${fillet} ${center}`,
-    `A ${radius} ${radius} 0 0 1 ${fillet + radius} ${top}`,
-    `H ${fillet + humpWidth - radius}`,
-    `A ${radius} ${radius} 0 0 1 ${fillet + humpWidth} ${center}`,
-    `A ${fillet} ${fillet - 0.5} 0 0 0 ${width} ${line}`,
+    `H ${step} V ${line - step}`,
+    `H ${fillet} V ${top + 2 * step}`,
+    `H ${fillet + step} V ${top + step}`,
+    `H ${fillet + 2 * step} V ${top}`,
+    `H ${fillet + humpWidth - 2 * step} V ${top + step}`,
+    `H ${fillet + humpWidth - step} V ${top + 2 * step}`,
+    `H ${fillet + humpWidth} V ${line - step}`,
+    `H ${width - step} V ${line}`,
+    `L ${width} ${line}`,
   ].join(' ');
 
   const height = baseline + 1;

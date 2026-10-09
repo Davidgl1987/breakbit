@@ -118,6 +118,21 @@ img {
   }
 }
 
-nav[aria-label] {
-  font-family: 'Nunito', system-ui, sans-serif;
+/* Square corner cuts reinforce the sprites without changing control sizes or clipping
+   keyboard focus. Browsers without corner-shape use restrained square corners. */
+@supports (corner-shape: notch) {
+  *,
+  *::before,
+  *::after {
+    corner-shape: notch;
+  }
+}
+@supports not (corner-shape: notch) {
+  :root {
+    --radius-sm: 2px;
+    --radius-md: 2px;
+    --radius-lg: 2px;
+    --radius-xl: 2px;
+    --radius-pill: 2px;
+  }
 }
