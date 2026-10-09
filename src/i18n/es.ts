@@ -487,6 +487,7 @@ export const es = {
       hint: 'Todo se guarda en este dispositivo: no hay cuentas ni servidor.',
       protected: 'Este navegador los conserva aunque le falte espacio.',
       protect: 'Proteger tus datos',
+      protectShort: 'Proteger',
       protectHint: 'Pide al navegador que no los borre si le falta espacio',
       protectedNow: 'Tus datos quedan protegidos en este navegador.',
       notProtected: 'El navegador no lo ha permitido. Instalar Breakbit suele ayudar.',

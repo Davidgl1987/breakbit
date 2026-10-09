@@ -256,7 +256,7 @@
 }
 .areaTrack {
   height: 6px;
-  border-radius: 3px;
+  border-radius: 1px;
   overflow: hidden;
   background: var(--color-track);
 }

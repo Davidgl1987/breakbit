@@ -1,8 +1,4 @@
 /* Local font assets are bundled and cached with the app for offline use. */
-@import '@fontsource/nunito/latin-400.css';
-@import '@fontsource/nunito/latin-600.css';
-@import '@fontsource/nunito/latin-700.css';
-@import '@fontsource/nunito/latin-800.css';
 
 @font-face {
   font-family: 'Press Start 2P';
