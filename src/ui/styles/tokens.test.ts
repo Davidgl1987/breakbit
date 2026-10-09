@@ -60,6 +60,8 @@ const PAIRS: [string, string, number][] = [
   ['primary-text', 'color-surface', TEXT],
   ['primary-text', 'color-primary-soft', TEXT],
   ['danger-text', 'color-surface', TEXT],
+  ['danger-text', 'color-primary-soft', TEXT],
+  ['danger-text', 'color-bg', TEXT],
   ['danger-text', 'color-danger-soft', TEXT],
   ['warning-text', 'color-surface', TEXT],
   ['warning-text', 'color-warning-soft', TEXT],

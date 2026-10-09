@@ -1,4 +1,4 @@
-/* GitHub-style grid: one column per week, Monday on top; weekday labels on the left. */
+/* Four week rows with weekday columns, Monday first. */
 .heatmap {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));

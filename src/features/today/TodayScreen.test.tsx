@@ -76,7 +76,7 @@ describe('Today', () => {
     for (const name of names.slice(0, 3)) {
       expect(within(card).getByText(name)).toBeInTheDocument();
     }
-    expect(screen.getByRole('heading', { name: 'Actividad de hoy' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Actividad de hoy' })).toBeInTheDocument();
     expect(screen.getByText('0/5 pausas')).toBeInTheDocument();
     const timeline = screen.getByRole('heading', { name: 'Tu jornada' }).parentElement!;
     expect(within(timeline).getByText('Empieza tu jornada')).toBeInTheDocument();
@@ -148,7 +148,7 @@ describe('Today', () => {
     const sheet = () => screen.getByRole('dialog', { name: 'Reuniones de hoy' });
     const { user } = renderWithRouter(<AppRoutes />);
 
-    expect(screen.getByRole('button', { name: /Reuniones/ })).toHaveTextContent('Ninguna hoy');
+    expect(screen.getByText('Ninguna hoy')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Reuniones/ }));
     // Only the meetings: closing the day lives elsewhere.
     expect(within(sheet()).queryByRole('link', { name: 'Cerrar jornada' })).not.toBeInTheDocument();
@@ -240,7 +240,7 @@ describe('Today', () => {
     expect(screen.queryByText('A mano hoy')).not.toBeInTheDocument();
   });
 
-  it('shows only the gear the plan needs', () => {
+  it('shows activity zones on Today and its gear in the activity panel', async () => {
     const settings = { ...DEFAULT_SETTINGS, equipment: ['mat', 'kettlebell'] as const };
     store().updateSettings({ equipment: [...settings.equipment] });
     store().startDay(
@@ -256,6 +256,12 @@ describe('Today', () => {
     travel(MONDAY, '09:10');
     renderWithRouter(<AppRoutes />);
     expect(screen.queryByText('A mano hoy')).not.toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Esterilla' })).toBeInTheDocument();
+    const activity = screen.getByRole('region', { name: 'Actividad de hoy' });
+    expect(
+      within(activity).getByRole('heading', { name: 'Movilidad en esterilla' }),
+    ).toBeInTheDocument();
+    expect(within(activity).getByRole('img', { name: 'Cadera y piernas' })).toBeInTheDocument();
+    fireEvent.click(within(activity).getByRole('button', { name: 'Ver actividad' }));
+    expect(within(screen.getByRole('dialog')).getByText('Esterilla')).toBeInTheDocument();
   });
 });

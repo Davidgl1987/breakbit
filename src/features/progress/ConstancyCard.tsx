@@ -55,7 +55,6 @@ export function ConstancyCard({ history }: { history: HistoryInput }) {
           </IconButton>
         </div>
       </div>
-      <p className={styles.muted}>{t('redesign.heatLegend')}</p>
       <Heatmap
         label={t('progress.heatmap.summary', {
           good,
@@ -64,7 +63,7 @@ export function ConstancyCard({ history }: { history: HistoryInput }) {
           to: formatLongDate(locale, to),
         })}
         dayLabels={Array.from({ length: 7 }, (_, i) =>
-          weekdayName(locale, (i + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7, 'short'),
+          weekdayName(locale, (i + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7, 'narrow'),
         )}
         weeks={weeks.map((week) => ({
           key: week[0]!.date,

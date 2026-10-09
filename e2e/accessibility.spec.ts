@@ -39,7 +39,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     }
     await scan('onboarding/summary');
     await page.getByRole('button', { name: 'Empezar' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Muévete a tu ritmo' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Tu plan de hoy' })).toBeVisible();
     await scan('today (before the day)');
 
     await page.getByRole('link', { name: 'Empezar jornada' }).click();
@@ -103,7 +103,7 @@ test('the keyboard reaches every control on Today and Settings, with a visible f
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
 
   for (const [path, title] of [
-    ['/', 'Muévete a tu ritmo'],
+    ['/', 'Tu plan de hoy'],
     ['/settings', 'Ajustes'],
   ] as const) {
     if (path !== '/') await page.getByRole('link', { name: 'Ajustes' }).click();

@@ -287,7 +287,7 @@ describe('Settings data', () => {
     store().setLocale('en');
     store().replaceData({ ...historyScenarioState(store()) });
     const { user } = ui();
-    await user.click(screen.getByRole('button', { name: /Delete all data/ }));
+    await user.click(screen.getByRole('button', { name: /Delete my data/ }));
     const sheet = screen.getByRole('dialog', { name: 'Delete all data?' });
     await user.click(within(sheet).getByRole('button', { name: 'Delete everything' }));
     expect(await screen.findByRole('button', { name: 'Get started' })).toBeInTheDocument();
@@ -299,7 +299,7 @@ describe('Settings data', () => {
 
   it('deletes everything in Spanish too', async () => {
     const { user } = ui();
-    await user.click(screen.getByRole('button', { name: /Borrar todos los datos/ }));
+    await user.click(screen.getByRole('button', { name: /Borrar mis datos/ }));
     const sheet = screen.getByRole('dialog', { name: '¿Borrar todos los datos?' });
     await user.click(within(sheet).getByRole('button', { name: 'Borrar todo' }));
     expect(await screen.findByRole('button', { name: 'Comenzar' })).toBeInTheDocument();

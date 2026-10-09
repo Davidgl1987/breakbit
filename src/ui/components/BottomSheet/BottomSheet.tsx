@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent, useId, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom';
 import { useT } from '@/i18n/useT';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
-import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import { useLeaveAnimation } from '@/ui/motion/useLeaveAnimation';
 import styles from './BottomSheet.module.css';
 
@@ -98,7 +98,7 @@ export function BottomSheet({ open, onClose, title, children, actions }: BottomS
             {title}
           </h2>
           <IconButton label={t('redesign.closePanel')} onClick={onClose}>
-            <PixelIcon name="close" size={24} />
+            <LineIcon name="close" size={22} />
           </IconButton>
         </div>
         {children && <div className={styles.body}>{children}</div>}

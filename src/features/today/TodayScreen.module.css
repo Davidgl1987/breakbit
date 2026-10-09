@@ -7,14 +7,15 @@
 /* The greeting, and the workday's clock at its right. */
 .greetingRow {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
 }
 
 .greeting {
   display: grid;
-  gap: var(--space-1);
+  gap: 8px;
+  min-width: 0;
 }
 
 .clock {
@@ -26,14 +27,20 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: inherit;
-  font-size: inherit;
+  color: var(--color-primary-hover);
+  font-size: var(--text-xs);
+  max-width: 115px;
+  text-transform: uppercase;
+  font-weight: 600;
+  text-align: right;
+  line-height: 1.5;
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: clamp(1.65rem, 7vw, 2.2rem);
-  font-weight: var(--weight-black);
+  font-size: clamp(0.85rem, 3.4vw, 1.05rem);
+  line-height: 1.65;
+  font-weight: 400;
 }
 
 .subtitle,
@@ -135,16 +142,6 @@
 }
 
 /* The main room scene holds the pause; the rest of the day reads as a quiet list. */
-.eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 6px 16px;
-  color: var(--color-primary-hover);
-  text-transform: uppercase;
-  font-size: var(--text-xs);
-  letter-spacing: 0.12em;
-}
 
 .subtitle {
   font-size: var(--text-sm);
@@ -155,6 +152,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   box-shadow: none;
+  border-radius: var(--radius-xl);
 }
 .heroCard .cardTitle {
   justify-self: start;
@@ -174,7 +172,9 @@
 }
 .heroBody .big {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.6;
 }
 .heroBody .small {
   color: var(--color-text);
@@ -209,7 +209,9 @@
 
 .cardTitle {
   font-family: var(--font-display);
-  font-size: var(--text-xl);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  font-weight: 400;
 }
 .progressFoot {
   display: flex;
@@ -237,18 +239,14 @@
 .activityCard .halfBody {
   padding-right: 65px;
 }
-.activityCard > :is(a, button) {
-  justify-self: start;
-  width: auto;
-}
 .watermark {
   position: absolute;
   right: -8px;
-  top: 18px;
+  top: 10px;
   z-index: -1;
-  opacity: 0.18;
-  transform: rotate(-12deg);
-  mask-image: linear-gradient(135deg, #000, transparent 90%);
+  opacity: 0.23;
+  transform: rotate(-8deg);
+  mask-image: linear-gradient(120deg, transparent 8%, #000 45%, transparent 100%);
 }
 
 .duration {
@@ -256,8 +254,8 @@
   color: var(--color-text-muted);
 }
 .watermark img {
-  width: 96px;
-  height: 96px;
+  width: 120px;
+  height: 120px;
 }
 @media (max-width: 365px) {
   .heroBody {
@@ -266,4 +264,93 @@
   .heroCard .big {
     max-width: calc(100% - 50px);
   }
+}
+
+.activityTitle {
+  padding-right: 54px;
+  font-size: var(--text-lg);
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.activityZones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-right: 60px;
+}
+.activityBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+.activityBottom > .small {
+  flex: 1 1 auto;
+}
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+.activityBottom > .actionLink {
+  margin-left: auto;
+}
+
+.meetings {
+  display: grid;
+  gap: 12px;
+  padding: 8px 0;
+}
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.headingLink {
+  font: inherit;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.meetingRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.meetingTexts {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.dangerLink {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--color-danger-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.activityCard .halfBody > span {
+  justify-self: start;
 }

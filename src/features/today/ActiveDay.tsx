@@ -15,10 +15,9 @@ import { PauseSheet } from '@/features/day/PauseSheet';
 import { useDayPlanner } from '@/features/day/useDayPlanner';
 import { useT } from '@/i18n/useT';
 import { useAppStore } from '@/state/store';
-import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { Card } from '@/ui/components/Card/Card';
-import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import { DayProgressCard } from './DayProgressCard';
 import { MeetingsSheet } from './MeetingsSheet';
 import { DayTimelineCard } from './DayTimelineCard';
@@ -81,8 +80,8 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
               {over ? t('today.states.overBody') : t('today.states.endingSoonBody')}
             </p>
           </div>
-          <Link to={ROUTES.dayEnd} className={buttonClassName({ size: 'lg', fullWidth: true })}>
-            {t('today.states.closeDay')}
+          <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
+            {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
           </Link>
         </Card>
       ) : null}
@@ -90,21 +89,48 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
       <DayProgressCard progress={progress} date={plan.date} />
       {!over && <MainActivityTodayCard plan={plan} now={now} onEdit={() => setSheet('activity')} />}
       {!over && (
-        <ListRow
-          leading={<PixelIcon name="meeting" size={32} />}
-          title={t('today.meetings.row')}
-          subtitle={
-            plan.meetings.length
-              ? plan.meetings.map((meeting) => `${meeting.start}–${meeting.end}`).join(' · ')
-              : t('today.meetings.none')
-          }
-          onClick={() => setSheet('meetings')}
-        />
+        <section className={styles.meetings}>
+          <div className={styles.sectionHead}>
+            <h3 className={styles.cardTitle}>
+              <button className={styles.headingLink} onClick={() => setSheet('meetings')}>
+                {t('today.meetings.row')}
+              </button>
+            </h3>
+            <button className={styles.actionLink} onClick={() => setSheet({ meeting: 'new' })}>
+              {t('meetings.add')} +
+            </button>
+          </div>
+          {plan.meetings.length === 0 ? (
+            <p className={styles.small}>{t('today.meetings.none')}</p>
+          ) : (
+            plan.meetings.map((meeting) => (
+              <div className={styles.meetingRow} key={meeting.id}>
+                <PixelIcon name="meeting" size={32} />
+                <div className={styles.meetingTexts}>
+                  <strong>
+                    {meeting.start}–{meeting.end}
+                  </strong>
+                  <span className={styles.small}>
+                    {meeting.canMove ? t('dayStart.canMove') : t('today.meetings.noMove')}
+                  </span>
+                </div>
+                <button
+                  className={styles.actionLink}
+                  aria-label={`${t('common.edit')} ${meeting.start}–${meeting.end}`}
+                  onClick={() => setSheet({ meeting: meeting.id })}
+                >
+                  {t('common.edit')} <LineIcon name="chevron-right" size={18} />
+                </button>
+              </div>
+            ))
+          )}
+          <p className={styles.small}>{t('today.meetings.hint')}</p>
+        </section>
       )}
       <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
       {!over && !endingSoon && (
-        <Link to={ROUTES.dayEnd} className={buttonClassName({ variant: 'ghost', fullWidth: true })}>
-          {t('today.states.closeDay')}
+        <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
+          {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
         </Link>
       )}
       {sheet === 'activity' && main && (

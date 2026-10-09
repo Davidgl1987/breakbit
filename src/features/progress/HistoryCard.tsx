@@ -31,7 +31,7 @@ export function HistoryCard({ results }: { results: readonly WeeklyResult[] }) {
       ) : (
         <details className={styles.archive}>
           <summary>{t('redesign.history')}</summary>
-          <ul className={styles.list}>
+          <ul className={`${styles.list} ${styles.rowList}`}>
             {[...results]
               .reverse()
               .slice(0, SHOWN)

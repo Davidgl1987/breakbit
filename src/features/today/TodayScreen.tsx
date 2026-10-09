@@ -24,15 +24,12 @@ export function TodayScreen() {
     <>
       <header className={styles.header}>
         <Wordmark />
-        <div className={styles.eyebrow}>
-          <span>{t('redesign.jornada')}</span>
-          {state.kind === 'active' && <DayClock plan={state.plan} now={now} />}
-        </div>
         <div className={styles.greetingRow}>
           <div className={styles.greeting}>
             <h1 className={styles.title}>{t('redesign.heading')}</h1>
             <p className={styles.subtitle}>{formatLongDate(locale, date)}</p>
           </div>
+          {state.kind === 'active' && <DayClock plan={state.plan} now={now} />}
         </div>
       </header>
 

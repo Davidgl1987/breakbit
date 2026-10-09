@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { shellFiles } from './swPrecache';
 
 describe('offline shell', () => {
-  it('keeps the page, built code and styles, woff2 fonts, the manifest and the icons', () => {
+  it('keeps the page, built code and styles, local woff2 and ttf fonts, the manifest and the icons', () => {
     expect(
       shellFiles([
         'index.html',
@@ -11,6 +11,7 @@ describe('offline shell', () => {
         'assets/index-abc.js',
         'assets/index-abc.css',
         'assets/nunito-400.woff2',
+        'assets/PressStart2P-Regular.ttf',
         'assets/nunito-400.woff',
         'assets/index-abc.js.map',
         'app-icons/icon-192.png',
@@ -23,6 +24,7 @@ describe('offline shell', () => {
     ).toEqual([
       '/',
       '/app-icons/icon-192.png',
+      '/assets/PressStart2P-Regular.ttf',
       '/assets/index-abc.css',
       '/assets/index-abc.js',
       '/assets/nunito-400.woff2',

@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { mainPath } from '@/app/routes';
+import { mainDonePath, mainPath } from '@/app/routes';
 import { mainActivityOf } from '@/domain/day/today';
 import { isMainRunning, mainElapsedSec } from '@/domain/main/session';
 import { isOpen } from '@/domain/pause/window';
@@ -7,13 +7,12 @@ import type { DayPlan, Instant } from '@/domain/types';
 import { mainActivityInfo } from '@/features/day/mainActivity';
 import { formatClock } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
-import { buttonClassName } from '@/ui/components/Button/buttonStyles';
-import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
 import { StatusBadge } from '@/ui/components/StatusBadge/StatusBadge';
-import { mainActivityIcon, equipmentIcon, equipmentName } from '@/features/day/catalogDisplay';
+import { mainActivityIcon, areaIcon, areaName } from '@/features/day/catalogDisplay';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import styles from './TodayScreen.module.css';
 
 /**
@@ -60,23 +59,20 @@ export function MainActivityTodayCard({
       as="section"
       variant={due || started ? 'tinted' : 'standard'}
       className={styles.activityCard}
+      aria-label={t('today.mainActivity')}
     >
-      {info.equipment[0] && (
-        <span className={styles.watermark}>
-          <PixelIcon
-            name={equipmentIcon(info.equipment[0])}
-            size={48}
-            label={equipmentName(info.equipment[0], locale)}
-          />
-        </span>
-      )}
-      <h3 className={styles.cardTitle}>{t('today.mainActivity')}</h3>
+      <span className={styles.watermark} aria-hidden="true">
+        <PixelIcon name={mainActivityIcon(info.id)} size={48} />
+      </span>
+      <h3 className={styles.activityTitle}>{info.name[locale]}</h3>
+      <div className={styles.activityZones}>
+        {info.areas?.map((area) => (
+          <span key={area} title={areaName(area, locale)}>
+            <PixelIcon name={areaIcon(area)} size={24} label={areaName(area, locale)} />
+          </span>
+        ))}
+      </div>
       <div className={styles.halfBody}>
-        <PixelIcon name={mainActivityIcon(info.id)} size={32} />
-        {!done && <span className={styles.big}>{when}</span>}
-        <span className={styles.small}>
-          {info.name[locale]} · {t('common.minutes', { count: totalMin })}
-        </span>
         {started && (
           <>
             <span className={styles.small}>{progress}</span>
@@ -85,24 +81,21 @@ export function MainActivityTodayCard({
         )}
         {done && <StatusBadge status="completed" />}
       </div>
-      {!done && !started && !due ? (
-        <Button variant="secondary" size="sm" onClick={onEdit}>
-          {t('today.seeActivity')}
-        </Button>
-      ) : (
-        !done && (
-          <Link
-            to={mainPath(main.id)}
-            className={buttonClassName({
-              variant: due || started ? 'primary' : 'secondary',
-              size: 'sm',
-              fullWidth: true,
-            })}
-          >
-            {started ? t('pause.continue') : due ? t('pause.go') : t('today.seeActivity')}
+      <div className={styles.activityBottom}>
+        <span className={styles.small}>
+          {when} · {t('common.minutes', { count: totalMin })}
+        </span>
+        {!done && !started && !due ? (
+          <button className={styles.actionLink} onClick={onEdit}>
+            {t('today.seeActivity')} <LineIcon name="chevron-right" size={18} />
+          </button>
+        ) : (
+          <Link to={done ? mainDonePath(main.id) : mainPath(main.id)} className={styles.actionLink}>
+            {done ? t('today.seeActivity') : started ? t('pause.continue') : t('pause.go')}
+            <LineIcon name="chevron-right" size={18} />
           </Link>
-        )
-      )}
+        )}
+      </div>
     </Card>
   );
 }

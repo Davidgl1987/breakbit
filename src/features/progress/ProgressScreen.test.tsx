@@ -99,6 +99,23 @@ describe('Progress with some history', () => {
   });
 
   it('lists favourites and expands the least liked exercises', async () => {
+    // Isolate these two votes from the rated demonstration history.
+    useAppStore.setState((state) => ({
+      days: Object.fromEntries(
+        Object.entries(state.days).map(([date, day]) => [
+          date,
+          day?.plan
+            ? {
+                ...day,
+                plan: {
+                  ...day.plan,
+                  activities: day.plan.activities.map((item) => ({ ...item, rating: undefined })),
+                },
+              }
+            : day,
+        ]),
+      ),
+    }));
     // Two pauses of the latest day with a plan: one liked, one disliked.
     const days = store().days;
     const date = (Object.keys(days) as DateKey[])
