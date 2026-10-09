@@ -39,45 +39,32 @@ afterEach(() => {
 });
 
 describe('Settings', () => {
-  it('sums up the profile as in the onboarding summary, each part opening its editor', () => {
-    ui();
-    expect(screen.getByRole('heading', { level: 1, name: 'Ajustes' })).toBeInTheDocument();
-    const section = (name: string) => screen.getByRole('heading', { name }).closest('section')!;
-    const editLink = (name: string) =>
-      within(section(name)).getByRole('link', { name: `Editar ${name}` });
-
-    expect(section('Jornada habitual')).toHaveTextContent('lun · mar · mié · jue · vie');
-    expect(section('Jornada habitual')).toHaveTextContent('09:00–17:00');
-    expect(section('Jornada habitual')).toHaveTextContent('Descanso 11:00–11:15');
-    expect(section('Jornada habitual')).toHaveTextContent('Comida 14:00–15:00');
-    expect(editLink('Jornada habitual')).toHaveAttribute('href', settingsPath('schedule'));
-
-    expect(section('Molestias prioritarias')).toHaveTextContent(
-      'Ninguna en especial: pausas variadas',
-    );
-    expect(editLink('Molestias prioritarias')).toHaveAttribute('href', settingsPath('discomfort'));
-
-    expect(section('Equipamiento disponible')).toHaveTextContent(
-      'Sin material: movimientos suaves y caminar',
-    );
-    expect(editLink('Equipamiento disponible')).toHaveAttribute('href', settingsPath('equipment'));
-
-    expect(section('Intensidad')).toHaveTextContent(/Normal · \d+ pausas previstas · ~\d+ min/);
-    expect(editLink('Intensidad')).toHaveAttribute('href', settingsPath('intensity'));
+  it('opens the shared onboarding forms from compact routine rows', async () => {
+    const { user } = ui();
+    const routine = screen.getByRole('heading', { name: 'Tu rutina' }).closest('section')!;
+    expect(routine).toHaveTextContent('09:00–17:00');
+    for (const label of [
+      'Jornada habitual',
+      'Molestias prioritarias',
+      'Equipamiento disponible',
+      'Intensidad',
+    ]) {
+      await user.click(within(routine).getByRole('button', { name: `Editar ${label}` }));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Guardar' })).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Cerrar panel' }));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    }
   });
 
-  it('shows the rated areas as in the onboarding summary: icon, name and value', () => {
+  it('summarises priority areas in order and edits their exact values in the panel', async () => {
     store().updateSettings({ discomfort: { neck: 2, lower_back: 4 } });
-    ui();
-    const discomfort = screen
-      .getByRole('heading', { name: 'Molestias prioritarias' })
-      .closest('section')!;
-    const tags = within(discomfort).getAllByRole('listitem');
-    // Most bothersome first.
-    expect(tags.map((tag) => tag.textContent)).toEqual([
-      'Zona lumbar4nivel 4 de 5',
-      'Cuello2nivel 2 de 5',
-    ]);
+    const { user } = ui();
+    const row = screen.getByRole('button', { name: 'Editar Molestias prioritarias' });
+    expect(row).toHaveTextContent('Zona lumbar, Cuello');
+    await user.click(row);
+    expect(screen.getByRole('slider', { name: 'Cuello' })).toHaveValue('2');
+    expect(screen.getByRole('slider', { name: 'Zona lumbar' })).toHaveValue('4');
   });
 
   it('edits the usual workday from the next one on, leaving today as it is', async () => {
@@ -166,7 +153,7 @@ describe('Settings', () => {
     expect(store().settings.equipment).toEqual(['mat']);
     expect(screen.getByText('Esterilla')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('link', { name: /Intensidad/ }));
+    await user.click(screen.getByRole('button', { name: /Editar Intensidad/ }));
     await user.click(screen.getByRole('radio', { name: 'Activo' }));
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
     expect(store().settings.intensity).toBe('active');

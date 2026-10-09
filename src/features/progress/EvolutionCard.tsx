@@ -7,6 +7,7 @@ import { startOfWeek } from '@/domain/time';
 import { useT } from '@/i18n/useT';
 import { useLevel, useStreak } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
+import { AvatarScene } from '@/ui/game/AvatarScene/AvatarScene';
 import { Card } from '@/ui/components/Card/Card';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
 import { EvolutionStrip } from '@/ui/game/EvolutionStrip/EvolutionStrip';
@@ -29,7 +30,6 @@ export function EvolutionCard({ history }: { history: HistoryInput }) {
   const outlook = weekOutlook(startOfWeek(history.today), history);
   const top = phase === WEEK.maxPhase;
   const weeks = goodWeekStreak(results);
-  const target = outlook.good + outlook.needed;
 
   const message = (() => {
     switch (outlook.status) {
@@ -47,68 +47,68 @@ export function EvolutionCard({ history }: { history: HistoryInput }) {
   })();
 
   return (
-    <Card as="section" className={styles.card}>
-      <div className={styles.head}>
-        <div className={styles.headTexts}>
-          <h2 className={styles.title}>{t('progress.evolution.title')}</h2>
-          <p className={styles.muted}>{t('progress.evolution.caption')}</p>
-        </div>
-        <div className={styles.figures}>
-          <span className={styles.figure}>
-            {t('progress.evolution.streak')}
-            <span className={styles.figureValue}>
-              <PixelIcon name="streak" size={16} />
-              {t('progress.evolution.streakDays', { count: streak })}
-            </span>
+    <section className={styles.evolution}>
+      <Card as="section" className={styles.evolutionCard}>
+        <AvatarScene>
+          <h2 className={styles.eyebrow}>{t('progress.evolution.title')}</h2>
+          <p className={styles.phase}>
+            {t('evolution.phaseLabel', { phase, name: t(`evolution.phases.p${phase}`) })}
+          </p>
+          <span className={styles.line}>
+            <PixelIcon name="streak" size={24} />
+            {t('progress.evolution.streak')} ·{' '}
+            {t('progress.evolution.streakDays', { count: streak })}
           </span>
-          <span className={styles.figure}>
-            {t('progress.evolution.totalXp')}
-            <span className={styles.figureValue}>
-              <PixelIcon name="xp" size={16} />
-              {level.total.toLocaleString(locale)}
-            </span>
-          </span>
-        </div>
-      </div>
-
-      <EvolutionStrip current={phase} />
-
-      <div className={styles.outlook}>
-        {outlook.status !== 'short' && (
-          <>
+        </AvatarScene>
+        <div className={styles.evolutionFoot}>
+          {outlook.status !== 'short' && (
             <p className={styles.line}>
               {t('progress.evolution.thisWeek', { good: outlook.good, planned: outlook.planned })}
             </p>
-            <ProgressBar
-              value={Math.min(outlook.good, target)}
-              max={Math.max(target, 1)}
-              label={t('progress.evolution.thisWeek', {
-                good: outlook.good,
-                planned: outlook.planned,
-              })}
-            />
-          </>
-        )}
-        <p className={styles.muted}>{message}</p>
-        {weeks > 0 && (
-          <p className={styles.line}>
-            <PixelIcon name="streak" size={24} />
-            {t('progress.evolution.weeks', { count: weeks })}
-          </p>
-        )}
-      </div>
-
-      {(top || unlocked.length > 0) && (
-        <RoomScene
-          label={t('progress.evolution.room')}
-          items={ROOM_ITEMS.filter((item) => unlocked.includes(item.id)).map((item) => ({
-            id: item.id,
-            name: item.name[locale],
-            icon: roomItemIcon(item.id),
-          }))}
-          capacity={ROOM_ITEMS.length}
+          )}
+          <p className={styles.muted}>{message}</p>
+          {weeks > 0 && (
+            <p className={styles.muted}>{t('progress.evolution.weeks', { count: weeks })}</p>
+          )}
+        </div>
+      </Card>
+      <div className={styles.xp}>
+        <div className={styles.head}>
+          <strong>{t('today.level', { level: level.level })}</strong>
+          <span className={styles.muted}>
+            {t('today.xpOf', { current: level.current, total: level.needed })}
+          </span>
+        </div>
+        <ProgressBar
+          value={level.current}
+          max={level.needed}
+          label={t('today.level', { level: level.level })}
         />
-      )}
-    </Card>
+        <div className={styles.head}>
+          <span className={styles.muted}>
+            {t('redesign.xpMissing', { xp: level.needed - level.current, level: level.level + 1 })}
+          </span>
+          <span className={styles.muted}>
+            {t('progress.evolution.totalXp')}: {level.total.toLocaleString(locale)}
+          </span>
+        </div>
+      </div>
+      <details className={styles.rewards}>
+        <summary>{t('redesign.phases')}</summary>
+        <EvolutionStrip current={phase} />
+
+        {(top || unlocked.length > 0) && (
+          <RoomScene
+            label={t('progress.evolution.room')}
+            items={ROOM_ITEMS.filter((item) => unlocked.includes(item.id)).map((item) => ({
+              id: item.id,
+              name: item.name[locale],
+              icon: roomItemIcon(item.id),
+            }))}
+            capacity={ROOM_ITEMS.length}
+          />
+        )}
+      </details>
+    </section>
   );
 }

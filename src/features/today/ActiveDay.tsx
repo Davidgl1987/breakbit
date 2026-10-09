@@ -5,9 +5,10 @@ import { CATALOG } from '@/content/catalog';
 import { DAY_END_LEAD_MIN } from '@/domain/config';
 import { mainChoiceOf } from '@/domain/day/planDay';
 import { dayProgress } from '@/domain/day/progress';
-import { equipmentInPlan, nextPause, workEnd } from '@/domain/day/today';
+import { mainActivityOf, nextPause, workEnd } from '@/domain/day/today';
 import type { DayPlan, Instant, Meeting } from '@/domain/types';
-import { AtHandRow } from '@/features/day/AtHandRow';
+import { MainActivityPreviewSheet } from '@/features/day/MainActivityPreviewSheet';
+import { MainActivitySheet } from '@/features/day/MainActivitySheet';
 import { MeetingSheet } from '@/features/day/MeetingSheet';
 import { nextMeetingId } from '@/features/day/meetings';
 import { PauseSheet } from '@/features/day/PauseSheet';
@@ -26,7 +27,7 @@ import { NextPauseCard } from './NextPauseCard';
 import styles from './TodayScreen.module.css';
 
 /** The pause's steps, today's meetings, or a meeting being added or changed. */
-type Sheet = 'pause' | 'meetings' | { meeting: string | 'new' } | null;
+type Sheet = 'pause' | 'activity' | 'main' | 'meetings' | { meeting: string | 'new' } | null;
 
 /**
  * Today under way: time left, next pause, the main activity, gear, progress and timeline.
@@ -59,8 +60,8 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
       : undefined;
 
   const next = nextPause(plan, now);
+  const main = mainActivityOf(plan);
   const progress = dayProgress(plan, CATALOG);
-  const gear = equipmentInPlan(plan, CATALOG);
   const minutesLeft = (workEnd(plan) - now) / 60_000;
   // From 10 min before the end, the way to close the day.
   const endingSoon = minutesLeft <= DAY_END_LEAD_MIN;
@@ -84,29 +85,47 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
             {t('today.states.closeDay')}
           </Link>
         </Card>
-      ) : (
+      ) : null}
+      {!over && <NextPauseCard pause={next} now={now} onSee={() => setSheet('pause')} />}
+      <DayProgressCard progress={progress} date={plan.date} />
+      {!over && <MainActivityTodayCard plan={plan} now={now} onEdit={() => setSheet('activity')} />}
+      {!over && (
         <ListRow
           leading={<PixelIcon name="meeting" size={32} />}
           title={t('today.meetings.row')}
           subtitle={
-            plan.meetings.length > 0
+            plan.meetings.length
               ? plan.meetings.map((meeting) => `${meeting.start}–${meeting.end}`).join(' · ')
               : t('today.meetings.none')
           }
           onClick={() => setSheet('meetings')}
         />
       )}
-
-      {!over && (
-        <div className={styles.pair}>
-          <NextPauseCard pause={next} now={now} onSee={() => setSheet('pause')} />
-          <MainActivityTodayCard plan={plan} now={now} />
-        </div>
-      )}
-
-      {gear.length > 0 && <AtHandRow equipment={gear} />}
-      <DayProgressCard progress={progress} />
       <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
+      {!over && !endingSoon && (
+        <Link to={ROUTES.dayEnd} className={buttonClassName({ variant: 'ghost', fullWidth: true })}>
+          {t('today.states.closeDay')}
+        </Link>
+      )}
+      {sheet === 'activity' && main && (
+        <MainActivityPreviewSheet
+          activity={main}
+          onEdit={() => setSheet('main')}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'main' && (
+        <MainActivitySheet
+          schedule={plan.schedule}
+          meetings={plan.meetings}
+          current={mainChoiceOf(plan)}
+          onClose={() => setSheet(null)}
+          onSave={(choice) => {
+            updateDayPlan(planner.changeMain(plan, choice, now));
+            setSheet(null);
+          }}
+        />
+      )}
 
       {sheet === 'pause' && next && (
         <PauseSheet content={next.content} slot={next.slot} onClose={() => setSheet(null)} />

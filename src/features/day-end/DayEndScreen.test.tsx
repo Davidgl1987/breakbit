@@ -61,10 +61,14 @@ beforeEach(() => {
 afterEach(() => clock.setOffset(0));
 
 describe('end of the day on Today', () => {
-  it('offers to close the day from 10 minutes before it ends', async () => {
+  it('keeps closing available and highlights it near the end', async () => {
     setUp({}, '16:40');
     ui('/');
-    expect(screen.queryByRole('link', { name: 'Cerrar jornada' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Cerrar jornada' })).toHaveAttribute(
+      'href',
+      ROUTES.dayEnd,
+    );
+    expect(screen.queryByText('Tu jornada termina a las 17:00')).not.toBeInTheDocument();
     await act(() => clock.travelTo(at('16:51')));
     expect(screen.getByText('Tu jornada termina a las 17:00')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Cerrar jornada' })).toHaveAttribute(

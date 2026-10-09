@@ -53,10 +53,7 @@ export function NotificationsCard() {
 
   return (
     <Card as="section" className={styles.card}>
-      <h2 className={styles.cardTitle}>
-        <PixelIcon name="bell" size={24} />
-        {t('settings.notifications')}
-      </h2>
+      <h2 className={styles.cardTitle}>{t('settings.notifications')}</h2>
       {on ? (
         <div className={styles.toggles}>
           {ALERTS.map((alert) => (

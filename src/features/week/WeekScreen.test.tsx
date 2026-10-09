@@ -50,7 +50,9 @@ describe('weekly result', () => {
     expect(within(strip).getByRole('listitem', { current: 'step' })).toHaveTextContent('Erguido');
 
     await user.click(screen.getByRole('button', { name: 'Seguir' }));
-    expect(screen.getByRole('heading', { level: 1, name: '¡Hola!' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Muévete a tu ritmo' }),
+    ).toBeInTheDocument();
     expect(screen.queryByText('¡Semana buena!')).not.toBeInTheDocument();
     expect(store().progress.lastSeenWeek).toBe('2026-W41');
   });
@@ -86,6 +88,8 @@ describe('weekly result', () => {
   it('sends unknown weeks back to Today', () => {
     weekWith(4);
     renderWithRouter(<AppRoutes />, { route: weekPath('2026-W01') });
-    expect(screen.getByRole('heading', { level: 1, name: '¡Hola!' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Muévete a tu ritmo' }),
+    ).toBeInTheDocument();
   });
 });

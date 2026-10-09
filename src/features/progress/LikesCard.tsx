@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { CATALOG } from '@/content/catalog';
 import {
   favouriteExercises,
@@ -30,29 +31,54 @@ export function LikesCard({ stats }: { stats: readonly ExerciseLikes[] }) {
       {groups.map(
         (group) =>
           group.items.length > 0 && (
-            <div key={group.key} className={styles.likesGroup}>
-              <h3 className={styles.likesTitle}>{t(`progress.likes.${group.key}`)}</h3>
-              <ul className={styles.list}>
-                {group.items.map((stat) => (
-                  <li key={stat.exerciseId}>
-                    <ListRow
-                      leading={<PixelIcon name={group.icon} size={32} />}
-                      title={name(stat.exerciseId)}
-                      trailing={
-                        <span className={styles.muted}>
-                          {t('progress.likes.votes', {
-                            count: group.key === 'liked' ? stat.liked : stat.disliked,
-                          })}
-                        </span>
-                      }
-                      chevron={false}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Fragment key={group.key}>
+              {group.key === 'disliked' ? (
+                <details className={styles.likesGroup}>
+                  <summary>{t('progress.likes.disliked')}</summary>
+                  <RatingList group={group} name={name} />
+                </details>
+              ) : (
+                <div className={styles.likesGroup}>
+                  <RatingList group={group} name={name} />
+                </div>
+              )}
+            </Fragment>
           ),
       )}
     </Card>
+  );
+}
+
+function RatingList({
+  group,
+  name,
+}: {
+  group: {
+    key: 'liked' | 'disliked';
+    icon: 'mood_great' | 'mood_bad';
+    items: readonly ExerciseLikes[];
+  };
+  name: (id: string) => string;
+}) {
+  const { t } = useT();
+  return (
+    <ul className={styles.list}>
+      {group.items.map((stat) => (
+        <li key={stat.exerciseId}>
+          <ListRow
+            leading={<PixelIcon name={group.icon} size={24} />}
+            title={name(stat.exerciseId)}
+            trailing={
+              <span className={styles.muted}>
+                {t('progress.likes.votes', {
+                  count: group.key === 'liked' ? stat.liked : stat.disliked,
+                })}
+              </span>
+            }
+            chevron={false}
+          />
+        </li>
+      ))}
+    </ul>
   );
 }

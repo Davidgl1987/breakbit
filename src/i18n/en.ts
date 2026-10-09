@@ -1,6 +1,24 @@
 import type { Messages } from './es';
 
 export const en: Messages = {
+  redesign: {
+    history: 'Browse history',
+    jornada: 'Your workday',
+    remaining: '{time} left',
+    heading: 'Move at your own pace',
+    closePanel: 'Close panel',
+    noMaterial: 'No equipment',
+    details: 'More about this week',
+    xpMissing: '{xp} XP to level {level}',
+    phases: 'View phases and rewards',
+    appSettings: 'The app',
+    routine: 'Your routine',
+    comparison: 'Compared with last week',
+    comparable: 'Comparing the same weekdays',
+    noComparison: 'No workdays from last week to compare yet.',
+    blank: 'No record / future',
+    heatLegend: 'Each row is a week. Greener = more completed breaks.',
+  },
   app: {
     name: 'Breakbit',
     tagline: 'Small breaks, better habits.',
@@ -350,7 +368,7 @@ export const en: Messages = {
       },
     },
     week: {
-      title: 'Weekly summary',
+      title: 'This week',
       completed: 'Breaks done',
       firstTry: 'First try',
       movement: 'Moving',
@@ -374,7 +392,7 @@ export const en: Messages = {
       empty: "Once you do your breaks, you'll see here which areas you move most.",
     },
     likes: {
-      title: 'Your exercises',
+      title: 'Your favourites',
       caption: 'From how you rate your breaks when you finish them',
       liked: 'You like most',
       disliked: 'You like least',

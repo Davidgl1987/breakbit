@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useT } from '@/i18n/useT';
 import { cx } from '@/ui/cx';
 import styles from './Heatmap.module.css';
 
@@ -30,14 +30,10 @@ const LEVEL_CLASS = {
 
 /** Consistency at a glance: a square per day, darker the more of it was done. */
 export function Heatmap({ label, weeks, dayLabels, legend }: HeatmapProps) {
+  const { t } = useT();
   return (
     <div>
-      <div
-        role="img"
-        aria-label={label}
-        className={styles.heatmap}
-        style={{ '--weeks': weeks.length } as CSSProperties}
-      >
+      <div role="img" aria-label={label} className={styles.heatmap}>
         {dayLabels.map((day, index) => (
           <span key={`label-${index}`} className={styles.dayLabel} aria-hidden="true">
             {day}
@@ -53,7 +49,7 @@ export function Heatmap({ label, weeks, dayLabels, legend }: HeatmapProps) {
           )),
         )}
       </div>
-      <div className={styles.legend} aria-hidden="true">
+      <div className={styles.legend}>
         <span>{legend.less}</span>
         <span className={styles.scale}>
           {([0, 1, 2, 3, 4] as const).map((level) => (
@@ -63,6 +59,8 @@ export function Heatmap({ label, weeks, dayLabels, legend }: HeatmapProps) {
         <span>{legend.more}</span>
         <span className={cx(styles.swatch, styles.off)} />
         <span>{legend.off}</span>
+        <span className={cx(styles.swatch, styles.blank)} />
+        <span>{t('redesign.blank')}</span>
       </div>
     </div>
   );

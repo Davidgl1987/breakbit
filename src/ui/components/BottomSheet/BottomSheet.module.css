@@ -50,6 +50,12 @@
   font-size: var(--text-xl);
   font-weight: var(--weight-black);
 }
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
 
 .body {
   color: var(--color-text-muted);
