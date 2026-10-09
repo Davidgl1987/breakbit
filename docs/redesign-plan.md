@@ -34,7 +34,7 @@ Vista previa de desarrollo: http://127.0.0.1:5201/ (datos de ejemplo en un orige
 
 ## Esquinas y ajustes compactos · 9 de octubre
 
-- Menú con Press Start 2P en las pestañas y Chakra Petch en la acción central. Conserva la disposición de tres pestañas y el botón elevado; su contorno sigue ahora pequeños escalones.
+- Menú con Press Start 2P en las pestañas y en la acción central (12 px en Tengo un hueco, comprobado en 320 px). Conserva la disposición de tres pestañas y el botón elevado; su contorno sigue ahora pequeños escalones.
 - Esquinas con recortes cuadrados de 3–6 px en cards, botones, campos, selectores y paneles; indicadores finos con recortes de 1 px. Los navegadores sin `corner-shape` usan esquinas casi rectas de 2 px.
 - Instalar Breakbit es la primera card de Ajustes y sigue ocultándose cuando está instalada.
 - Tus datos comparte el fondo de Instalar Breakbit, reduce espaciado y reúne la protección junto al título. Acerca de Breakbit queda fuera, y Probar sonido usa un enlace visual con área de pulsación de 44 px.
