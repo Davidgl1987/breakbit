@@ -66,7 +66,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await scan('gap proposal');
     // Back to the options, then closed: it returns to Today, where it was opened.
     await page.getByRole('link', { name: 'Volver' }).click();
-    await page.getByRole('link', { name: 'Cerrar' }).click();
+    await page.getByRole('button', { name: 'Cerrar panel' }).click();
     await page.getByRole('button', { name: 'Ver actividad' }).click();
     await scan('main activity preview and editor');
     await page.getByRole('dialog').getByRole('link', { name: 'Empezar' }).click();
