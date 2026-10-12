@@ -6,7 +6,7 @@ import { AVATAR_ART } from './avatarArt';
  * render a placeholder when it has nothing; adding the final art only means adding
  * files and entries here, never touching components.
  */
-export type AvatarPose = 'idle' | 'cheer' | 'celebrate' | 'thumbs_up' | 'demo';
+export type AvatarPose = 'idle' | 'cheer' | 'celebrate' | 'thumbs_up' | 'demo' | 'sleep' | 'rest';
 
 // One 128x128 sprite per phase and pose (imported with scripts/pixel-avatar/import.py).
 const AVATARS: Partial<Record<`${EvolutionPhase}:${AvatarPose}`, string>> = Object.fromEntries(

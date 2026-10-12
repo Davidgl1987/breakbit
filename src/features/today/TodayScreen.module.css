@@ -354,3 +354,77 @@
 .activityCard .halfBody > span {
   justify-self: start;
 }
+
+.cycleStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 8px 0;
+}
+.cycleStats > div {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 4px 16px;
+  border-left: 1px solid var(--color-border);
+}
+.cycleStats > div:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+.cycleStats strong {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  font-weight: 400;
+}
+.cycleStats span {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.nextWorkday {
+  display: grid;
+  gap: 4px;
+  padding: 12px 0;
+}
+.nextDate::first-letter {
+  text-transform: uppercase;
+}
+.nextDate {
+  font-weight: 600;
+}
+.levelStrip {
+  display: grid;
+  gap: 10px;
+  padding: 12px 0;
+}
+.levelStrip .progressFoot {
+  align-items: center;
+}
+.cycleDetails {
+  display: grid;
+  padding: 8px 0;
+}
+.cycleDetails > summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+  min-height: 44px;
+  padding: 10px 0;
+  font-size: var(--text-sm);
+}
+button.dangerLink {
+  border: 0;
+  background: transparent;
+  padding: 8px 0;
+}
+
+.completedActivity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.completedActivity > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}

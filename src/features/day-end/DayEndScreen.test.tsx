@@ -13,7 +13,12 @@ import { SAMPLE_DATE as MONDAY, sampleAt as at, sampleDay } from '@/test/sampleD
 
 const TUESDAY: DateKey = '2026-10-06';
 const store = () => useAppStore.getState();
-const ids = { p0: `${MONDAY}:p0`, p1: `${MONDAY}:p1`, p2: `${MONDAY}:p2`, main: `${MONDAY}:main` };
+const ids = {
+  p0: `${MONDAY}:p0`,
+  p1: `${MONDAY}:p1`,
+  p2: `${MONDAY}:p2`,
+  main: `${MONDAY}:main`,
+};
 const ui = (route: string = ROUTES.dayEnd) =>
   renderWithRouter(
     <>
@@ -82,30 +87,31 @@ describe('Fin de jornada', () => {
   it('celebrates a perfect day with its XP and streak', () => {
     setUp({ done: [ids.p0, ids.p1, ids.p2, ids.main] });
     ui();
-    expect(screen.getByRole('heading', { level: 1, name: 'Fin de jornada' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Así ha ido tu día' }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
-    expect(screen.getByText('¡Buen trabajo hoy!')).toBeInTheDocument();
     expect(screen.getByText('+300 XP')).toBeInTheDocument();
     expect(screen.getByText('¡Día perfecto!')).toBeInTheDocument();
-    expect(screen.getByText('+200 día bueno · +100 día perfecto')).toBeInTheDocument();
+    expect(screen.getByText('+200 día bueno')).toBeInTheDocument();
+    expect(screen.getByText('+100 día perfecto')).toBeInTheDocument();
     expect(screen.getByText('Objetivo diario completado')).toBeInTheDocument();
     expect(screen.getByText('¡Racha mantenida! 1 día seguido')).toBeInTheDocument();
     expect(screen.getByText('3/3 pausas')).toBeInTheDocument();
     expect(screen.getByText('Ninguna perdida')).toBeInTheDocument();
     expect(screen.getByText('3 a la primera')).toBeInTheDocument();
-    expect(screen.getByText(/de movimiento con solo/)).toBeInTheDocument();
+    expect(screen.getByText('Ver todos los detalles')).toBeInTheDocument();
   });
 
   it('says what is missing, plainly', () => {
     // Closing early, before the 16:00 pause.
     setUp({ done: [ids.p0] }, '15:50');
     ui();
-    expect(screen.getByText('Así ha ido tu día.')).toBeInTheDocument();
-    expect(screen.getByText('Hoy te has movido menos de lo previsto')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Así ha ido tu día' })).toBeInTheDocument();
+    expect(screen.queryByText('Hoy te has movido menos de lo previsto')).not.toBeInTheDocument();
     expect(screen.getByText('Objetivo diario pendiente')).toBeInTheDocument();
-    expect(
-      screen.getByText('Te faltan 2 pausas · Te falta la actividad principal'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Te faltan 2 pausas')).toBeInTheDocument();
+    expect(screen.getByText('Te falta la actividad principal')).toBeInTheDocument();
     expect(screen.queryByText(/^\+0 XP$/)).not.toBeInTheDocument();
     expect(screen.queryByText('0 aplazadas')).not.toBeInTheDocument();
     expect(screen.queryByText('0 a la primera')).not.toBeInTheDocument();
@@ -131,7 +137,9 @@ describe('Fin de jornada', () => {
     expect(screen.getByText('+100 pausa')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Volver a lo mío' }));
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Fin de jornada' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Así ha ido tu día' }),
+    ).toBeInTheDocument();
     expect(screen.queryByText('Recupera una pausa')).not.toBeInTheDocument();
     expect(screen.getByText('Objetivo diario completado')).toBeInTheDocument();
     expect(screen.getByText('3/3 pausas')).toBeInTheDocument();
@@ -142,7 +150,7 @@ describe('Fin de jornada', () => {
     const { user } = ui();
     expect(screen.getByText('¿Mañana tienes el mismo horario?')).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: 'Muy bien' }));
-    await user.click(screen.getByRole('radio', { name: 'Sí' }));
+    await user.click(screen.getByRole('radio', { name: 'Mismo horario' }));
     await user.click(screen.getByRole('button', { name: 'Cerrar jornada' }));
 
     expect(store().days[MONDAY]).toMatchObject({
@@ -151,8 +159,9 @@ describe('Fin de jornada', () => {
       nextDayDecision: 'repeat',
     });
     expect(screen.getByRole('status')).toHaveTextContent('Jornada cerrada. ¡Hasta la próxima!');
-    expect(screen.getByText('Día cerrado')).toBeInTheDocument();
-    expect(screen.getByText('Día perfecto · 3/3 pausas · +300 XP')).toBeInTheDocument();
+    expect(screen.getByText('Hoy ya está')).toBeInTheDocument();
+    expect(screen.getByText('3/3 pausas')).toBeInTheDocument();
+    expect(screen.getByText('+300 XP')).toBeInTheDocument();
     // Usual hours: nothing to note on the calendar.
     expect(store().dayOverrides).toEqual({});
   });
@@ -160,7 +169,7 @@ describe('Fin de jornada', () => {
   it('changes the next workday’s hours only', async () => {
     setUp({}, '17:05');
     const { user } = ui();
-    await user.click(screen.getByRole('radio', { name: 'Cambiar' }));
+    await user.click(screen.getByRole('radio', { name: 'Cambiar horario' }));
     const sheet = screen.getByRole('dialog', { name: 'Horario del martes' });
     setTime('Horario', 'Fin', '15:00', sheet);
     await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
@@ -189,7 +198,9 @@ describe('Fin de jornada', () => {
     await user.click(screen.getByRole('button', { name: 'Cerrar jornada' }));
 
     expect(store().dayOverrides[TUESDAY]).toMatchObject({ working: false });
-    expect(store().dayOverrides['2026-10-07' as DateKey]).toMatchObject({ working: false });
+    expect(store().dayOverrides['2026-10-07' as DateKey]).toMatchObject({
+      working: false,
+    });
     expect(store().dayOverrides['2026-10-08' as DateKey]).toBeUndefined();
   });
 
@@ -197,7 +208,9 @@ describe('Fin de jornada', () => {
     setUp({ done: [ids.p0] }, '15:50');
     const { user } = ui();
     await user.click(screen.getByRole('button', { name: 'Cerrar jornada' }));
-    const sheet = screen.getByRole('dialog', { name: '¿Cerrar ya la jornada?' });
+    const sheet = screen.getByRole('dialog', {
+      name: '¿Cerrar ya la jornada?',
+    });
     expect(sheet).toHaveTextContent('Quedan 1 h 10 min de jornada.');
     expect(sheet).toHaveTextContent('Aún tienes 1 pausa por hacer.');
     expect(sheet).toHaveTextContent('Tu actividad principal sigue pendiente.');
@@ -208,11 +221,14 @@ describe('Fin de jornada', () => {
 
     await user.click(screen.getByRole('button', { name: 'Cerrar jornada' }));
     await user.click(
-      within(screen.getByRole('dialog')).getByRole('button', { name: 'Cerrar jornada' }),
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Cerrar jornada',
+      }),
     );
     expect(store().days[MONDAY]?.status).toBe('closed');
     // Not a good day: just the facts.
-    expect(screen.getByText('1/3 pausas · +0 XP')).toBeInTheDocument();
+    expect(screen.getByText('1/3 pausas')).toBeInTheDocument();
+    expect(screen.queryByText('+0 XP')).not.toBeInTheDocument();
   });
 
   it('only offers a short version the activity declares', () => {
@@ -222,7 +238,11 @@ describe('Fin de jornada', () => {
       ...plan,
       activities: plan.activities.map((item) =>
         item.kind === 'main'
-          ? { ...item, content: { kind: 'main', activityId: 'walk_indoors' }, durationSec: 600 }
+          ? {
+              ...item,
+              content: { kind: 'main', activityId: 'walk_indoors' },
+              durationSec: 600,
+            }
           : item,
       ),
     });
@@ -246,7 +266,12 @@ describe('Fin de jornada', () => {
       targetMicroCount: 4,
       activities: [...plan.activities, extra].map((item): ScheduledActivity => {
         if ([ids.p0, ids.p2, ids.main].includes(item.id)) {
-          return { ...item, status: 'completed', startedAt: at('10:00'), completedAt: at('10:01') };
+          return {
+            ...item,
+            status: 'completed',
+            startedAt: at('10:00'),
+            completedAt: at('10:01'),
+          };
         }
         if ([ids.p1, `${MONDAY}:p3`].includes(item.id)) {
           return { ...item, status: 'missed', missReason: 'window_expired' };
@@ -286,6 +311,7 @@ describe('Fin de jornada', () => {
         .xpLedger.map((entry) => entry.key)
         .sort(),
     ).toEqual([`good:${MONDAY}`, `micro:${MONDAY}:p3`].sort());
-    expect(screen.getByText('Día bueno · 3/4 pausas · +300 XP')).toBeInTheDocument();
+    expect(screen.getByText('3/4 pausas')).toBeInTheDocument();
+    expect(screen.getByText('+300 XP')).toBeInTheDocument();
   });
 });
