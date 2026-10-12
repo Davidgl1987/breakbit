@@ -9,7 +9,9 @@ async function recordTransitions(page: Page) {
     new MutationObserver(() => {
       const kind = document.documentElement.dataset.transition;
       if (kind) kinds.push(kind);
-    }).observe(document.documentElement, { attributeFilter: ['data-transition'] });
+    }).observe(document.documentElement, {
+      attributeFilter: ['data-transition'],
+    });
   });
   return () => page.evaluate(() => (window as unknown as { kinds: string[] }).kinds);
 }
@@ -22,7 +24,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
 });
 
-test('tabs slide, "Tengo un hueco" opens from its button and screens rise and drop', async ({
+test('tabs slide and the gap sheet animates without moving the background', async ({
   page,
 }) => {
   const kinds = await recordTransitions(page);
@@ -31,9 +33,9 @@ test('tabs slide, "Tengo un hueco" opens from its button and screens rise and dr
   await page.getByRole('link', { name: 'Progreso' }).click();
   await settled();
   await page.getByRole('link', { name: 'Tengo un hueco' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Tengo un hueco' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Tengo un hueco' })).toBeVisible();
   await settled();
-  await page.getByRole('link', { name: 'Cerrar' }).click();
+  await page.getByRole('button', { name: 'Cerrar panel' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Progreso' })).toBeVisible();
   await settled();
   await page.getByRole('link', { name: 'Hoy', exact: true }).click();
@@ -43,7 +45,7 @@ test('tabs slide, "Tengo un hueco" opens from its button and screens rise and dr
   await page.getByRole('button', { name: 'Cerrar panel' }).click();
   await settled();
 
-  expect(await kinds()).toEqual(['slide-forward', 'gap-open', 'gap-close', 'slide-back']);
+  expect(await kinds()).toEqual(['slide-forward', 'slide-back']);
 });
 
 test('a sheet slides up and back down', async ({ page }) => {
@@ -61,6 +63,9 @@ test('with reduced motion, screens just change', async ({ page }) => {
   const kinds = await recordTransitions(page);
   await page.getByRole('link', { name: 'Progreso' }).click();
   await page.getByRole('link', { name: 'Tengo un hueco' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Tengo un hueco' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Tengo un hueco' })).toBeVisible();
   expect(await kinds()).toEqual([]);
+  await page.getByRole('link', { name: /^3 minutos/ }).click();
+  // Leaving the sheet must unlock the root before the proposal receives focus.
+  await expect(page.getByRole('heading', { level: 1, name: 'Tengo un hueco' })).toBeFocused();
 });

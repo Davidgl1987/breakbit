@@ -1,18 +1,25 @@
 import { useMemo, useState } from 'react';
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { mainPath, pausePlayPath, ROUTES } from '@/app/routes';
 import { CATALOG } from '@/content/catalog';
 import { GAP, XP } from '@/domain/config';
 import { isGapOption, proposeGap, type GapOption, type GapProposal } from '@/domain/gap/gap';
 import { isMainRunning } from '@/domain/main/session';
 import type { DateKey, DayPlan } from '@/domain/types';
-import { ActivityHero } from '@/features/day/ActivityHero';
+import {
+  areaIcon,
+  areaName,
+  equipmentIcon,
+  equipmentName,
+  mainActivityIcon,
+} from '@/features/day/catalogDisplay';
+import { contentItems } from '@/features/day/contentItems';
 import { contentName } from '@/features/day/contentName';
 import { ExerciseDetails } from '@/features/day/ExerciseDetails';
 import { mainActivityInfo } from '@/features/day/mainActivity';
 import { PauseContentView } from '@/features/day/PauseContentView';
 import { useToday } from '@/features/day/useToday';
-import { formatClock } from '@/i18n/translate';
+import { formatClock, formatSeconds } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
@@ -20,12 +27,11 @@ import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
-import { Tag } from '@/ui/components/Tag/Tag';
-import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
-import type { IconName } from '@/ui/icons/iconNames';
+import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
+import { gapReturnPath } from './gapReturn';
 import styles from './GapScreen.module.css';
 
 /** The most evolved avatar shows every exercise (one set of art for all phases). */
@@ -75,15 +81,34 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
     [plan, option, settings, ledger, date, extras, another],
   );
 
-  const back = (
-    <IconButton label={t('common.back')} to={ROUTES.gap} state={routerState}>
-      <LineIcon name="back" size={22} />
-    </IconButton>
+  const top = (
+    <div className={styles.top}>
+      <Link
+        to={ROUTES.gap}
+        state={routerState}
+        replace
+        className={styles.back}
+        aria-label={t('common.back')}
+      >
+        <LineIcon name="back" size={22} /> {t('gap.preview.time')}
+      </Link>
+      <IconButton label={t('common.close')} to={gapReturnPath(routerState)}>
+        <LineIcon name="close" size={22} />
+      </IconButton>
+    </div>
+  );
+  const header = (
+    <header className={styles.header}>
+      <h1>{t('gap.title')}</h1>
+    </header>
   );
   if (!proposal) {
     return (
-      <FlowLayout top={back} header={null}>
+      <FlowLayout top={top} header={header}>
         <p className={styles.muted}>{t('gap.none')}</p>
+        <Link to={ROUTES.gap} state={routerState} replace className={styles.back}>
+          <LineIcon name="back" size={22} /> {t('gap.preview.time')}
+        </Link>
       </FlowLayout>
     );
   }
@@ -105,95 +130,161 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
       if (id) navigate(pausePlayPath(id));
     });
 
+  const items = contentItems(content.content);
+  const areas = [...new Set(main ? main.areas : items.flatMap(({ exercise }) => exercise.areas))];
+  const equipment = [
+    ...new Set(main ? main.equipment : items.flatMap(({ exercise }) => exercise.equipment)),
+  ];
+  const duration = formatSeconds(content.durationSec);
+  const selectedSeconds = { m1: 60, m3: 180, m5: 300, m10: 600 }[option];
+  const mismatch =
+    proposal.kind === 'due' &&
+    (option === 'm10'
+      ? content.durationSec < selectedSeconds
+      : content.durationSec !== selectedSeconds);
+  const noXp = proposal.kind === 'extra' && proposal.noXp;
+
   return (
     <FlowLayout
-      top={back}
-      header={
-        <ActivityHero
-          stage={<AvatarStage phase={DEMO_PHASE} pose="demo" label={t('pause.demo')} />}
-          eyebrow={<Tag icon="clock">{t(`gap.options.${option}.proposal`)}</Tag>}
-          title={name}
-        />
+      top={top}
+      header={header}
+      footer={
+        <div className={styles.actions}>
+          <Button size="lg" fullWidth onClick={start}>
+            {proposal.kind === 'main' && proposal.activity.startedAt !== undefined
+              ? t('gap.resume')
+              : t('gap.start')}
+            <LineIcon name="chevron-right" size={18} />
+          </Button>
+          {(proposal.kind === 'advance' || proposal.kind === 'extra') && (
+            <Button
+              variant="ghost"
+              className={styles.another}
+              fullWidth
+              onClick={() => setAnother((count) => count + 1)}
+            >
+              {t('gap.another')}
+            </Button>
+          )}
+        </div>
       }
     >
-      {main ? (
-        <ExerciseDetails exercise={main} />
-      ) : (
-        <PauseContentView content={content.content} slot={content.slot} />
-      )}
+      <Card as="section" className={styles.hero} aria-labelledby="gap-proposal-title">
+        <span className={styles.kicker}>{t(`gap.preview.kinds.${proposal.kind}`)}</span>
+        <h2 id="gap-proposal-title">{name}</h2>
+        <strong className={styles.duration}>{duration}</strong>
+        <span className={styles.art} aria-hidden="true">
+          {main && content.content.kind === 'main' ? (
+            <PixelIcon
+              name={mainActivityIcon(content.content.activityId)}
+              size={48}
+              className={styles.activityArt}
+            />
+          ) : (
+            <Avatar phase={DEMO_PHASE} pose="demo" size="lg" framed={false} />
+          )}
+        </span>
+        {!main && <span className={styles.window} aria-hidden="true" />}
+      </Card>
 
-      {proposal.kind === 'extra' && proposal.noXp ? (
-        // Still a good move: said plainly, without making it a penalty.
-        <Card as="section" className={styles.outcome}>
-          <PixelIcon name="extra" size={32} />
-          <div className={styles.outcomeTexts}>
-            <span className={styles.outcomeTitle}>{t('gap.extraNoXp')}</span>
-            <span className={styles.outcomeBody}>
-              {t(`gap.noXpWhy.${proposal.noXp}`, { count: GAP.extraXpDailyCap ?? 0 })}
-            </span>
+      <dl className={styles.metadata}>
+        {areas.length > 0 && (
+          <div>
+            <dt>{t('gap.preview.areas')}</dt>
+            <dd>
+              {areas.map((area) => (
+                <span key={area}>
+                  <PixelIcon name={areaIcon(area)} size={24} /> {areaName(area, locale)}
+                </span>
+              ))}
+            </dd>
           </div>
-        </Card>
-      ) : (
-        <div className={styles.outcomes}>
-          <Card as="section" className={styles.outcome}>
-            <PixelIcon name="xp" size={32} />
-            <div className={styles.outcomeTexts}>
-              <span className={styles.outcomeTitle}>{t('gap.xp', { xp: outcome.xp })}</span>
-              <span className={styles.outcomeBody}>{t(`gap.outcomes.${proposal.kind}.xp`)}</span>
-            </div>
-          </Card>
-          <Card as="section" className={styles.outcome}>
-            <PixelIcon name={outcome.icon} size={32} />
-            <div className={styles.outcomeTexts}>
-              <span className={styles.outcomeTitle}>
-                {t(`gap.outcomes.${proposal.kind}.title`, { time: outcome.time })}
-              </span>
-              <span className={styles.outcomeBody}>
-                {t(`gap.outcomes.${proposal.kind}.body`, { time: outcome.time })}
-              </span>
-            </div>
-          </Card>
-        </div>
-      )}
-
-      <div className={styles.actions}>
-        <Button size="lg" fullWidth onClick={start}>
-          {proposal.kind === 'main' && proposal.activity.startedAt !== undefined
-            ? t('gap.resume')
-            : t('gap.start')}
-        </Button>
-        {(proposal.kind === 'advance' || proposal.kind === 'extra') && (
-          <Button variant="ghost" fullWidth onClick={() => setAnother((count) => count + 1)}>
-            {t('gap.another')}
-          </Button>
         )}
-      </div>
+        <div>
+          <dt>{t('gap.preview.equipment')}</dt>
+          <dd>
+            {equipment.length > 0
+              ? equipment.map((gear) => (
+                  <span key={gear}>
+                    <PixelIcon name={equipmentIcon(gear)} size={24} /> {equipmentName(gear, locale)}
+                  </span>
+                ))
+              : t('gap.preview.noEquipment')}
+          </dd>
+        </div>
+      </dl>
+
+      <section className={styles.outcome} aria-label={t('gap.preview.effect')}>
+        <PixelIcon name={noXp ? 'extra' : 'xp'} size={32} />
+        <div className={styles.outcomeTexts}>
+          <strong>
+            {noXp
+              ? t('gap.extraNoXp')
+              : `${t('gap.xp', { xp: outcome.xp })} · ${t(`gap.outcomes.${proposal.kind}.xp`)}`}
+          </strong>
+          {noXp ? (
+            <p>{t(`gap.noXpWhy.${noXp}`, { count: GAP.extraXpDailyCap ?? 0 })}</p>
+          ) : (
+            <>
+              {proposal.kind !== 'main' && (
+                <p>
+                  {t(`gap.outcomes.${proposal.kind}.title`, {
+                    time: outcome.time,
+                  })}
+                </p>
+              )}
+              <p>
+                {t(`gap.outcomes.${proposal.kind}.body`, {
+                  time: outcome.time,
+                })}
+              </p>
+            </>
+          )}
+          {mismatch && (
+            <p>
+              {t('gap.preview.selectedTime', {
+                selected: t(`gap.options.${option}.title`),
+                duration,
+              })}
+            </p>
+          )}
+        </div>
+      </section>
+
+      <section className={styles.instructions}>
+        <h2>{t(!main && items.length > 1 ? 'gap.preview.moves' : 'pause.howTo')}</h2>
+        {main ? (
+          <ExerciseDetails exercise={main} />
+        ) : (
+          <PauseContentView
+            key={`${name}-${another}`}
+            content={content.content}
+            slot={content.slot}
+            collapsible
+          />
+        )}
+      </section>
     </FlowLayout>
   );
 }
 
-/** What it earns (base XP, as the completion will count it), its icon, and the pause's time. */
-function outcomeOf(
-  proposal: GapProposal,
-  returnBonus: boolean,
-): { xp: number; icon: IconName; time: string } {
+/** What it earns on completion, including a return bonus, and the pause's time. */
+function outcomeOf(proposal: GapProposal, returnBonus: boolean): { xp: number; time: string } {
   const bonus = returnBonus ? XP.returnMultiplier : 1;
   switch (proposal.kind) {
     case 'due':
       return {
         xp: Math.round(XP.microbreak * bonus),
-        icon: 'pending',
         time: formatClock(proposal.activity.currentScheduledAt),
       };
     case 'advance':
       return {
         xp: Math.round(XP.microbreak * bonus),
-        icon: 'forward',
         time: formatClock(proposal.target.currentScheduledAt),
       };
     case 'main':
-      return { xp: Math.round(XP.mainActivity * bonus), icon: 'goal', time: '' };
+      return { xp: Math.round(XP.mainActivity * bonus), time: '' };
     case 'extra':
-      return { xp: XP.extraBreak, icon: 'extra', time: '' };
+      return { xp: XP.extraBreak, time: '' };
   }
 }

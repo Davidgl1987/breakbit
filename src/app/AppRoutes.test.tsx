@@ -46,6 +46,36 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Progreso' })).toBeInTheDocument();
   });
 
+  it('keeps the original tab mounted behind the time sheet and restores focus on Escape', async () => {
+    useAppStore.getState().startDay(sampleDay());
+    clock.travelTo(sampleAt('09:20'));
+    const { user } = renderWithRouter(<AppRoutes />, { route: '/progress' });
+    const title = screen.getByRole('heading', { level: 1, name: 'Progreso' });
+    const fab = screen.getByRole('link', { name: 'Tengo un hueco' });
+    await user.click(fab);
+    expect(screen.getByRole('dialog', { name: 'Tengo un hueco' })).toBeInTheDocument();
+    expect(title).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Progreso' })).toBe(title);
+    expect(fab).toHaveFocus();
+  });
+
+  it('returns from a proposal to time choice over the originating Settings tab', async () => {
+    useAppStore.getState().startDay(sampleDay());
+    clock.travelTo(sampleAt('09:20'));
+    const { user } = renderWithRouter(<AppRoutes />, { route: '/settings' });
+    await user.click(screen.getByRole('link', { name: 'Tengo un hueco' }));
+    await user.click(screen.getByRole('link', { name: /^3 minutos/ }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: 'Volver' }));
+    expect(screen.getByRole('dialog', { name: 'Tengo un hueco' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Ajustes' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cerrar panel' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ajustes' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('closes "Tengo un hueco" to Today when opened directly', () => {
     renderWithRouter(<AppRoutes />, { route: '/gap' });
     expect(screen.getByRole('link', { name: 'Cerrar' })).toHaveAttribute('href', '/');
@@ -55,7 +85,9 @@ describe('AppRoutes', () => {
     useAppStore.getState().startDay(sampleDay());
     clock.travelTo(sampleAt('16:55'));
     renderWithRouter(<AppRoutes />, { route: '/day/end' });
-    expect(screen.getByRole('heading', { level: 1, name: 'Así ha ido tu día' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Así ha ido tu día' }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Cerrar' })).toHaveAttribute('href', '/');
   });
