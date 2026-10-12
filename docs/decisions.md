@@ -963,3 +963,11 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   los que siguen (mismo id) se conservan aunque su contenido haya cambiado.
 - La comprobación de iconos del build buscaba `.svg`; desde los iconos de 16 bits son `.png`, así
   que avisaba de que faltaban todos.
+
+
+## Escenas de descanso del avatar · 12 de octubre
+
+- Cada fase 1–5 tendrá su propia escena de tiempo libre (`rest`), acorde con lo activo que es el avatar: sofá, banco en la naturaleza, paseo, preparación para correr o carrera, como ideas iniciales abiertas a revisión.
+- La escena de descanso podrá representar actividad fuera de la jornada. Se utiliza en los estados de descanso y «Hoy no trabajo».
+- Las cinco poses durmiendo (`sleep`) para antes de iniciar la jornada se prepararán por separado.
+- Recursos pendientes de generar. Requisitos de encuadre, importación y primeras ideas en [Ciclo de jornada](design/day-cycle.md).

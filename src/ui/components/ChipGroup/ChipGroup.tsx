@@ -18,6 +18,8 @@ interface ChipGroupProps<T extends string> {
   onChange: (value: T) => void;
   /** Stretch chips to fill the row evenly. */
   fill?: boolean;
+  /** Two columns for moods, or stacked choices for the next workday. */
+  layout?: 'wrap' | 'grid' | 'list';
 }
 
 /** Single-select pill chips (break length…), or tiles with an icon (intensity, mood). */
@@ -28,6 +30,7 @@ export function ChipGroup<T extends string>({
   value,
   onChange,
   fill = false,
+  layout = 'wrap',
 }: ChipGroupProps<T>) {
   const { itemProps } = useRadioGroup(options, value, onChange);
   const tiles = options.some((option) => option.icon);
@@ -37,7 +40,7 @@ export function ChipGroup<T extends string>({
       <div
         role="radiogroup"
         aria-label={label}
-        className={cx(styles.group, fill && styles.fill, tiles && styles.tiles)}
+        className={cx(styles.group, fill && styles.fill, tiles && styles.tiles, styles[layout])}
       >
         {options.map((option, index) => (
           <button

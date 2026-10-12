@@ -13,9 +13,10 @@ import { addDays, weekdayOf } from '@/domain/time';
 import type { DateKey, DayPlan, DaySchedule, Instant, Mood, NextDayDecision } from '@/domain/types';
 import { mainActivityInfo } from '@/features/day/mainActivity';
 import { useToday } from '@/features/day/useToday';
-import { ScheduleFields } from '@/features/schedule/ScheduleFields';
-import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
-import { formatActiveTime, formatDuration, weekdayName } from '@/i18n/translate';
+import { DaySceneCard } from '@/features/day/DaySceneCard';
+import { DayFacts } from '@/features/day/DayFacts';
+import { ScheduleSheet } from '@/features/day/ScheduleSheet';
+import { formatActiveTime, formatDuration, formatLongDate, weekdayName } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { selectXpOn, useStreak } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
@@ -26,9 +27,6 @@ import { Card } from '@/ui/components/Card/Card';
 import { ChipGroup } from '@/ui/components/ChipGroup/ChipGroup';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
-import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
-import { MetricTile } from '@/ui/components/MetricTile/MetricTile';
-import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
@@ -50,7 +48,6 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
   const { t, locale } = useT();
   const navigate = useNavigate();
   const record = useAppStore((state) => state.days[date]);
-  const phase = useAppStore((state) => state.progress.evolutionPhase);
   const settings = useAppStore((state) => state.settings);
   const dayOverrides = useAppStore((state) => state.dayOverrides);
   const xpSoFar = useAppStore(selectXpOn(date));
@@ -123,10 +120,8 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
       }
       header={
         <header className={styles.header}>
-          <h1 className={styles.title}>{t('dayEnd.title')}</h1>
-          <p className={styles.muted}>
-            {progress.isGood ? t('dayEnd.greeting.good') : t('dayEnd.greeting.other')}
-          </p>
+          <h1 className={styles.title}>{t('cycle.end.title')}</h1>
+          <p className={styles.muted}>{formatLongDate(locale, date)}</p>
         </header>
       }
       footer={
@@ -140,140 +135,91 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
         </Button>
       }
     >
-      <div className={styles.hero}>
-        <AvatarStage
-          phase={phase}
-          pose={progress.isGood ? 'celebrate' : 'idle'}
-          label={t('dayEnd.stage')}
-        />
-        <Card as="section" className={styles.verdict}>
-          {/* No big "+0" on a quiet day. */}
-          {xp > 0 && (
-            <p className={styles.xp}>
-              <PixelIcon name="xp" size={32} />
-              {t('dayEnd.xp', { xp })}
-            </p>
-          )}
-          <h2 className={styles.verdictTitle}>{t(`dayEnd.verdict.${verdict}.title`)}</h2>
-          {/* A day that wasn't good gets just the facts, no judgement. */}
-          {verdict !== 'other' && (
-            <p className={styles.small}>{t(`dayEnd.verdict.${verdict}.body`)}</p>
-          )}
-          {goalXp.length > 0 && (
-            <p className={styles.small}>
-              {goalXp
-                .map((entry) =>
-                  t(entry.reason === 'good_day' ? 'dayEnd.goodXp' : 'dayEnd.perfectXp', {
-                    xp: entry.amount,
-                  }),
-                )
-                .join(' · ')}
-            </p>
-          )}
-        </Card>
-      </div>
-
-      <Card as="section" variant={progress.isGood ? 'tinted' : 'standard'} className={styles.goal}>
-        <PixelIcon name={progress.isGood ? 'reward' : 'goal'} size={32} />
-        <div className={styles.goalTexts}>
-          <span className={styles.goalTitle}>
-            {progress.isGood ? t('dayEnd.goal.done') : t('dayEnd.goal.pending')}
-          </span>
-          <span className={styles.small}>
-            {progress.isGood
-              ? t('dayEnd.goal.streak', { count: streak })
-              : [
-                  missingPauses > 0 && t('dayEnd.goal.missingPauses', { count: missingPauses }),
-                  progress.hasMain && !progress.mainCompleted && t('dayEnd.goal.missingMain'),
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-          </span>
-        </div>
-      </Card>
-
+      <DaySceneCard
+        kicker={t('cycle.end.kicker')}
+        title={t('cycle.end.movement', { time: formatActiveTime(summary.movementSec) })}
+        pose={summary.movementSec > 0 ? 'celebrate' : 'idle'}
+        footer={
+          xp > 0 && (
+            <div className={styles.xpRow}>
+              <strong className={styles.xp}>
+                <PixelIcon name="xp" size={24} />
+                {t('dayEnd.xp', { xp })}
+              </strong>
+              <span className={styles.small}>{t('cycle.end.xpNote')}</span>
+            </div>
+          )
+        }
+      >
+        <p>{t('cycle.end.interruption', { time: formatActiveTime(summary.interruptionSec) })}</p>
+        {verdict !== 'other' && <p>{t(`dayEnd.verdict.${verdict}.title`)}</p>}
+      </DaySceneCard>
       <div className={styles.stats}>
-        <MetricTile
-          layout="inline"
-          icon="shoes"
-          value={t('dayEnd.stats.pauses', { done: summary.completed, total: summary.planned })}
-          label={
-            summary.missed > 0
-              ? t('dayEnd.stats.missed', { count: summary.missed })
-              : t('dayEnd.stats.noneMissed')
-          }
-        />
-        {/* Only when there is something to tell: a row of zeros adds nothing. */}
-        {summary.firstPrompt > 0 && (
-          <MetricTile
-            layout="inline"
-            icon="first_try"
-            value={t('dayEnd.stats.firstTry', { count: summary.firstPrompt })}
-            label={t('dayEnd.stats.firstTryNote')}
-          />
-        )}
-        {summary.postponed > 0 && (
-          <MetricTile
-            layout="inline"
-            icon="postponed"
-            value={t('dayEnd.stats.postponed', { count: summary.postponed })}
-            label={t('dayEnd.stats.postponedNote')}
-          />
-        )}
-        {progress.hasMain && (
-          <MetricTile
-            layout="inline"
-            icon={progress.mainCompleted ? 'completed' : 'goal'}
-            value={t('dayEnd.stats.main')}
-            label={
-              progress.mainCompleted ? t('dayEnd.stats.mainDone') : t('dayEnd.stats.mainPending')
-            }
-          />
-        )}
-        <MetricTile
-          layout="inline"
-          icon="seated"
-          value={formatActiveTime(summary.interruptionSec)}
-          label={t('dayEnd.stats.interruption')}
-        />
-        <MetricTile
-          layout="inline"
-          icon="walk"
-          value={formatActiveTime(summary.movementSec)}
-          label={t('dayEnd.stats.movement')}
-        />
+        <div>
+          <strong>
+            {summary.completed}/{summary.planned}
+          </strong>
+          <span>{t('cycle.closed.pauses')}</span>
+        </div>
+        <div>
+          <strong>{formatActiveTime(summary.interruptionSec)}</strong>
+          <span>{t('dayEnd.stats.interruption')}</span>
+        </div>
       </div>
-      {summary.movementSec > 0 && (
-        <p className={styles.muted}>
-          {t('dayEnd.message', {
-            movement: formatActiveTime(summary.movementSec),
-            interruption: formatActiveTime(summary.interruptionSec),
-          })}
-        </p>
-      )}
+      <details className={styles.details}>
+        <summary>{t('cycle.end.details')}</summary>
+        <DayFacts summary={summary} hasMain={progress.hasMain} />
+        <div className={styles.goal}>
+          <PixelIcon name={progress.isGood ? 'reward' : 'goal'} size={32} />
+          <div className={styles.goalTexts}>
+            <strong>{progress.isGood ? t('dayEnd.goal.done') : t('dayEnd.goal.pending')}</strong>
+            {progress.isGood ? (
+              <span className={styles.small}>{t('dayEnd.goal.streak', { count: streak })}</span>
+            ) : (
+              <>
+                {missingPauses > 0 && (
+                  <span className={styles.small}>
+                    {t('dayEnd.goal.missingPauses', { count: missingPauses })}
+                  </span>
+                )}
+                {progress.hasMain && !progress.mainCompleted && (
+                  <span className={styles.small}>{t('dayEnd.goal.missingMain')}</span>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+        {goalXp.map((entry) => (
+          <p key={entry.reason} className={styles.small}>
+            {t(entry.reason === 'good_day' ? 'dayEnd.goodXp' : 'dayEnd.perfectXp', {
+              xp: entry.amount,
+            })}
+          </p>
+        ))}
+      </details>
 
       {recoverable && record && (
-        <Card as="section" className={styles.action}>
-          <h2 className={styles.actionTitle}>{t('dayEnd.recovery.title')}</h2>
-          <p className={styles.small}>
-            {recoveryMakesGood(record, CATALOG)
-              ? t('dayEnd.recovery.bodyGood')
-              : t('dayEnd.recovery.body')}
-          </p>
-          <div className={styles.buttons}>
-            <Button
-              variant="secondary"
-              onClick={() =>
-                runScreenTransition(() => {
-                  const id = recoverPause(date);
-                  if (id) navigate(pausePlayPath(id));
-                })
-              }
-            >
-              {t('dayEnd.recovery.action')}
-            </Button>
+        <section className={styles.recovery}>
+          <div>
+            <h2 className={styles.actionTitle}>{t('dayEnd.recovery.title')}</h2>
+            <p className={styles.small}>
+              {recoveryMakesGood(record, CATALOG)
+                ? t('dayEnd.recovery.bodyGood')
+                : t('dayEnd.recovery.body')}
+            </p>
           </div>
-        </Card>
+          <Button
+            variant="ghost"
+            onClick={() =>
+              runScreenTransition(() => {
+                const id = recoverPause(date);
+                if (id) navigate(pausePlayPath(id));
+              })
+            }
+          >
+            {t('dayEnd.recovery.action')}
+          </Button>
+        </section>
       )}
 
       {mainOpen && main && mainInfo && (
@@ -297,7 +243,9 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
                   }
                 >
                   {t('dayEnd.main.short', {
-                    minutes: t('common.minutes', { count: mainInfo.shortVersionMin }),
+                    minutes: t('common.minutes', {
+                      count: mainInfo.shortVersionMin,
+                    }),
                   })}
                 </Button>
               )}
@@ -309,6 +257,7 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
         <h2 className={styles.sectionTitle}>{t('dayEnd.mood.title')}</h2>
         <ChipGroup<Mood | ''>
           label={t('dayEnd.mood.title')}
+          layout="grid"
           fill
           value={mood}
           onChange={setMood}
@@ -328,8 +277,14 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
               ? t('dayEnd.next.tomorrow')
               : t('dayEnd.next.on', { day: dayName(nextDate) })}
           </h2>
+          <p className={styles.small}>
+            {formatLongDate(locale, nextDate)} ·{' '}
+            {next === 'repeat' ? plan.schedule.workStart : hours.workStart}–
+            {next === 'repeat' ? plan.schedule.workEnd : hours.workEnd}
+          </p>
           <ChipGroup<NextDayDecision | ''>
             label={t('dayEnd.next.label')}
+            layout="list"
             fill
             value={next}
             onChange={(value) => {
@@ -337,8 +292,8 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
               if (value === 'change') setEditingHours(true);
             }}
             options={[
-              { value: 'repeat', label: t('dayEnd.next.repeat') },
-              { value: 'change', label: t('dayEnd.next.change') },
+              { value: 'repeat', label: t('cycle.end.repeat') },
+              { value: 'change', label: t('cycle.end.change') },
               { value: 'day_off', label: t('dayEnd.next.dayOff') },
             ]}
           />
@@ -373,17 +328,21 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
           title={t('dayEnd.early.title')}
           actions={
             <>
-              <Button fullWidth onClick={close}>
-                {t('dayEnd.early.confirm')}
-              </Button>
-              <Button variant="ghost" fullWidth onClick={() => setConfirmingEarly(false)}>
+              <Button variant="secondary" fullWidth onClick={() => setConfirmingEarly(false)}>
                 {t('dayEnd.early.cancel')}
               </Button>
+              <button className={styles.earlyClose} onClick={close}>
+                {t('dayEnd.early.confirm')} <LineIcon name="chevron-right" size={18} />
+              </button>
             </>
           }
         >
           <div className={styles.sheetBody}>
-            <p>{t('dayEnd.early.timeLeft', { time: formatDuration(minutesLeft) })}</p>
+            <p>
+              {t('dayEnd.early.timeLeft', {
+                time: formatDuration(minutesLeft),
+              })}
+            </p>
             {pendingPauses > 0 && <p>{t('dayEnd.early.pauses', { count: pendingPauses })}</p>}
             {mainOpen && <p>{t('dayEnd.early.main')}</p>}
             {(pendingPauses > 0 || mainOpen) && (
@@ -394,7 +353,7 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
       )}
 
       {editingHours && nextDate && (
-        <HoursSheet
+        <ScheduleSheet
           title={t('dayEnd.next.changeTitle', { day: dayName(nextDate) })}
           initial={hours}
           onClose={() => setEditingHours(false)}
@@ -405,52 +364,5 @@ function DayEnd({ plan, date, now }: { plan: DayPlan; date: DateKey; now: Instan
         />
       )}
     </FlowLayout>
-  );
-}
-
-/** One-off hours for the next workday; the weekly template stays as it is. */
-function HoursSheet({
-  title,
-  initial,
-  onSave,
-  onClose,
-}: {
-  title: string;
-  initial: DaySchedule;
-  onSave: (schedule: DaySchedule) => void;
-  onClose: () => void;
-}) {
-  const { t } = useT();
-  const [draft, setDraft] = useState(initial);
-  const issues = scheduleIssueMessages(draft);
-  return (
-    <BottomSheet
-      open
-      onClose={onClose}
-      title={title}
-      actions={
-        <>
-          <Button fullWidth disabled={issues.length > 0} onClick={() => onSave(draft)}>
-            {t('dayEnd.next.save')}
-          </Button>
-          <Button variant="ghost" fullWidth onClick={onClose}>
-            {t('dayEnd.next.cancel')}
-          </Button>
-        </>
-      }
-    >
-      <div className={styles.sheetBody}>
-        <ScheduleFields grouped schedule={draft} onChange={setDraft} />
-        {issues.length > 0 && (
-          <InlineMessage tone="danger">
-            <ul>
-              {issues.map((key) => (
-                <li key={key}>{t(key)}</li>
-              ))}
-            </ul>
-          </InlineMessage>
-        )}
-      </div>
-    </BottomSheet>
   );
 }

@@ -92,31 +92,32 @@ describe('day start', () => {
     await user.click(screen.getByRole('button', { name: 'Cambiar' }));
     const sheet = screen.getByRole('dialog', { name: 'Actividad de hoy' });
     await user.click(within(sheet).getByRole('radio', { name: /Paseo por casa u oficina/ }));
-    fireEvent.change(within(sheet).getByLabelText('Hora'), { target: { value: '16:00' } });
+    fireEvent.change(within(sheet).getByLabelText('Hora'), {
+      target: { value: '16:00' },
+    });
     expect(within(sheet).getByText('En horario de trabajo')).toBeInTheDocument();
     await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
 
     expect(screen.getByText(/Paseo por casa u oficina/)).toBeInTheDocument();
-    expect(screen.getByText('16:00 · en horario de trabajo')).toBeInTheDocument();
+    expect(screen.getByText(/16:00 · en horario de trabajo/)).toBeInTheDocument();
   });
 
   it('warns about an activity outside the workday', async () => {
     const { user } = renderWithRouter(<AppRoutes />, { route: '/day/start' });
     await user.click(screen.getByRole('button', { name: 'Cambiar' }));
     const sheet = screen.getByRole('dialog', { name: 'Actividad de hoy' });
-    fireEvent.change(within(sheet).getByLabelText('Hora'), { target: { value: '16:55' } });
+    fireEvent.change(within(sheet).getByLabelText('Hora'), {
+      target: { value: '16:55' },
+    });
     expect(within(sheet).getByRole('alert')).toHaveTextContent('Elige una hora dentro');
     expect(within(sheet).getByRole('button', { name: 'Guardar' })).toBeDisabled();
   });
 
-  it('marks the day off', async () => {
-    const { user } = renderWithRouter(<AppRoutes />, { route: '/day/start' });
-    await user.click(screen.getByRole('button', { name: 'Hoy no trabajo' }));
-    const sheet = screen.getByRole('dialog', { name: '¿Hoy no trabajas?' });
-    await user.click(within(sheet).getByRole('button', { name: 'Hoy no trabajo' }));
-
-    expect(store().dayOverrides[MONDAY]).toMatchObject({ working: false });
-    expect(screen.getByRole('heading', { name: 'Hoy no trabajas' })).toBeInTheDocument();
+  it('keeps the preparation focused on the plan, without avatar or day-off action', () => {
+    renderWithRouter(<AppRoutes />, { route: '/day/start' });
+    expect(screen.queryByRole('button', { name: 'Hoy no trabajo' })).not.toBeInTheDocument();
+    expect(document.querySelector('img[src*="avatar/"]')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cambiar' })).toBeInTheDocument();
   });
 
   it('adjusts a day already under way', async () => {
@@ -156,7 +157,7 @@ describe('day start', () => {
 
     expect(store().days).toEqual({});
     expect(store().dayOverrides).toEqual({});
-    expect(screen.getByRole('heading', { name: 'Tu jornada de hoy' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Tu día empieza aquí' })).toBeInTheDocument();
   });
 
   it('only offers activities the user has the equipment for', async () => {

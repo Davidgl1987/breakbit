@@ -1,0 +1,40 @@
+.card {
+  padding: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+.kicker {
+  justify-self: start;
+  color: var(--color-primary-text);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 3.3vw, 1rem);
+  line-height: 1.8;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.body {
+  display: grid;
+  gap: 10px;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.footer {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px 16px;
+  background: var(--color-primary-soft);
+}
+@media (max-width: 365px) {
+  .title {
+    max-width: 80%;
+  }
+  .body {
+    padding-bottom: 90px;
+  }
+}
