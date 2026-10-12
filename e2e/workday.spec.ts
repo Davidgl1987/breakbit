@@ -9,7 +9,7 @@ test('a workday: start it, do a pause, use a gap and close the day', async ({ pa
   await onboard(page);
 
   // Start the day with the proposed plan.
-  await page.getByRole('link', { name: 'Empezar jornada' }).click();
+  await page.getByRole('link', { name: 'Preparar jornada' }).click();
   await page.getByRole('button', { name: 'Empezar jornada' }).click();
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
 
@@ -39,15 +39,15 @@ test('a workday: start it, do a pause, use a gap and close the day', async ({ pa
   // The end of the day: close it from Today.
   await travelTo(page, monday('17:05'));
   await page.getByRole('link', { name: 'Cerrar jornada' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Fin de jornada' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Así ha ido tu día' })).toBeVisible();
   await page.getByRole('radio', { name: 'Bien', exact: true }).click();
   await page.getByRole('button', { name: 'Cerrar jornada' }).click();
-  await expect(page.getByText('Día cerrado')).toBeVisible();
+  await expect(page.getByText('Hoy ya está')).toBeVisible();
 });
 
 test('the data survives a reload', async ({ page }) => {
   await onboard(page);
-  await page.getByRole('link', { name: 'Empezar jornada' }).click();
+  await page.getByRole('link', { name: 'Preparar jornada' }).click();
   await page.getByRole('button', { name: 'Empezar jornada' }).click();
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
   await page.reload();

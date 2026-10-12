@@ -2,10 +2,7 @@ import { useToday } from '@/features/day/useToday';
 import { WeekResultCard } from '@/features/week/WeekResultCard';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
-import { selectXpOn, useLevel, useStreak } from '@/state/selectors';
-import { useAppStore } from '@/state/store';
 import { Wordmark } from '@/ui/components/Wordmark/Wordmark';
-import { AvatarCard } from '@/ui/game/AvatarCard/AvatarCard';
 import { ActiveDay } from './ActiveDay';
 import { DayClock } from './DayClock';
 import { DayOffCard, NotStartedCard, RestCard } from './DayStateCards';
@@ -15,10 +12,6 @@ import styles from './TodayScreen.module.css';
 export function TodayScreen() {
   const { t, locale } = useT();
   const { now, date, state } = useToday();
-  const phase = useAppStore((state) => state.progress.evolutionPhase);
-  const xpToday = useAppStore(selectXpOn(date));
-  const level = useLevel();
-  const streak = useStreak(date);
 
   return (
     <>
@@ -33,9 +26,6 @@ export function TodayScreen() {
         </div>
       </header>
 
-      {state.kind !== 'active' && (
-        <AvatarCard phase={phase} streak={streak} xpToday={xpToday} level={level} />
-      )}
       <WeekResultCard />
 
       {state.kind === 'active' && <ActiveDay plan={state.plan} over={state.over} now={now} />}

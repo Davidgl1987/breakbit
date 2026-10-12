@@ -10,7 +10,6 @@ import type { MainActivityChoice } from '@/domain/planner/placeMainActivity';
 import { toDateKey } from '@/domain/time';
 import type { DayPlan, DaySchedule, Meeting } from '@/domain/types';
 import { AtHandRow } from '@/features/day/AtHandRow';
-import { DayOffSheet } from '@/features/day/DayOffSheet';
 import { MainActivityCard } from '@/features/day/MainActivityCard';
 import { MainActivitySheet } from '@/features/day/MainActivitySheet';
 import { MeetingSheet } from '@/features/day/MeetingSheet';
@@ -31,7 +30,6 @@ import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
 import { ListRow } from '@/ui/components/ListRow/ListRow';
 import { MetricTile } from '@/ui/components/MetricTile/MetricTile';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
-import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
@@ -44,7 +42,7 @@ interface DayDraft {
   main?: MainActivityChoice;
 }
 
-type Sheet = 'main' | 'meeting' | 'dayOff' | null;
+type Sheet = 'main' | 'meeting' | null;
 
 /**
  * /day/start — "Tu día": today's hours, main activity and meetings, with what they mean
@@ -58,10 +56,8 @@ export function DayStartScreen() {
   const record = useAppStore((state) => state.days[date]);
   const settings = useAppStore((state) => state.settings);
   const overrides = useAppStore((state) => state.dayOverrides);
-  const phase = useAppStore((state) => state.progress.evolutionPhase);
   const startDay = useAppStore((state) => state.startDay);
   const updateDayPlan = useAppStore((state) => state.updateDayPlan);
-  const markDayOff = useAppStore((state) => state.markDayOff);
   const planner = useDayPlanner();
   const streak = useStreak(date);
 
@@ -69,7 +65,11 @@ export function DayStartScreen() {
   const [current] = useState(() => (record?.status === 'active' ? record.plan : undefined));
   const [draft, setDraft] = useState<DayDraft>(() =>
     current
-      ? { schedule: current.schedule, meetings: current.meetings, main: mainChoiceOf(current) }
+      ? {
+          schedule: current.schedule,
+          meetings: current.meetings,
+          main: mainChoiceOf(current),
+        }
       : {
           schedule: resolveDaySchedule(date, settings, overrides) ?? settings.schedule,
           meetings: [],
@@ -100,7 +100,10 @@ export function DayStartScreen() {
     setSheet(null);
   };
   const removeMeeting = (id: string) =>
-    setDraft((value) => ({ ...value, meetings: value.meetings.filter((item) => item.id !== id) }));
+    setDraft((value) => ({
+      ...value,
+      meetings: value.meetings.filter((item) => item.id !== id),
+    }));
 
   const save = () => {
     if (!plan) return;
@@ -122,7 +125,6 @@ export function DayStartScreen() {
         <ScreenHeader
           title={current ? t('dayStart.editTitle') : t(`dayStart.greeting.${partOfDay(now)}`)}
           subtitle={formatLongDate(locale, date)}
-          trailing={<Avatar phase={phase} size="sm" />}
         />
       }
       footer={
@@ -179,7 +181,10 @@ export function DayStartScreen() {
             subtitle={meeting.canMove ? t('dayStart.canMove') : undefined}
             trailing={
               <IconButton
-                label={t('dayStart.removeMeeting', { start: meeting.start, end: meeting.end })}
+                label={t('dayStart.removeMeeting', {
+                  start: meeting.start,
+                  end: meeting.end,
+                })}
                 onClick={() => removeMeeting(meeting.id)}
               >
                 <LineIcon name="close" size={20} />
@@ -203,10 +208,6 @@ export function DayStartScreen() {
           <p className={styles.note}>{t('dayStart.noGear')}</p>
         ))}
 
-      <Button variant="ghost" onClick={() => setSheet('dayOff')}>
-        {t('today.dayOff')}
-      </Button>
-
       {sheet === 'main' && plan && (
         <MainActivitySheet
           schedule={draft.schedule}
@@ -225,17 +226,6 @@ export function DayStartScreen() {
           now={now}
           onSave={addMeeting}
           onClose={() => setSheet(null)}
-        />
-      )}
-      {sheet === 'dayOff' && (
-        <DayOffSheet
-          onClose={() => setSheet(null)}
-          onConfirm={() =>
-            runScreenTransition(() => {
-              markDayOff(date);
-              navigate(ROUTES.today, { replace: true });
-            })
-          }
         />
       )}
     </FlowLayout>
