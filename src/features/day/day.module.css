@@ -54,3 +54,44 @@
   align-items: center;
   gap: 8px;
 }
+
+.move {
+  border-bottom: 1px solid var(--color-border);
+}
+.move summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  min-height: 60px;
+  cursor: pointer;
+  list-style: none;
+}
+.move summary::-webkit-details-marker {
+  display: none;
+}
+.moveNumber {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 10px;
+}
+.moveCopy {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.moveCopy > span {
+  font-size: var(--text-sm);
+}
+.moveArrow {
+  flex-shrink: 0;
+}
+.move[open] .moveArrow {
+  transform: rotate(180deg);
+}
+.moveDetails {
+  display: grid;
+  gap: 12px;
+  padding: 0 0 18px 32px;
+}
