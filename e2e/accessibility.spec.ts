@@ -42,7 +42,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await expect(page.getByRole('heading', { level: 1, name: 'Tu plan de hoy' })).toBeVisible();
     await scan('today (before the day)');
 
-    await page.getByRole('link', { name: 'Empezar jornada' }).click();
+    await page.getByRole('link', { name: 'Preparar jornada' }).click();
     await scan('day start');
     await page.getByRole('button', { name: 'Empezar jornada' }).click();
     await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
@@ -86,8 +86,33 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
     await travelTo(page, monday('17:05'));
     await page.goto('/day/end');
-    await expect(page.getByRole('heading', { level: 1, name: 'Fin de jornada' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Así ha ido tu día' })).toBeVisible();
     await scan('day end');
+    await page.getByRole('button', { name: 'Cerrar jornada', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Hoy ya está' })).toBeVisible();
+    await scan('today (closed)');
+    await page.getByText('Ver el detalle de hoy', { exact: true }).click();
+    await scan('today (closed details)');
+    await page.getByRole('button', { name: 'Editar', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Ajustar próxima jornada' })).toBeVisible();
+    await scan('next workday editor');
+    await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
+
+    await travelTo(page, new Date('2026-10-11T10:00:00+02:00'));
+    await expect(page.getByRole('heading', { name: 'Hoy, sin prisa' })).toBeVisible();
+    await scan('today (rest)');
+    await travelTo(page, new Date('2026-10-12T08:40:00+02:00'));
+    await page.getByRole('button', { name: 'Hoy no trabajo', exact: true }).click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Hoy no trabajo', exact: true })
+      .click();
+    await expect(page.getByRole('heading', { name: 'Un día para ti' })).toBeVisible();
+    await scan('today (day off)');
+    await page.getByRole('button', { name: 'Deshacer: hoy sí trabajo', exact: true }).click();
+    await travelTo(page, new Date('2026-10-12T18:00:00+02:00'));
+    await expect(page.getByRole('heading', { name: '¿Sigues trabajando?' })).toBeVisible();
+    await scan('today (late start)');
 
     expect(found, found.join('\n')).toEqual([]);
   });
@@ -98,7 +123,7 @@ test('the keyboard reaches every control on Today and Settings, with a visible f
 }) => {
   await page.clock.install({ time: MONDAY_MORNING });
   await onboard(page);
-  await page.getByRole('link', { name: 'Empezar jornada' }).click();
+  await page.getByRole('link', { name: 'Preparar jornada' }).click();
   await page.getByRole('button', { name: 'Empezar jornada' }).click();
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
 

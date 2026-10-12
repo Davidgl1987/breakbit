@@ -2,31 +2,37 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { CATALOG } from '@/content/catalog';
-import { nextWorkday, resolveDaySchedule } from '@/domain/calendar/schedule';
 import { summarizePlan } from '@/domain/planner/summary';
-import { weekdayOf } from '@/domain/time';
 import type { DateKey, DaySchedule, Instant } from '@/domain/types';
+import { DayFacts } from '@/features/day/DayFacts';
 import { DayOffSheet } from '@/features/day/DayOffSheet';
+import { DaySceneCard } from '@/features/day/DaySceneCard';
 import { useDayPlanner } from '@/features/day/useDayPlanner';
-import { weekdayName } from '@/i18n/translate';
+import { mainActivityOf } from '@/domain/day/today';
+import { mainActivityInfo } from '@/features/day/mainActivity';
+import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { formatActiveTime } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { useAppStore } from '@/state/store';
 import { Button } from '@/ui/components/Button/Button';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
-import { Card } from '@/ui/components/Card/Card';
-import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
+import { LevelStrip } from './LevelStrip';
+import { NextWorkdayCard } from './NextWorkdayCard';
 import styles from './TodayScreen.module.css';
 
-interface NotStartedCardProps {
+export function NotStartedCard({
+  date,
+  schedule,
+  late,
+  now,
+}: {
   date: DateKey;
   schedule: DaySchedule;
   late: boolean;
   now: Instant;
-}
-
-/** A workday not planned yet: what it would look like, and "Empezar jornada". */
-export function NotStartedCard({ date, schedule, late, now }: NotStartedCardProps) {
+}) {
   const { t } = useT();
   const planner = useDayPlanner();
   const markDayOff = useAppStore((state) => state.markDayOff);
@@ -35,44 +41,47 @@ export function NotStartedCard({ date, schedule, late, now }: NotStartedCardProp
     () => summarizePlan(planner.plan({ date, schedule, meetings: [], now }), CATALOG),
     [planner, date, schedule, now],
   );
-
   return (
     <>
-      <Card as="section" variant={late ? 'standard' : 'tinted'} className={styles.stateCard}>
-        <PixelIcon name={late ? 'moon' : 'sun'} size={48} />
-        <div className={styles.stateTexts}>
-          <h2 className={styles.stateTitle}>
-            {late ? t('today.states.late') : t('today.states.notStarted')}
-          </h2>
-          <p className={styles.muted}>
-            {late
-              ? t('today.states.lateBody')
-              : t('today.states.notStartedBody', {
-                  start: schedule.workStart,
-                  end: schedule.workEnd,
-                  pauses: t('common.pausesPlanned', { count: summary.microCount }),
-                  minutes: t('common.minutes', {
-                    count: Math.round(summary.interruptionSec / 60),
-                  }),
-                })}
-          </p>
-        </div>
-        <Link
-          to={ROUTES.dayStart}
-          className={buttonClassName({
-            variant: late ? 'secondary' : 'primary',
-            size: 'lg',
-            fullWidth: true,
-          })}
-        >
-          {late ? t('today.states.adjustHours') : t('today.states.startDay')}
-        </Link>
-      </Card>
+      <DaySceneCard
+        pose={late ? 'idle' : 'sleep'}
+        kicker={t(late ? 'cycle.late.kicker' : 'cycle.before.kicker')}
+        title={t(late ? 'cycle.late.title' : 'cycle.before.title')}
+        footer={
+          <Link
+            to={ROUTES.dayStart}
+            className={buttonClassName({
+              variant: late ? 'secondary' : 'primary',
+              size: 'lg',
+              fullWidth: true,
+            })}
+          >
+            {t(late ? 'today.states.adjustHours' : 'cycle.before.prepare')}
+          </Link>
+        }
+      >
+        <p>{late ? t('today.states.lateBody') : t('cycle.before.body')}</p>
+        <strong>
+          {schedule.workStart}–{schedule.workEnd}
+        </strong>
+      </DaySceneCard>
       {!late && (
-        <Button variant="ghost" onClick={() => setConfirmDayOff(true)}>
-          {t('today.dayOff')}
-        </Button>
+        <div className={styles.cycleStats}>
+          <div>
+            <strong>{summary.microCount}</strong>
+            <span>{t('dayStart.pauses', { count: summary.microCount })}</span>
+          </div>
+          <div>
+            <strong>~{formatActiveTime(summary.interruptionSec)}</strong>
+            <span>{t('dayStart.interruption')}</span>
+          </div>
+        </div>
       )}
+      {late && <NextWorkdayCard date={date} />}
+      <LevelStrip />
+      <button className={styles.dangerLink} onClick={() => setConfirmDayOff(true)}>
+        {t('today.dayOff')} <LineIcon name="chevron-right" size={18} />
+      </button>
       {confirmDayOff && (
         <DayOffSheet
           onClose={() => setConfirmDayOff(false)}
@@ -88,84 +97,106 @@ export function NotStartedCard({ date, schedule, late, now }: NotStartedCardProp
   );
 }
 
-/** Not a workday (or the day is already closed): when the next one is. */
 export function RestCard({ date, closed = false }: { date: DateKey; closed?: boolean }) {
-  const { t } = useT();
-  const summary = useAppStore((state) => (closed ? state.days[date]?.summary : undefined));
+  const { t, locale } = useT();
+  const record = useAppStore((state) => (closed ? state.days[date] : undefined));
+  const summary = record?.summary;
+  const main = record?.plan && mainActivityOf(record.plan);
+  const activity = main && mainActivityInfo(main);
   return (
-    <Card as="section" className={styles.stateCard}>
-      <PixelIcon name={closed ? 'success' : 'sofa'} size={48} />
-      <div className={styles.stateTexts}>
-        <h2 className={styles.stateTitle}>
-          {closed ? t('today.states.closed') : t('today.states.rest')}
-        </h2>
-        {summary && (
-          <p className={styles.muted}>
-            {summary.isGood
-              ? t('today.states.closedBody', {
-                  verdict: t(`today.states.verdict.${summary.isPerfect ? 'perfect' : 'good'}`),
-                  pauses: t('today.pausesDone', {
-                    done: summary.completed,
-                    total: summary.planned,
-                  }),
-                  xp: summary.xp >= 0 ? `+${summary.xp}` : String(summary.xp),
-                })
-              : // Not a good day: just the facts.
-                t('today.states.closedData', {
-                  pauses: t('today.pausesDone', {
-                    done: summary.completed,
-                    total: summary.planned,
-                  }),
-                  xp: summary.xp >= 0 ? `+${summary.xp}` : String(summary.xp),
-                })}
-          </p>
-        )}
-        <NextWorkday date={date} />
-      </div>
-      {!closed && (
-        <Link
-          to={ROUTES.dayStart}
-          className={buttonClassName({ variant: 'secondary', fullWidth: true })}
-        >
-          {t('today.states.workToday')}
-        </Link>
+    <>
+      <DaySceneCard
+        pose={closed ? 'celebrate' : 'rest'}
+        kicker={t(closed ? 'cycle.closed.kicker' : 'cycle.rest.kicker')}
+        title={t(closed ? 'cycle.closed.title' : 'cycle.rest.title')}
+        footer={
+          closed ? (
+            <Link to={ROUTES.progress} className={buttonClassName({ fullWidth: true })}>
+              {t('cycle.progress')}
+            </Link>
+          ) : (
+            <Link
+              to={ROUTES.dayStart}
+              className={buttonClassName({
+                variant: 'secondary',
+                fullWidth: true,
+              })}
+            >
+              {t('today.states.workToday')}
+            </Link>
+          )
+        }
+      >
+        <p>
+          {summary
+            ? t('cycle.closed.summary', {
+                movement: formatActiveTime(summary.movementSec),
+                interruption: formatActiveTime(summary.interruptionSec),
+              })
+            : t('cycle.rest.body')}
+        </p>
+      </DaySceneCard>
+      {summary && (
+        <div className={styles.cycleStats}>
+          <div>
+            <strong>
+              {summary.completed}/{summary.planned}
+            </strong>
+            <span>{t('cycle.closed.pauses')}</span>
+          </div>
+          <div>
+            <strong>
+              {summary.xp > 0 ? t('dayEnd.xp', { xp: summary.xp }) : `${summary.xp} XP`}
+            </strong>
+            <span>{t('cycle.end.xpNote')}</span>
+          </div>
+        </div>
       )}
-    </Card>
+      {summary?.mainCompleted && main && activity && (
+        <div className={styles.completedActivity}>
+          <PixelIcon name="completed" size={32} />
+          <div>
+            <strong>{activity.name[locale]}</strong>
+            <span className={styles.small}>
+              {t('today.mainCompleted')} · {t('common.minutes', { count: main.durationSec / 60 })}
+            </span>
+          </div>
+        </div>
+      )}
+      <NextWorkdayCard date={date} />
+      <LevelStrip showLink={!closed} />
+      {summary && (
+        <details className={styles.cycleDetails}>
+          <summary>{t('cycle.closed.details')}</summary>
+          <DayFacts
+            summary={summary}
+            hasMain={record?.plan?.activities.some((item) => item.kind === 'main')}
+          />
+        </details>
+      )}
+    </>
   );
 }
 
-/** "Hoy no trabajo": nothing planned, and the way back. */
 export function DayOffCard({ date }: { date: DateKey }) {
   const { t } = useT();
   const undoDayOff = useAppStore((state) => state.undoDayOff);
   return (
-    <Card as="section" className={styles.stateCard}>
-      <PixelIcon name="rest" size={48} />
-      <div className={styles.stateTexts}>
-        <h2 className={styles.stateTitle}>{t('today.states.dayOff')}</h2>
-        <p className={styles.muted}>{t('today.states.dayOffBody')}</p>
-        <NextWorkday date={date} />
-      </div>
-      <Button variant="secondary" fullWidth onClick={() => undoDayOff(date)}>
-        {t('today.states.undoDayOff')}
-      </Button>
-    </Card>
-  );
-}
-
-function NextWorkday({ date }: { date: DateKey }) {
-  const { t, locale } = useT();
-  const settings = useAppStore((state) => state.settings);
-  const overrides = useAppStore((state) => state.dayOverrides);
-  const next = nextWorkday(date, settings, overrides);
-  const schedule = next && resolveDaySchedule(next, settings, overrides);
-  if (!next || !schedule) return null;
-  return (
-    <p className={styles.muted}>
-      {t('today.states.nextWorkday', {
-        day: weekdayName(locale, weekdayOf(next)),
-        time: schedule.workStart,
-      })}
-    </p>
+    <>
+      <DaySceneCard
+        pose="rest"
+        kicker={t('today.states.dayOff')}
+        title={t('cycle.off.title')}
+        footer={
+          <Button variant="secondary" fullWidth onClick={() => undoDayOff(date)}>
+            {t('today.states.undoDayOff')}
+          </Button>
+        }
+      >
+        <p>{t('today.states.dayOffBody')}</p>
+      </DaySceneCard>
+      <NextWorkdayCard date={date} />
+      <LevelStrip />
+    </>
   );
 }

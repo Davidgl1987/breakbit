@@ -39,3 +39,16 @@ Vista previa de desarrollo: http://127.0.0.1:5201/ (datos de ejemplo en un orige
 - Instalar Breakbit es la primera card de Ajustes y sigue ocultándose cuando está instalada.
 - Tus datos comparte el fondo de Instalar Breakbit, reduce espaciado y reúne la protección junto al título. Acerca de Breakbit queda fuera, y Probar sonido usa un enlace visual con área de pulsación de 44 px.
 - Revisión visual en 320 y 390 px, en claro y oscuro, sin desbordamiento; paneles y menú comprobados. Compilación y lint correctos, 28 pruebas de Ajustes/navegación y 20 pruebas de navegador correctas.
+
+
+## Ciclo de jornada · 12 de octubre
+
+- [x] Hoy sin iniciar, descanso, día libre, inicio tardío, horario terminado y jornada cerrada.
+- [x] Preparar/Ajustar con los campos actuales y la nueva card de actividad, sin avatar ni acción de día libre.
+- [x] Cerrar jornada con resumen, detalles desplegables, ánimo en dos columnas y próxima jornada en lista.
+- [x] Cierre normal verde y confirmación anticipada con enlace rojo centrado.
+- [x] Próxima jornada editable en fecha y horas, mediante los campos compartidos del onboarding y excepciones de calendario.
+- [x] Menú inferior aprobado conservado.
+- [ ] Generar cinco poses de dormir y cinco escenas de tiempo libre, distintas según la actividad de cada fase; ideas documentadas en [Ciclo de jornada](design/day-cycle.md).
+
+Verificación del ciclo: compilación y lint correctos, 825 pruebas de unidad/integración y 5 pruebas de navegador correctas. Las pruebas de navegador incluyen el ciclo de jornada, persistencia, teclado y accesibilidad en claro y oscuro, con el editor de próxima jornada y los estados de descanso, día libre e inicio tardío. Revisión visual en 320 y 390 px sin desbordamiento horizontal.

@@ -55,7 +55,7 @@ describe('AppRoutes', () => {
     useAppStore.getState().startDay(sampleDay());
     clock.travelTo(sampleAt('16:55'));
     renderWithRouter(<AppRoutes />, { route: '/day/end' });
-    expect(screen.getByRole('heading', { level: 1, name: 'Fin de jornada' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Así ha ido tu día' })).toBeInTheDocument();
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Cerrar' })).toHaveAttribute('href', '/');
   });

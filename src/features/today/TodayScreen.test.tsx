@@ -50,9 +50,9 @@ describe('Today', () => {
   it('offers to start a workday that has no plan yet', () => {
     travel(MONDAY, '08:40');
     renderWithRouter(<AppRoutes />);
-    expect(screen.getByRole('heading', { name: 'Tu jornada de hoy' })).toBeInTheDocument();
-    expect(screen.getByText(/09:00–17:00 · 5 pausas/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Empezar jornada' })).toHaveAttribute(
+    expect(screen.getByRole('heading', { name: 'Tu día empieza aquí' })).toBeInTheDocument();
+    expect(screen.getByText('09:00–17:00')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Preparar jornada' })).toHaveAttribute(
       'href',
       '/day/start',
     );
@@ -78,7 +78,9 @@ describe('Today', () => {
     }
     expect(screen.getByRole('region', { name: 'Actividad de hoy' })).toBeInTheDocument();
     expect(screen.getByText('0/5 pausas')).toBeInTheDocument();
-    const timeline = screen.getByRole('heading', { name: 'Tu jornada' }).parentElement!;
+    const timeline = screen.getByRole('heading', {
+      name: 'Tu jornada',
+    }).parentElement!;
     expect(within(timeline).getByText('Empieza tu jornada')).toBeInTheDocument();
     expect(within(timeline).getByText('Comida · hasta las 15:00')).toBeInTheDocument();
     expect(within(timeline).getAllByText(/^Pausa · /)).toHaveLength(5);
@@ -104,7 +106,9 @@ describe('Today', () => {
     await user.click(screen.getByRole('button', { name: 'Cambiar actividad u hora' }));
     const sheet = screen.getByRole('dialog', { name: 'Actividad de hoy' });
     expect(within(sheet).getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
-    fireEvent.change(within(sheet).getByLabelText('Hora'), { target: { value: '12:00' } });
+    fireEvent.change(within(sheet).getByLabelText('Hora'), {
+      target: { value: '12:00' },
+    });
     await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
     const after = store().days[MONDAY]!.plan!;
     expect(after.activities.find((item) => item.kind === 'main')?.currentScheduledAt).toBe(
@@ -125,13 +129,15 @@ describe('Today', () => {
     const { user } = renderWithRouter(<AppRoutes />);
     await user.click(screen.getByRole('button', { name: 'Hoy no trabajo' }));
     await user.click(
-      within(screen.getByRole('dialog')).getByRole('button', { name: 'Hoy no trabajo' }),
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Hoy no trabajo',
+      }),
     );
-    expect(screen.getByRole('heading', { name: 'Hoy no trabajas' })).toBeInTheDocument();
-    expect(screen.getByText('Próxima jornada: martes, a las 09:00.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Un día para ti' })).toBeInTheDocument();
+    expect(screen.getByText('martes, 6 de octubre')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Deshacer: hoy sí trabajo' }));
-    expect(screen.getByRole('link', { name: 'Empezar jornada' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Preparar jornada' })).toBeInTheDocument();
   });
 
   it('says when the workday starts, next to the greeting, if it was started early', () => {
@@ -196,23 +202,95 @@ describe('Today', () => {
   it('rests on days off work, showing the next workday', () => {
     travel('2026-10-10', '10:00');
     renderWithRouter(<AppRoutes />);
-    expect(screen.getByRole('heading', { name: 'Hoy descansas' })).toBeInTheDocument();
-    expect(screen.getByText('Próxima jornada: lunes, a las 09:00.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Hoy, sin prisa' })).toBeInTheDocument();
+    expect(screen.getByText('lunes, 12 de octubre')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Hoy sí trabajo' })).toHaveAttribute(
       'href',
       '/day/start',
     );
   });
 
+  it('edits the next workday date and hours without changing the weekly routine', async () => {
+    travel('2026-10-10', '10:00');
+    const settings = store().settings;
+    const { user } = renderWithRouter(<AppRoutes />);
+    await user.click(screen.getByRole('button', { name: 'Editar' }));
+    const sheet = screen.getByRole('dialog', {
+      name: 'Ajustar próxima jornada',
+    });
+    fireEvent.change(within(sheet).getByLabelText('Fecha'), {
+      target: { value: '2026-10-14' },
+    });
+    const hours = within(within(sheet).getByRole('group', { name: 'Horario' }));
+    fireEvent.change(hours.getByLabelText('Fin'), {
+      target: { value: '16:00' },
+    });
+    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+    expect(store().dayOverrides['2026-10-12']).toMatchObject({
+      working: false,
+    });
+    expect(store().dayOverrides['2026-10-13']).toMatchObject({
+      working: false,
+    });
+    expect(store().dayOverrides['2026-10-14']).toMatchObject({
+      working: true,
+      schedule: { workEnd: '16:00' },
+    });
+    expect(store().settings).toBe(settings);
+    expect(screen.getByText('miércoles, 14 de octubre')).toBeInTheDocument();
+    expect(screen.getByText('09:00–16:00')).toBeInTheDocument();
+  });
+
+  it('keeps calendar edits as a draft, rejects past dates and invalid hours, and cancels safely', async () => {
+    travel('2026-10-10', '10:00');
+    const { user } = renderWithRouter(<AppRoutes />);
+    await user.click(screen.getByRole('button', { name: 'Editar' }));
+    const sheet = screen.getByRole('dialog');
+    const save = within(sheet).getByRole('button', { name: 'Guardar' });
+    fireEvent.change(within(sheet).getByLabelText('Fecha'), {
+      target: { value: '2026-10-10' },
+    });
+    expect(save).toBeDisabled();
+    fireEvent.change(within(sheet).getByLabelText('Fecha'), {
+      target: { value: '2026-10-11' },
+    });
+    expect(save).toBeEnabled();
+    const hours = within(within(sheet).getByRole('group', { name: 'Horario' }));
+    fireEvent.change(hours.getByLabelText('Fin'), {
+      target: { value: '08:00' },
+    });
+    expect(save).toBeDisabled();
+    expect(store().dayOverrides).toEqual({});
+    await user.click(within(sheet).getByRole('button', { name: 'Cancelar' }));
+    expect(store().dayOverrides).toEqual({});
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('can move the next workday earlier, even to a usual rest day', async () => {
+    travel('2026-10-10', '10:00');
+    const { user } = renderWithRouter(<AppRoutes />);
+    await user.click(screen.getByRole('button', { name: 'Editar' }));
+    const sheet = screen.getByRole('dialog');
+    fireEvent.change(within(sheet).getByLabelText('Fecha'), {
+      target: { value: '2026-10-11' },
+    });
+    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+    expect(store().dayOverrides['2026-10-11']).toMatchObject({ working: true });
+    expect(store().dayOverrides['2026-10-12']).toBeUndefined();
+    expect(screen.getByText('domingo, 11 de octubre')).toBeInTheDocument();
+  });
+
   it('knows when the hours are over', () => {
     travel(MONDAY, '18:00');
     renderWithRouter(<AppRoutes />);
     expect(
-      screen.getByRole('heading', { name: 'Tu horario de hoy ya ha terminado' }),
+      screen.getByRole('heading', {
+        name: '¿Sigues trabajando?',
+      }),
     ).toBeInTheDocument();
 
     act(() => startMonday());
-    expect(screen.getByRole('heading', { name: 'Jornada terminada' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Hora de desconectar' })).toBeInTheDocument();
   });
 
   it('previews the exercise without starting the pause', async () => {
@@ -222,7 +300,9 @@ describe('Today', () => {
     const { user } = renderWithRouter(<AppRoutes />);
     await user.click(screen.getByRole('button', { name: 'Ver ejercicio' }));
     await user.click(
-      within(screen.getByRole('dialog')).getByRole('button', { name: 'Cerrar panel' }),
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Cerrar panel',
+      }),
     );
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -241,7 +321,10 @@ describe('Today', () => {
   });
 
   it('shows activity zones on Today and its gear in the activity panel', async () => {
-    const settings = { ...DEFAULT_SETTINGS, equipment: ['mat', 'kettlebell'] as const };
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      equipment: ['mat', 'kettlebell'] as const,
+    };
     store().updateSettings({ equipment: [...settings.equipment] });
     store().startDay(
       planDay({
@@ -250,7 +333,11 @@ describe('Today', () => {
         settings: { ...settings, equipment: [...settings.equipment] },
         catalog: CATALOG,
         now: atTime(MONDAY, '08:30'),
-        mainActivity: { activityId: 'mat_mobility', start: '11:00', durationMin: 15 },
+        mainActivity: {
+          activityId: 'mat_mobility',
+          start: '11:00',
+          durationMin: 15,
+        },
       }),
     );
     travel(MONDAY, '09:10');

@@ -7,6 +7,7 @@ import { mainChoiceOf } from '@/domain/day/planDay';
 import { dayProgress } from '@/domain/day/progress';
 import { mainActivityOf, nextPause, workEnd } from '@/domain/day/today';
 import type { DayPlan, Instant, Meeting } from '@/domain/types';
+import { DaySceneCard } from '@/features/day/DaySceneCard';
 import { MainActivityPreviewSheet } from '@/features/day/MainActivityPreviewSheet';
 import { MainActivitySheet } from '@/features/day/MainActivitySheet';
 import { MeetingSheet } from '@/features/day/MeetingSheet';
@@ -67,7 +68,19 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
 
   return (
     <>
-      {over || endingSoon ? (
+      {over ? (
+        <DaySceneCard
+          kicker={t('today.states.over')}
+          title={t('cycle.over.title')}
+          footer={
+            <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
+              {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
+            </Link>
+          }
+        >
+          <p>{t('today.states.overBody')}</p>
+        </DaySceneCard>
+      ) : endingSoon ? (
         <Card as="section" variant="tinted" className={styles.stateCard}>
           <PixelIcon name="moon" size={48} />
           <div className={styles.stateTexts}>
@@ -127,7 +140,14 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
           <p className={styles.small}>{t('today.meetings.hint')}</p>
         </section>
       )}
-      <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
+      {over ? (
+        <details className={styles.cycleDetails}>
+          <summary>{t('cycle.over.details')}</summary>
+          <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
+        </details>
+      ) : (
+        <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
+      )}
       {!over && !endingSoon && (
         <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
           {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
