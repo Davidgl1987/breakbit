@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useId, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useEffectEvent, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '@/i18n/useT';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
@@ -27,7 +27,7 @@ export function BottomSheet({ open, onClose, title, children, actions }: BottomS
   const sheetRef = useRef<HTMLDivElement>(null);
   useLeaveAnimation(backdropRef, styles.leaving!, open);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     const previouslyFocused = document.activeElement as HTMLElement | null;
     sheetRef.current?.focus();

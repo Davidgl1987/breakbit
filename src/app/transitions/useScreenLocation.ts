@@ -17,7 +17,7 @@ function samePlace(a: Location, b: Location): boolean {
  * animate. A change of screen that an action already animates (it saves and navigates
  * inside `runScreenTransition`) just switches, setting the motion for where it goes.
  */
-export function useScreenLocation(): Location {
+export function useScreenLocation(modalPath?: string): Location {
   const location = useLocation();
   const [shown, setShown] = useState(location);
   const latest = useRef(location);
@@ -37,11 +37,17 @@ export function useScreenLocation(): Location {
   useLayoutEffect(() => {
     latest.current = location;
     if (location === shown) return;
+    // A route rendered as a sheet owns its entrance/exit animation. Keeping the tab
+    // still avoids animating the whole background from the floating action's origin.
+    if (modalPath && (location.pathname === modalPath || shown.pathname === modalPath)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronize the route before paint
+      setShown(location);
+      return;
+    }
     const kind = transitionKind(shown.pathname, location.pathname);
     // Switching right here is the point: the browser has the old picture (or needs none).
     if (isInTransitionUpdate()) {
       setTransitionKind(kind);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- see above
       setShown(location);
       return;
     }
@@ -57,7 +63,7 @@ export function useScreenLocation(): Location {
       pending.current = false;
       setShown(latest.current);
     }, kind);
-  }, [location, shown]);
+  }, [location, shown, modalPath]);
 
   return shown;
 }

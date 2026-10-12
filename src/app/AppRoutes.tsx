@@ -7,6 +7,9 @@ import { DoneScreen } from '@/features/pause/DoneScreen';
 import { PlayScreen } from '@/features/pause/PlayScreen';
 import { GapProposalScreen } from '@/features/gap/GapProposalScreen';
 import { GapScreen } from '@/features/gap/GapScreen';
+import { gapReturnPath } from '@/features/gap/gapReturn';
+import { ROUTES } from './routes';
+import { useToday } from '@/features/day/useToday';
 import { MainDoneScreen } from '@/features/main-activity/MainDoneScreen';
 import { MainScreen } from '@/features/main-activity/MainScreen';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
@@ -38,11 +41,23 @@ const ExerciseLabScreen = lazy(() =>
  * screens follow the URL through a view transition (`useScreenLocation`).
  */
 export function AppRoutes() {
-  const location = useScreenLocation();
+  const { state } = useToday();
+  const location = useScreenLocation(state.kind === 'active' ? ROUTES.gap : undefined);
+  // Keep the originating tab mounted while choosing time, including its scroll and focus.
+  // A direct /gap URL uses Today as its background. Inactive days have a full screen.
+  const gapOpen = location.pathname === ROUTES.gap && state.kind === 'active';
+  const background = gapOpen
+    ? {
+        ...location,
+        pathname: gapReturnPath(location.state),
+        search: '',
+        hash: '',
+      }
+    : location;
   return (
     <>
-      <ScreenStart pathname={location.pathname} />
-      <Routes location={location}>
+      <ScreenStart pathname={background.pathname} />
+      <Routes location={background}>
         <Route element={<RequireOnboarding />}>
           <Route element={<TabsLayout />}>
             <Route index element={<TodayScreen />} />
@@ -52,7 +67,6 @@ export function AppRoutes() {
           </Route>
           <Route element={<FullscreenLayout />}>
             <Route path="day/start" element={<DayStartScreen />} />
-            {/* A modal flow over the tabs: it grows out of its button (see motion.css). */}
             <Route path="gap" element={<GapScreen />} />
             <Route path="gap/:option" element={<GapProposalScreen />} />
             <Route path="pause/:id" element={<DecisionScreen />} />
@@ -94,6 +108,13 @@ export function AppRoutes() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {gapOpen && (
+        <Routes location={location}>
+          <Route element={<RequireOnboarding />}>
+            <Route path="gap" element={<GapScreen />} />
+          </Route>
+        </Routes>
+      )}
     </>
   );
 }
