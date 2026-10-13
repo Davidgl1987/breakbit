@@ -16,15 +16,16 @@ export async function travelTo(page: Page, to: Date): Promise<void> {
   await page.clock.runFor(31_000);
 }
 
-/** The six onboarding steps with the defaults. */
+/** Brand introduction and onboarding with the defaults. */
 export async function onboard(page: Page): Promise<void> {
   await page.goto('/');
   await page.getByRole('button', { name: 'Comenzar' }).click();
-  for (const heading of ['Tu jornada', 'Tus molestias', 'Tu material', 'Tu ritmo']) {
+  await page.getByRole('button', { name: 'Preparar mi plan' }).click();
+  for (const heading of ['Tu jornada', 'Tus molestias', 'Tu material', 'A tu ritmo']) {
     await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
-    await page.getByRole('button', { name: 'Siguiente' }).click();
+    await page.getByRole('button', { name: 'Continuar' }).click();
   }
-  await expect(page.getByRole('heading', { level: 1, name: 'Todo listo' })).toBeVisible();
-  await page.getByRole('button', { name: 'Empezar' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Un buen comienzo' })).toBeVisible();
+  await page.getByRole('button', { name: 'Ir a Hoy' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Tu plan de hoy' })).toBeVisible();
 }

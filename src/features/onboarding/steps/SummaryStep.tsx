@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import {
   EquipmentSummary,
   PaceSummary,
   PrioritiesSummary,
   WorkdaySummary,
 } from '@/features/profile/ProfileSummary';
+import { ProfileEditSheet, type RoutineSection } from '@/features/profile/ProfileEditSheet';
 import { scheduleIssueMessages } from '@/features/schedule/scheduleIssues';
 import { useT } from '@/i18n/useT';
 import {
@@ -15,116 +16,151 @@ import {
 } from '@/services/notifications/permission';
 import { requestPersistentStorage } from '@/services/storagePersistence';
 import { useAppStore } from '@/state/store';
-import { Button } from '@/ui/components/Button/Button';
-import { Card } from '@/ui/components/Card/Card';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
-import { LineIcon } from '@/ui/icons/LineIcon';
-import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { Toggle } from '@/ui/components/Toggle/Toggle';
+import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { useOnboardingDraft } from '../draftContext';
 import { clearOnboardingDraft } from '../draftStorage';
-import common from '../onboarding.module.css';
 import { OnboardingStep } from '../OnboardingStep';
-import { onboardingPath } from '../steps';
 import styles from './SummaryStep.module.css';
 
-/** Step 6: the whole setup at a glance, reminders on request, and start. */
+/** Finish setup only. Starting the workday is a separate action on Today. */
 export function SummaryStep() {
   const { t } = useT();
   const navigate = useNavigate();
-  const [draft] = useOnboardingDraft();
+  const [draft, update] = useOnboardingDraft();
   const completeOnboarding = useAppStore((state) => state.completeOnboarding);
   const valid = scheduleIssueMessages(draft.schedule).length === 0 && draft.workDays.length > 0;
-
+  const [section, setSection] = useState<RoutineSection>();
   const [permission, setPermission] = useState<NotificationPermissionState>(notificationPermission);
-  // Only reads the state (e.g. after allowing it in the browser settings); never asks.
+  const [requesting, setRequesting] = useState(false);
   useEffect(() => {
     const refresh = () => setPermission(notificationPermission());
     window.addEventListener('focus', refresh);
     return () => window.removeEventListener('focus', refresh);
   }, []);
-  const enableNotifications = async () => setPermission(await requestNotificationPermission());
-
+  const on = permission === 'granted' && draft.notifications.enabled;
+  const setNotifications = async (enabled: boolean) => {
+    if (requesting) return;
+    if (!enabled) {
+      update((current) => ({
+        ...current,
+        notifications: { ...current.notifications, enabled: false },
+      }));
+      return;
+    }
+    setRequesting(true);
+    try {
+      const answer = permission === 'granted' ? 'granted' : await requestNotificationPermission();
+      setPermission(answer);
+      update((current) => ({
+        ...current,
+        notifications: {
+          ...current.notifications,
+          enabled: answer === 'granted',
+        },
+      }));
+    } finally {
+      setRequesting(false);
+    }
+  };
   const start = () => {
     runScreenTransition(() => {
       completeOnboarding({
         ...draft,
-        notifications: { ...draft.notifications, enabled: permission === 'granted' },
+        notifications: { ...draft.notifications, enabled: on },
       });
       navigate('/', { replace: true });
     });
     clearOnboardingDraft();
     void requestPersistentStorage();
   };
-
   return (
-    <OnboardingStep
-      step="summary"
-      title={t('onboarding.summary.title')}
-      subtitle={t('onboarding.summary.subtitle')}
-      action={{ label: t('onboarding.summary.start'), onClick: start, disabled: !valid }}
-    >
-      <WorkdaySummary
-        title={t('onboarding.summary.workday')}
-        editTo={onboardingPath('schedule')}
-        workDays={draft.workDays}
-        schedule={draft.schedule}
-      />
-      <PrioritiesSummary
-        title={t('onboarding.summary.priorities')}
-        editTo={onboardingPath('discomfort')}
-        discomfort={draft.discomfort}
-      />
-      <EquipmentSummary
-        title={t('onboarding.summary.equipment')}
-        editTo={onboardingPath('equipment')}
-        equipment={draft.equipment}
-      />
-      <PaceSummary
-        title={t('onboarding.summary.pace')}
-        editTo={onboardingPath('intensity')}
-        settings={draft}
-      />
-
-      <Card as="section" variant="muted" className={common.section}>
-        <h2 className={common.heading}>
-          <PixelIcon name="bell" size={24} />
-          {t('onboarding.summary.notifications.title')}
-        </h2>
-        <p className={common.muted}>{t('onboarding.summary.notifications.body')}</p>
-        {permission === 'default' && (
-          <Button variant="secondary" onClick={() => void enableNotifications()}>
-            {t('onboarding.summary.notifications.enable')}
-          </Button>
-        )}
-        {permission === 'granted' && (
-          <p className={`${styles.status} ${styles.granted}`}>
-            <LineIcon name="check" size={20} />
-            {t('onboarding.summary.notifications.granted')}
-          </p>
-        )}
-        {permission === 'denied' && (
-          <div className={styles.workday}>
-            <p className={styles.status}>
-              <PixelIcon name="warning" size={24} />
-              {t('onboarding.summary.notifications.denied')}
+    <>
+      <OnboardingStep
+        step="summary"
+        title={t('onboarding.summary.title')}
+        eyebrow={t('onboarding.design.planReady')}
+        trailing={<Avatar phase={1} pose="thumbs_up" size="md" framed={false} />}
+        footerNote={t('onboarding.design.startLater')}
+        action={{
+          label: t('onboarding.summary.start'),
+          onClick: start,
+          disabled: !valid || requesting,
+        }}
+      >
+        <div className={styles.summary}>
+          <WorkdaySummary
+            title={t('onboarding.summary.workday')}
+            onEdit={() => setSection('schedule')}
+            workDays={draft.workDays}
+            schedule={draft.schedule}
+          />
+          <PrioritiesSummary
+            title={t('onboarding.summary.priorities')}
+            onEdit={() => setSection('discomfort')}
+            discomfort={draft.discomfort}
+          />
+          <EquipmentSummary
+            title={t('onboarding.summary.equipment')}
+            onEdit={() => setSection('equipment')}
+            equipment={draft.equipment}
+          />
+          <PaceSummary
+            title={t('onboarding.summary.pace')}
+            onEdit={() => setSection('intensity')}
+            settings={draft}
+          />
+        </div>
+        <section className={styles.notifications}>
+          <Toggle
+            labelPosition="start"
+            label={t('onboarding.design.reminders')}
+            checked={on}
+            disabled={requesting || permission === 'denied' || permission === 'unsupported'}
+            onChange={(enabled) => void setNotifications(enabled)}
+          />
+          {permission === 'default' && (
+            <p className={styles.muted}>{t('onboarding.design.permissionHint')}</p>
+          )}
+          {permission === 'granted' && (
+            <p className={styles.muted}>
+              {on
+                ? t('onboarding.summary.notifications.granted')
+                : t('onboarding.design.remindersOff')}
             </p>
-            <p className={common.muted}>{t('onboarding.summary.notifications.deniedHelp')}</p>
-          </div>
+          )}
+          {permission === 'denied' && (
+            <>
+              <p className={styles.muted}>{t('onboarding.summary.notifications.denied')}</p>
+              <p className={styles.muted}>{t('onboarding.summary.notifications.deniedHelp')}</p>
+            </>
+          )}
+          {permission === 'unsupported' && (
+            <p className={styles.muted}>{t('onboarding.summary.notifications.unsupported')}</p>
+          )}
+        </section>
+        {!valid && (
+          <InlineMessage tone="danger">
+            <button className={styles.fixSchedule} onClick={() => setSection('schedule')}>
+              {t('schedule.issues.invalid')}
+            </button>
+          </InlineMessage>
         )}
-        {permission === 'unsupported' && (
-          <p className={styles.status}>
-            <PixelIcon name="info" size={24} />
-            {t('onboarding.summary.notifications.unsupported')}
-          </p>
-        )}
-      </Card>
-
-      {!valid && (
-        <InlineMessage tone="danger">
-          <Link to={onboardingPath('schedule')}>{t('schedule.issues.invalid')}</Link>
-        </InlineMessage>
+      </OnboardingStep>
+      {section && (
+        <ProfileEditSheet
+          key={section}
+          section={section}
+          value={draft}
+          onSave={(patch) => {
+            update((current) => ({ ...current, ...patch }));
+            setSection(undefined);
+          }}
+          onClose={() => setSection(undefined)}
+        />
       )}
-    </OnboardingStep>
+    </>
   );
 }

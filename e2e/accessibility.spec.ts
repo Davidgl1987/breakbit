@@ -31,14 +31,16 @@ for (const colorScheme of ['light', 'dark'] as const) {
     };
 
     await page.goto('/');
-    await scan('welcome');
+    await scan('brand intro');
     await page.getByRole('button', { name: 'Comenzar' }).click();
+    await scan('welcome');
+    await page.getByRole('button', { name: 'Preparar mi plan' }).click();
     for (const step of ['schedule', 'discomfort', 'equipment', 'intensity']) {
       await scan(`onboarding/${step}`);
-      await page.getByRole('button', { name: 'Siguiente' }).click();
+      await page.getByRole('button', { name: 'Continuar' }).click();
     }
     await scan('onboarding/summary');
-    await page.getByRole('button', { name: 'Empezar' }).click();
+    await page.getByRole('button', { name: 'Ir a Hoy' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Tu plan de hoy' })).toBeVisible();
     await scan('today (before the day)');
 

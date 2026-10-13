@@ -18,7 +18,7 @@ function stubNotifications(
   return requestPermission;
 }
 
-const nextButton = () => screen.getByRole('button', { name: 'Siguiente' });
+const nextButton = () => screen.getByRole('button', { name: 'Continuar' });
 const next = (user: UserEvent) => user.click(nextButton());
 
 /** Sets a time inside a labelled group of fields ("Horario", "Descanso habitual"…). */
@@ -37,8 +37,9 @@ describe('onboarding', () => {
     stubNotifications('default');
     const { user } = renderWithRouter(<AppRoutes />, { route: '/' });
 
-    // 1. Welcome
+    // Brand introduction, then the welcome.
     await user.click(screen.getByRole('button', { name: 'Comenzar' }));
+    await user.click(screen.getByRole('button', { name: 'Preparar mi plan' }));
 
     // 2. Workday
     expect(screen.getByRole('heading', { level: 1, name: 'Tu jornada' })).toBeInTheDocument();
@@ -49,8 +50,12 @@ describe('onboarding', () => {
 
     // 3. Discomfort
     expect(screen.getByRole('heading', { level: 1, name: 'Tus molestias' })).toBeInTheDocument();
-    fireEvent.change(screen.getByRole('slider', { name: 'Hombros' }), { target: { value: '2' } });
-    fireEvent.change(screen.getByRole('slider', { name: 'Cuello' }), { target: { value: '4' } });
+    fireEvent.change(screen.getByRole('slider', { name: 'Hombros' }), {
+      target: { value: '2' },
+    });
+    fireEvent.change(screen.getByRole('slider', { name: 'Cuello' }), {
+      target: { value: '4' },
+    });
     await next(user);
 
     // 4. Equipment
@@ -59,13 +64,13 @@ describe('onboarding', () => {
     await next(user);
 
     // 5. Pace
-    expect(screen.getByRole('heading', { level: 1, name: 'Tu ritmo' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'A tu ritmo' })).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: 'Activo' }));
     expect(screen.getByText('Con tu jornada (09:00–18:00)')).toBeInTheDocument();
     await next(user);
 
     // 6. Summary
-    expect(screen.getByRole('heading', { level: 1, name: 'Todo listo' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Un buen comienzo' })).toBeInTheDocument();
     expect(screen.getByText('lun · mar · mié · jue · vie · sáb')).toBeInTheDocument();
     expect(screen.getByText('09:00–18:00')).toBeInTheDocument();
     expect(screen.getByText('Descanso 11:00–11:30')).toBeInTheDocument();
@@ -75,12 +80,12 @@ describe('onboarding', () => {
       within(areas)
         .getAllByRole('listitem')
         .map((item) => item.textContent),
-    ).toEqual(['Cuello4nivel 4 de 5', 'Hombros2nivel 2 de 5']);
+    ).toEqual(['Cuello · 4/5nivel 4 de 5', 'Hombros · 2/5nivel 2 de 5']);
     expect(screen.getByText('Mancuernas')).toBeInTheDocument();
-    expect(screen.getByText(/^Activo · \d+ pausas previstas · ~\d+ min$/)).toBeInTheDocument();
+    expect(screen.getByText(/^\d+ pausas previstas · ~\d+ min al día$/)).toBeInTheDocument();
     expect(useAppStore.getState().onboardedAt).toBeUndefined();
 
-    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    await user.click(screen.getByRole('button', { name: 'Ir a Hoy' }));
 
     const state = useAppStore.getState();
     expect(state.onboardedAt).toBeDefined();
@@ -102,7 +107,9 @@ describe('onboarding', () => {
   });
 
   it('keeps the draft across a reload until it is saved', async () => {
-    const first = renderWithRouter(<AppRoutes />, { route: '/onboarding/schedule' });
+    const first = renderWithRouter(<AppRoutes />, {
+      route: '/onboarding/schedule',
+    });
     setTime('Horario', 'Inicio', '08:00');
     first.unmount();
 
@@ -110,16 +117,45 @@ describe('onboarding', () => {
     expect(screen.getByText('08:00–17:00')).toBeInTheDocument();
   });
 
-  it('links each summary section back to its step', () => {
-    renderWithRouter(<AppRoutes />, { route: '/onboarding/summary' });
-    expect(screen.getByRole('link', { name: 'Editar Jornada' })).toHaveAttribute(
-      'href',
-      '/onboarding/schedule',
-    );
-    expect(screen.getByRole('link', { name: 'Editar Ritmo' })).toHaveAttribute(
-      'href',
-      '/onboarding/intensity',
-    );
+  it('edits the summary in a sheet without saving the profile or revisiting steps', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, {
+      route: '/onboarding/summary',
+    });
+    await user.click(screen.getByRole('button', { name: 'Editar Jornada' }));
+    setTime('Horario', 'Fin', '18:00');
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Un buen comienzo' })).toBeInTheDocument();
+    expect(draft().schedule.workEnd).toBe('18:00');
+    expect(useAppStore.getState().settings.schedule.workEnd).toBe('17:00');
+    expect(screen.getByRole('button', { name: 'Editar Jornada' })).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: 'Editar Jornada' }));
+    setTime('Horario', 'Fin', '19:00');
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(draft().schedule.workEnd).toBe('18:00');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('discards sheet changes on Escape and blocks an invalid workday', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, {
+      route: '/onboarding/summary',
+    });
+    await user.click(screen.getByRole('button', { name: 'Editar Jornada' }));
+    setTime('Horario', 'Fin', '02:00');
+    expect(screen.getByRole('button', { name: 'Guardar' })).toBeDisabled();
+    await user.keyboard('{Escape}');
+    expect(draft().schedule.workEnd).toBe('17:00');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('starts on phase one, and completing setup does not start a workday', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, {
+      route: '/onboarding/summary',
+    });
+    await user.click(screen.getByRole('button', { name: 'Ir a Hoy' }));
+    expect(useAppStore.getState().progress.evolutionPhase).toBe(1);
+    expect(Object.values(useAppStore.getState().days)).toHaveLength(0);
   });
 });
 
@@ -225,7 +261,9 @@ describe('onboarding: equipment', () => {
   });
 
   it('has no "none" option: nothing ticked is an empty list', async () => {
-    const { user } = renderWithRouter(<AppRoutes />, { route: '/onboarding/equipment' });
+    const { user } = renderWithRouter(<AppRoutes />, {
+      route: '/onboarding/equipment',
+    });
     expect(screen.queryByRole('checkbox', { name: /Ninguno/ })).not.toBeInTheDocument();
     expect(
       screen.getByText('Los movimientos sin material y caminar siempre estarán disponibles.'),
@@ -254,31 +292,35 @@ describe('onboarding: notifications', () => {
     const { user } = renderWithRouter(<AppRoutes />, { route });
     expect(requestPermission).not.toHaveBeenCalled();
 
-    await user.click(screen.getByRole('button', { name: 'Activar notificaciones' }));
+    await user.click(screen.getByRole('switch', { name: 'Avisos durante tu jornada' }));
     expect(requestPermission).toHaveBeenCalledTimes(1);
     expect(screen.getByText('Notificaciones activadas')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Activar notificaciones' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Avisos durante tu jornada' })).toBeChecked();
 
-    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    await user.click(screen.getByRole('button', { name: 'Ir a Hoy' }));
     expect(useAppStore.getState().settings.notifications.enabled).toBe(true);
+  });
+
+  it('allows opting out even after permission is granted', async () => {
+    stubNotifications('granted');
+    const { user } = renderWithRouter(<AppRoutes />, { route });
+    await user.click(screen.getByRole('switch', { name: 'Avisos durante tu jornada' }));
+    await user.click(screen.getByRole('button', { name: 'Ir a Hoy' }));
+    expect(useAppStore.getState().settings.notifications.enabled).toBe(false);
   });
 
   it('keeps offering the button when the prompt is dismissed', async () => {
     stubNotifications('default', 'default');
     const { user } = renderWithRouter(<AppRoutes />, { route });
-    await user.click(screen.getByRole('button', { name: 'Activar notificaciones' }));
-    expect(screen.getByRole('button', { name: 'Activar notificaciones' })).toBeInTheDocument();
+    await user.click(screen.getByRole('switch', { name: 'Avisos durante tu jornada' }));
+    expect(screen.getByRole('switch', { name: 'Avisos durante tu jornada' })).toBeInTheDocument();
   });
 
   it('explains how to unblock them, without asking again, and lets the user start', async () => {
     const requestPermission = stubNotifications('denied');
     const { user } = renderWithRouter(<AppRoutes />, { route });
 
-    expect(
-      screen.queryByRole('button', { name: 'Activar notificaciones' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Avisos durante tu jornada' })).toBeDisabled();
     expect(
       screen.getByText('Las notificaciones están bloqueadas en este navegador.'),
     ).toBeInTheDocument();
@@ -286,7 +328,7 @@ describe('onboarding: notifications', () => {
       screen.getByText(/permite las notificaciones de este sitio en los ajustes del navegador/),
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    await user.click(screen.getByRole('button', { name: 'Ir a Hoy' }));
     expect(requestPermission).not.toHaveBeenCalled();
     expect(useAppStore.getState().onboardedAt).toBeDefined();
     expect(useAppStore.getState().settings.notifications.enabled).toBe(false);
@@ -307,8 +349,6 @@ describe('onboarding: notifications', () => {
     expect(
       screen.getByText('Este navegador no permite avisos. Verás tus pausas al abrir Breakbit.'),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Activar notificaciones' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Avisos durante tu jornada' })).toBeDisabled();
   });
 });

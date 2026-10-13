@@ -13,13 +13,22 @@ interface BottomSheetProps {
   children?: ReactNode;
   /** Action buttons, stacked at the bottom of the sheet. */
   actions?: ReactNode;
+  /** Keep actions visible while a long form scrolls inside the panel. */
+  scrollBody?: boolean;
 }
 
 /**
  * Modal bottom sheet: rises from the bottom, closes on Escape or backdrop tap (sliding
  * back down, however it's closed) and restores focus.
  */
-export function BottomSheet({ open, onClose, title, children, actions }: BottomSheetProps) {
+export function BottomSheet({
+  open,
+  onClose,
+  title,
+  children,
+  actions,
+  scrollBody = false,
+}: BottomSheetProps) {
   const { t } = useT();
   const close = useEffectEvent(onClose);
   const titleId = useId();
@@ -90,7 +99,7 @@ export function BottomSheet({ open, onClose, title, children, actions }: BottomS
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={styles.sheet}
+        className={scrollBody ? `${styles.sheet} ${styles.scrollBody}` : styles.sheet}
       >
         <span className={styles.handle} aria-hidden="true" />
         <div className={styles.header}>
