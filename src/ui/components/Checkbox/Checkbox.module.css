@@ -48,3 +48,8 @@
 .label {
   font-weight: var(--weight-semibold);
 }
+.row[data-label-position='start'] .label {
+  order: -1;
+  flex: 1;
+  min-width: 0;
+}

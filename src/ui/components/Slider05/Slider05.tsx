@@ -1,5 +1,6 @@
 import { useId, type CSSProperties } from 'react';
 import type { IconName } from '@/ui/icons/iconNames';
+import { cx } from '@/ui/cx';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './Slider05.module.css';
 
@@ -9,14 +10,22 @@ interface Slider05Props {
   onChange: (value: number) => void;
   icon?: IconName;
   max?: number;
+  layout?: 'inline' | 'stacked';
 }
 
 /** Discrete 0–5 slider used for discomfort priorities. */
-export function Slider05({ label, value, onChange, icon, max = 5 }: Slider05Props) {
+export function Slider05({
+  label,
+  value,
+  onChange,
+  icon,
+  max = 5,
+  layout = 'inline',
+}: Slider05Props) {
   const id = useId();
   const fill = `${(value / max) * 100}%`;
   return (
-    <div className={styles.row}>
+    <div className={cx(styles.row, layout === 'stacked' && styles.stacked)}>
       {icon && <PixelIcon name={icon} size={24} />}
       <label htmlFor={id} className={styles.label}>
         {label}
