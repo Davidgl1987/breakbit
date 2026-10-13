@@ -1,0 +1,174 @@
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.eyebrow {
+  color: var(--color-primary-text);
+  font-size: var(--text-sm);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.heading {
+  display: grid;
+  gap: 12px;
+}
+.heading h1 {
+  font-size: clamp(0.875rem, 4vw, 1.0625rem);
+  overflow-wrap: anywhere;
+}
+.heading p {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.scene {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 224px;
+  padding: 22px 20px 26px;
+  overflow: hidden;
+}
+.scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.18;
+  background-image: radial-gradient(var(--color-primary) 0.7px, transparent 0.7px);
+  background-size: 12px 12px;
+  mask-image: linear-gradient(110deg, transparent 25%, #000);
+}
+.kicker {
+  position: relative;
+  z-index: 1;
+  color: var(--color-primary-text);
+  font-size: var(--text-sm);
+}
+.scene h2 {
+  position: relative;
+  z-index: 1;
+  max-width: 75%;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.metric {
+  position: relative;
+  z-index: 1;
+  max-width: 65%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+.hint {
+  position: relative;
+  z-index: 1;
+  max-width: 65%;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.art {
+  position: absolute;
+  right: 4px;
+  bottom: 6px;
+  width: 130px;
+  pointer-events: none;
+}
+.art > span {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.activityArt {
+  width: 120px;
+  height: 120px;
+  opacity: 0.3;
+  mask-image: linear-gradient(140deg, #000 45%, transparent);
+}
+.guide {
+  display: grid;
+  place-items: center;
+  min-height: 230px;
+  padding: 10px;
+  border: 1px solid var(--color-primary-soft-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-primary-soft);
+  overflow: hidden;
+}
+.guide > span {
+  width: 210px;
+  max-width: 100%;
+}
+.guide > img {
+  width: 100%;
+  height: 210px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.metadata {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.metadata > div {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 12px;
+}
+.metadata dt {
+  padding-top: 3px;
+  color: var(--color-text-muted);
+}
+.metadata dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 0;
+}
+.metadata dd > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.metadata img {
+  flex-shrink: 0;
+}
+.instructions {
+  display: grid;
+  gap: 14px;
+}
+.instructions h2 {
+  font-size: 0.75rem;
+}
+@media (max-width: 365px) {
+  .scene {
+    padding: 18px 16px 24px;
+  }
+  .scene h2 {
+    font-size: 0.75rem;
+  }
+  .art {
+    width: 108px;
+  }
+  .activityArt {
+    width: 100px;
+    height: 100px;
+  }
+  .metric {
+    font-size: 1rem;
+  }
+  .metadata > div {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 10px;
+  }
+}

@@ -17,7 +17,7 @@ export function Slider05({ label, value, onChange, icon, max = 5 }: Slider05Prop
   const fill = `${(value / max) * 100}%`;
   return (
     <div className={styles.row}>
-      {icon && <PixelIcon name={icon} size={32} />}
+      {icon && <PixelIcon name={icon} size={24} />}
       <label htmlFor={id} className={styles.label}>
         {label}
       </label>

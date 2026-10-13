@@ -122,7 +122,8 @@ describe('Fin de jornada', () => {
     const { user } = ui();
     expect(screen.getByText('Tu actividad sigue pendiente')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Versión corta · 10 min' }));
-    expect(screen.getByText('Continua · 10 min')).toBeInTheDocument();
+    expect(screen.getByText('Actividad continua')).toBeInTheDocument();
+    expect(screen.getByText('10 min')).toBeInTheDocument();
     expect(
       store().days[MONDAY]!.plan!.activities.find((item) => item.id === ids.main)?.durationSec,
     ).toBe(600);

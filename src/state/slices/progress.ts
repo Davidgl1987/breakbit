@@ -38,5 +38,20 @@ export function progressActions(
           : { progress: { ...state.progress, lastSeenWeek: week } },
       );
     },
+
+    markWeekPrioritiesRebalanced: (week) => {
+      set((state) => {
+        const result = state.progress.weeklyResults.find((item) => item.week === week);
+        if (!result || result.prioritiesRebalanced) return state;
+        return {
+          progress: {
+            ...state.progress,
+            weeklyResults: state.progress.weeklyResults.map((item) =>
+              item === result ? { ...item, prioritiesRebalanced: true } : item,
+            ),
+          },
+        };
+      });
+    },
   };
 }

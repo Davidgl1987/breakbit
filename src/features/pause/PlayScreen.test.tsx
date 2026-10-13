@@ -279,7 +279,8 @@ describe('pause done', () => {
     // Just the name: the time actually moved is for the stats.
     expect(screen.getByText(contentName(first.content, 'es'))).toBeInTheDocument();
     expect(screen.getByText('+120 XP')).toBeInTheDocument();
-    expect(screen.getByText('+100 pausa · +20 a la primera')).toBeInTheDocument();
+    expect(screen.getByText('+100 pausa')).toBeInTheDocument();
+    expect(screen.getByText('+20 a la primera')).toBeInTheDocument();
     expect(screen.getByText('Pausas de hoy')).toBeInTheDocument();
     expect(screen.getByText('1 de 5')).toBeInTheDocument();
     // The pauses lead; the main activity comes after, still to do.
@@ -312,7 +313,7 @@ describe('pause done', () => {
     expect(activity().rating).toBe('disliked');
   });
 
-  it('shows the welcome-back bonus on the same line', async () => {
+  it('shows the welcome-back bonus in the breakdown', async () => {
     useAppStore.setState((state) => ({
       days: { ...state.days, [DATE]: { ...state.days[DATE]!, returnBonus: true } },
     }));
@@ -320,9 +321,7 @@ describe('pause done', () => {
     await user.click(screen.getByRole('button', { name: 'Hecho' }));
 
     expect(screen.getByText('+170 XP')).toBeInTheDocument();
-    expect(
-      screen.getByText('+150 pausa con bonus de regreso · +20 a la primera'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('+150 pausa con bonus de regreso')).toBeInTheDocument();
   });
 
   it('tries to close a tab opened from a notification', async () => {

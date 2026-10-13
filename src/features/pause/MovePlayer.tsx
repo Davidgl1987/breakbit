@@ -1,29 +1,30 @@
 import type { ReactNode } from 'react';
 import type { ActivitySlot, Exercise } from '@/domain/types';
-import { ActivityHero } from '@/features/day/ActivityHero';
-import { areaIcon, areaName } from '@/features/day/catalogDisplay';
+import {
+  ActivityGuide,
+  ActivityHeading,
+  ActivityInstructions,
+  ActivityMetadata,
+} from '@/features/day/ActivityPresentation';
 import { suggestsStanding } from '@/features/day/contentItems';
-import { ExerciseDetails } from '@/features/day/ExerciseDetails';
-import { TimerRing } from '@/features/day/TimerRing';
+import { ActivityTimer } from '@/features/day/ActivityTimer';
 import { useT } from '@/i18n/useT';
 import { Button } from '@/ui/components/Button/Button';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { InlineMessage } from '@/ui/components/InlineMessage/InlineMessage';
-import { Tag } from '@/ui/components/Tag/Tag';
-import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
+import { LineIcon } from '@/ui/icons/LineIcon';
 import styles from './pause.module.css';
 import type { StepTimer } from './useStepTimer';
-
-/** The most evolved avatar shows every exercise (one set of art for all phases). */
-const DEMO_PHASE = 5;
 
 interface MovePlayerProps {
   exercise: Exercise;
   timer: StepTimer;
-  /** Above the hero: the close button and, in a routine, its progress. */
+  /** The top row with the existing close button. */
   top: ReactNode;
   /** Under the title: the routine and the step ("Despertar · Paso 2 de 4"). */
   subtitle?: string;
+  /** Routine sequence beneath the title and subtitle. */
+  progress?: ReactNode;
   /** The last move: its button finishes the pause instead of moving on. */
   last: boolean;
   /** The move after this one, announced at the bottom. */
@@ -33,7 +34,7 @@ interface MovePlayerProps {
 }
 
 /**
- * One move as the user does it: the avatar showing it, the timer ring, its areas and
+ * One move as the user does it: the avatar showing it, a separate timer strip, its areas and
  * steps, and the controls (start, pause, next or done).
  */
 export function MovePlayer({
@@ -41,6 +42,7 @@ export function MovePlayer({
   timer,
   top,
   subtitle,
+  progress,
   last,
   following,
   slot,
@@ -50,11 +52,9 @@ export function MovePlayer({
     <FlowLayout
       top={top}
       header={
-        <ActivityHero
-          stage={<AvatarStage phase={DEMO_PHASE} pose="demo" label={t('pause.demo')} />}
-          title={exercise.name[locale]}
-          name={subtitle}
-        />
+        <ActivityHeading title={exercise.name[locale]} subtitle={subtitle}>
+          {progress}
+        </ActivityHeading>
       }
       footer={
         timer.ready ? (
@@ -63,48 +63,54 @@ export function MovePlayer({
               {last ? t('pause.play.done') : t('pause.play.skip')}
             </Button>
             <Button size="lg" onClick={timer.resume}>
+              <LineIcon name="play" size={18} />
               {t('pause.play.start')}
             </Button>
           </div>
         ) : (
           <div className={styles.controls}>
             <Button
-              variant="secondary"
+              variant={timer.running ? 'secondary' : 'primary'}
               size="lg"
               onClick={timer.running ? timer.pause : timer.resume}
             >
+              <LineIcon name={timer.running ? 'pause' : 'play'} size={18} />
               {timer.running ? t('pause.play.pause') : t('pause.play.resume')}
             </Button>
-            <Button size="lg" onClick={timer.next}>
+            <Button
+              variant={timer.running ? 'primary' : 'secondary'}
+              size="lg"
+              onClick={timer.next}
+            >
+              <LineIcon name={last ? 'check' : 'chevron-right'} size={18} />
               {last ? t('pause.play.done') : t('pause.play.next')}
             </Button>
           </div>
         )
       }
     >
-      {/* A fresh ring per move, so it doesn't sweep back between moves. */}
-      <TimerRing
+      <ActivityGuide exercise={exercise} />
+      <ActivityTimer
         key={timer.index}
         progress={timer.progress}
         label={t('pause.timer')}
         seconds={timer.remainingSec}
-        caption={
-          timer.running ? undefined : timer.ready ? t('pause.play.ready') : t('pause.play.paused')
+        status={
+          timer.running
+            ? t('exerciseUI.running')
+            : timer.ready
+              ? t('pause.play.ready')
+              : t('pause.play.paused')
         }
+        caption={timer.running ? t('main.left') : undefined}
       />
-      <div className={styles.pills}>
-        {exercise.areas.map((area) => (
-          <Tag key={area} icon={areaIcon(area)}>
-            {areaName(area, locale)}
-          </Tag>
-        ))}
-      </div>
-      <ExerciseDetails exercise={exercise} />
+      <ActivityMetadata areas={exercise.areas} equipment={exercise.equipment} />
+      <ActivityInstructions exercise={exercise} />
       {suggestsStanding([exercise], slot) && (
         <InlineMessage icon="info">{t('pause.standing')}</InlineMessage>
       )}
       {following && (
-        <p className={styles.muted}>{t('pause.play.nextUp', { name: following.name[locale] })}</p>
+        <p className={styles.next}>{t('pause.play.nextUp', { name: following.name[locale] })}</p>
       )}
     </FlowLayout>
   );

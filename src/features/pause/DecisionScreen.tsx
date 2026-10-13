@@ -4,10 +4,16 @@ import { pausePlayPath, ROUTES } from '@/app/routes';
 import { XP } from '@/domain/config';
 import { isAwaitingAnswer, isDue, isOpen, postponeOptions, windowEnd } from '@/domain/pause/window';
 import type { ScheduledActivity, SkipReason } from '@/domain/types';
-import { ActivityHero } from '@/features/day/ActivityHero';
+import {
+  ActivityHeading,
+  ActivityMetadata,
+  ActivityScene,
+  ActivityTop,
+} from '@/features/day/ActivityPresentation';
 import { contentItems, suggestsStanding } from '@/features/day/contentItems';
 import { contentName } from '@/features/day/contentName';
 import { PauseContentView } from '@/features/day/PauseContentView';
+import { PauseSheet } from '@/features/day/PauseSheet';
 import { formatClock, formatSeconds } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
@@ -18,11 +24,9 @@ import { useNow } from '@/state/useNow';
 import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Button } from '@/ui/components/Button/Button';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
-import { Card } from '@/ui/components/Card/Card';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
-import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './pause.module.css';
@@ -83,6 +87,7 @@ function Decision({
   const startPause = useAppStore((state) => state.startPause);
   const discardPause = useAppStore((state) => state.discardPause);
   const [discarding, setDiscarding] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const [reason, setReason] = useState<SkipReason>();
   const date = activityDate(activity.id);
   const options = postponeOptions(activity, now);
@@ -92,23 +97,38 @@ function Decision({
   const postponed = activity.postponeMinutes;
   const minutesLeft = Math.max(1, Math.ceil((windowEnd(activity) - now) / 60_000));
   const hint = pauseHint(activity);
+  const exercises = contentItems(activity.content).map((item) => item.exercise);
 
   return (
     <FlowLayout
       top={
-        <IconButton label={t('common.close')} to={ROUTES.today}>
-          <LineIcon name="close" size={22} />
-        </IconButton>
+        <ActivityTop
+          label={t('exerciseUI.pauseAt', { time: formatClock(activity.currentScheduledAt) })}
+        >
+          <IconButton label={t('common.close')} to={ROUTES.today}>
+            <LineIcon name="close" size={22} />
+          </IconButton>
+        </ActivityTop>
       }
-      header={
-        <ActivityHero
-          stage={<AvatarStage phase={phase} pose="cheer" label={t('pause.stage')} />}
-          title={t('pause.title')}
-          name={`${contentName(activity.content, locale)} · ${formatSeconds(activity.durationSec)}`}
-          hint={hint && t(hint)}
-        />
-      }
+      header={<ActivityHeading title={t('pause.title')} />}
     >
+      <ActivityScene
+        label={t('exerciseUI.forYou')}
+        title={contentName(activity.content, locale)}
+        metric={formatSeconds(activity.durationSec)}
+        phase={phase}
+        pose="cheer"
+        artLabel={t('pause.stage')}
+      />
+      <ActivityMetadata
+        areas={exercises.flatMap((exercise) => exercise.areas)}
+        equipment={exercises.flatMap((exercise) => exercise.equipment)}
+      />
+      {hint && <p className={styles.muted}>{t(hint)}</p>}
+      <Button variant="ghost" className={styles.link} onClick={() => setPreviewing(true)}>
+        {t('exerciseUI.steps')}
+        <LineIcon name="chevron-right" size={18} />
+      </Button>
       <Button
         size="lg"
         fullWidth
@@ -122,7 +142,7 @@ function Decision({
         {t('pause.go')}
       </Button>
 
-      <Card as="section" className={styles.postpone}>
+      <section className={styles.postpone}>
         <h2 className={styles.sectionTitle}>{t('pause.notNow')}</h2>
         {comingBack ? (
           <p className={styles.muted}>
@@ -168,11 +188,25 @@ function Decision({
               .join(' · ')}
           </p>
         )}
-      </Card>
+      </section>
 
-      <Button variant="destructive" fullWidth onClick={() => setDiscarding(true)}>
+      <Button
+        variant="ghost"
+        className={styles.discardLink}
+        fullWidth
+        onClick={() => setDiscarding(true)}
+      >
         {t('pause.discard')} · −{Math.abs(XP.discard)} XP
+        <LineIcon name="chevron-right" size={18} />
       </Button>
+
+      {previewing && (
+        <PauseSheet
+          content={activity.content}
+          slot={activity.slot}
+          onClose={() => setPreviewing(false)}
+        />
+      )}
 
       {discarding && (
         <BottomSheet

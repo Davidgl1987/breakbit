@@ -65,9 +65,10 @@ describe('main activity, before starting', () => {
     setUp(WALK);
     ui();
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Paseo por la calle' }),
+      screen.getByRole('heading', { level: 2, name: 'Paseo por la calle' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Continua · 20 min')).toBeInTheDocument();
+    expect(screen.getByText('Actividad continua')).toBeInTheDocument();
+    expect(screen.getByText('20 min')).toBeInTheDocument();
     expect(screen.getByText('13:00 · en horario de trabajo')).toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
   });
@@ -111,7 +112,7 @@ describe('main activity, before starting', () => {
     await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
 
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Paseo por casa u oficina' }),
+      screen.getByRole('heading', { level: 2, name: 'Paseo por casa u oficina' }),
     ).toBeInTheDocument();
     expect(main().content).toEqual({ kind: 'main', activityId: 'walk_indoors' });
     expect(pauseIds(store().days[DATE]!.plan!)).toEqual(before);
@@ -125,7 +126,7 @@ describe('continuous session', () => {
     await user.click(screen.getByRole('button', { name: 'Empezar' }));
     await wait(30_000);
     // The clock ticks by the second: either side of it.
-    expect(ring()).toHaveTextContent(/^19:3[01]quedan$/);
+    expect(ring()).toHaveTextContent(/^En marcha19:3[01]quedan$/);
 
     await user.click(screen.getByRole('button', { name: 'Pausar' }));
     expect(ring()).toHaveTextContent('En pausa');
@@ -193,7 +194,7 @@ describe('continuous session', () => {
     expect(card).toHaveTextContent('En curso');
     expect(card).toHaveTextContent('5 de 20 min');
     await user.click(within(card).getByRole('link', { name: 'Continuar' }));
-    expect(ring()).toHaveTextContent(/^1[45]:\d\dquedan$/);
+    expect(ring()).toHaveTextContent(/^En marcha1[45]:\d\dquedan$/);
   });
 });
 
@@ -201,13 +202,14 @@ describe('accumulated session', () => {
   it('adds up blocks until the time is done', async () => {
     setUp(STANDING, '10:00');
     const { user } = ui();
-    expect(screen.getByText('En bloques · 30 min')).toBeInTheDocument();
+    expect(screen.getByText('En bloques')).toBeInTheDocument();
+    expect(screen.getByText('30 min')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Empezar un bloque' }));
     expect(screen.getByText(/^Bloque en marcha · 0:0\d$/)).toBeInTheDocument();
 
     await wait(10 * MIN);
     await user.click(screen.getByRole('button', { name: 'Parar bloque' }));
-    expect(ring()).toHaveTextContent(/^10:0\dde 30 min$/);
+    expect(ring()).toHaveTextContent(/^Acumulado10:0\dde 30 min$/);
     expect(screen.getByText('Ningún bloque en marcha')).toBeInTheDocument();
 
     // Between blocks, nothing adds up.
