@@ -1,7 +1,3 @@
-.muted {
-  color: var(--color-text-muted);
-}
-
 .actions {
   display: grid;
   gap: var(--space-2);
@@ -14,15 +10,10 @@
   gap: var(--space-2);
 }
 
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-2);
-}
-
 .block {
-  text-align: center;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
 }
 
@@ -34,10 +25,38 @@
 
 .away {
   font-size: var(--text-sm);
-  text-align: center;
   color: var(--color-text-muted);
 }
 
 .sheetBody {
   color: var(--color-text);
+}
+.edit,
+.link {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-primary-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.edit {
+  justify-self: start;
+  padding-inline: 0;
+}
+.next {
+  padding-block: 14px;
+  border-block: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Longer block controls must still fit side by side on narrow phones. */
+.controls > button {
+  white-space: normal;
+  padding: 12px 10px;
+  font-size: var(--text-md);
+  line-height: 1.35;
+}
+.controls svg {
+  flex-shrink: 0;
 }

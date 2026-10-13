@@ -4,6 +4,7 @@ import { isOpen } from '@/domain/pause/window';
 import type { ScheduledActivity } from '@/domain/types';
 import { contentName } from '@/features/day/contentName';
 import { contentItems } from '@/features/day/contentItems';
+import { ActivityTop } from '@/features/day/ActivityPresentation';
 import { useT } from '@/i18n/useT';
 import { activityDate, selectActivity } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
@@ -12,12 +13,11 @@ import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedPr
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { MovePlayer } from './MovePlayer';
-import styles from './pause.module.css';
 import { useStepTimer } from './useStepTimer';
 
 /**
  * /pause/:id/play — the exercise after "Vamos": the avatar showing the move, the timer
- * ring and the steps. Each move waits for "Empezar", so reading it doesn't eat into its
+ * strip and the steps. Each move waits for "Empezar", so reading it doesn't eat into its
  * time. A routine or combined reset goes move by move; when the last one ends the pause
  * is completed.
  */
@@ -77,20 +77,20 @@ function Player({ activity, search }: { activity: ScheduledActivity; search: str
       exercise={current.exercise}
       timer={timer}
       subtitle={subtitle}
+      progress={
+        multi ? (
+          <SegmentedProgress done={timer.index} total={items.length} label={stepLabel} />
+        ) : undefined
+      }
       last={last}
       following={following?.exercise}
       slot={activity.slot}
       top={
-        <>
+        <ActivityTop label={t('exerciseUI.pause')}>
           <IconButton label={t('common.close')} to={ROUTES.today}>
             <LineIcon name="close" size={22} />
           </IconButton>
-          {multi && (
-            <div className={styles.topProgress}>
-              <SegmentedProgress done={timer.index} total={items.length} label={stepLabel} />
-            </div>
-          )}
-        </>
+        </ActivityTop>
       }
     />
   );

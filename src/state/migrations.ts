@@ -6,7 +6,7 @@ import type { PersistedState, Prefs } from './types';
  * Persisted schema version. Bump it and add a step below whenever the saved shape
  * changes, so existing users (and backups) keep their data.
  */
-export const STATE_VERSION = 3;
+export const STATE_VERSION = 4;
 
 type Step = (state: unknown, now: Instant) => unknown;
 
@@ -26,6 +26,9 @@ const STEPS: Record<number, Step> = {
       settings: { ...settings, notifications: { sound: true, ...settings.notifications } },
     };
   },
+  // v4: optional weekly review tracking. An absent flag means not applied; preserve
+  // all settings, plans, results and XP without inventing a completed review.
+  4: (state) => state,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

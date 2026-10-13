@@ -53,6 +53,9 @@ export function validatePersistedState(value: unknown): string[] {
       v.oneOf(item.result, ['good', 'regular', 'bad', 'neutral'], `${path}.result`);
       v.integer(item.phaseBefore, `${path}.phaseBefore`, 1, 5);
       v.integer(item.phaseAfter, `${path}.phaseAfter`, 1, 5);
+      v.optional(item.prioritiesRebalanced, `${path}.prioritiesRebalanced`, (value, valuePath) =>
+        v.boolean(value, valuePath),
+      );
       v.optional(item.unlocked, `${path}.unlocked`, (value, valuePath) =>
         v.string(value, valuePath),
       );

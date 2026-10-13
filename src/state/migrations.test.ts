@@ -48,6 +48,12 @@ describe('migrateState', () => {
     expect(migrateState(state, STATE_VERSION, NOW)).toBe(state);
   });
 
+  it('keeps v3 settings and history unchanged when adding weekly review tracking', () => {
+    const state = initialState(NOW);
+    expect(migrateState(state, 3, NOW)).toBe(state);
+    expect(migrateState(state, 3, NOW).settings.discomfort).toEqual(state.settings.discomfort);
+  });
+
   it('refuses data from a newer version', () => {
     expect(() => migrateState({}, STATE_VERSION + 1, NOW)).toThrow();
   });

@@ -125,6 +125,8 @@ export interface ProgressActions {
   evaluateWeeks: (now: Instant) => void;
   /** The weekly result has been seen: Today stops showing it. */
   markWeekSeen: (week: string) => void;
+  /** Remembers an explicitly confirmed priority redistribution on an existing week. */
+  markWeekPrioritiesRebalanced: (week: string) => void;
 }
 
 export interface DataActions {

@@ -45,6 +45,17 @@ beforeEach(() => {
 afterEach(() => clock.setOffset(0));
 
 describe('decision screen', () => {
+  it('previews the steps without starting the pause or awarding XP', async () => {
+    const { user } = openAt(1);
+    await user.click(screen.getByRole('button', { name: 'Ver los pasos' }));
+    const preview = screen.getByRole('dialog');
+    expect(within(preview).getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
+    expect(activity().startedAt).toBeUndefined();
+    expect(store().xpLedger).toEqual([]);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ver los pasos' })).toHaveFocus();
+  });
   it('offers "Vamos" first, then the postpones that fit, then discarding', () => {
     openAt(1);
     const go = screen.getByRole('button', { name: 'Vamos' });

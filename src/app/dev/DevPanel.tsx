@@ -25,10 +25,17 @@ import { SCENARIO_NOW, SCENARIO_WEEK, weekScenarioState, type WeekScenario } fro
 const SCENARIOS: {
   scenario: WeekScenario | 'history';
   labelKey:
-    'dev.scenarioEvolve' | 'dev.scenarioStable' | 'dev.scenarioRoom' | 'dev.scenarioHistory';
+    | 'dev.scenarioEvolve'
+    | 'dev.scenarioStable'
+    | 'dev.scenarioBad'
+    | 'dev.scenarioNeutral'
+    | 'dev.scenarioRoom'
+    | 'dev.scenarioHistory';
 }[] = [
   { scenario: 'evolve', labelKey: 'dev.scenarioEvolve' },
   { scenario: 'stable', labelKey: 'dev.scenarioStable' },
+  { scenario: 'bad', labelKey: 'dev.scenarioBad' },
+  { scenario: 'neutral', labelKey: 'dev.scenarioNeutral' },
   { scenario: 'room', labelKey: 'dev.scenarioRoom' },
   { scenario: 'history', labelKey: 'dev.scenarioHistory' },
 ];
