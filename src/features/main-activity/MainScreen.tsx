@@ -5,13 +5,19 @@ import { mainChoiceOf } from '@/domain/day/planDay';
 import { isMainRunning, mainElapsedSec } from '@/domain/main/session';
 import { isOpen } from '@/domain/pause/window';
 import type { MainActivity, ScheduledActivity } from '@/domain/types';
-import { ActivityHero } from '@/features/day/ActivityHero';
-import { equipmentIcon, equipmentName } from '@/features/day/catalogDisplay';
+import {
+  ActivityGuide,
+  ActivityHeading,
+  ActivityInstructions,
+  ActivityMetadata,
+  ActivityScene,
+  ActivityTop,
+} from '@/features/day/ActivityPresentation';
+import { mainActivityIcon } from '@/features/day/catalogDisplay';
 import { contentItems, type ContentItem } from '@/features/day/contentItems';
-import { ExerciseDetails } from '@/features/day/ExerciseDetails';
 import { mainActivityInfo, mainWhere } from '@/features/day/mainActivity';
 import { MainActivitySheet } from '@/features/day/MainActivitySheet';
-import { TimerRing } from '@/features/day/TimerRing';
+import { ActivityTimer } from '@/features/day/ActivityTimer';
 import { useDayPlanner } from '@/features/day/useDayPlanner';
 import { formatClock, formatDuration, formatSeconds, formatTimer } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
@@ -23,14 +29,9 @@ import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Button } from '@/ui/components/Button/Button';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
-import { Tag } from '@/ui/components/Tag/Tag';
-import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import styles from './main.module.css';
-
-/** The most evolved avatar shows every activity (one set of art for all phases). */
-const DEMO_PHASE = 5;
 
 /**
  * /main/:id — today's main activity: what it is and when, then its session once started.
@@ -88,15 +89,8 @@ function MainIntro({ activity, info }: MainViewProps) {
 
   return (
     <FlowLayout
-      top={close(t('common.close'))}
-      header={
-        <ActivityHero
-          stage={<AvatarStage phase={DEMO_PHASE} pose="demo" label={t('main.stage')} />}
-          title={info.name[locale]}
-          name={t(accumulated ? 'main.accumulated' : 'main.continuous', { minutes })}
-          hint={when}
-        />
-      }
+      top={<ActivityTop label={t('redesign.jornada')}>{close(t('common.close'))}</ActivityTop>}
+      header={<ActivityHeading title={t('mainActivity.sheetTitle')} />}
       footer={
         <div className={styles.actions}>
           <Button
@@ -104,29 +98,34 @@ function MainIntro({ activity, info }: MainViewProps) {
             fullWidth
             onClick={() => runScreenTransition(() => startMain(date, activity.id))}
           >
+            <LineIcon name="play" size={18} />
             {accumulated ? t('main.startBlock') : t('main.start')}
           </Button>
-          <Button variant="ghost" fullWidth onClick={() => setSheet('done')}>
+          <Button
+            variant="ghost"
+            className={styles.link}
+            fullWidth
+            onClick={() => setSheet('done')}
+          >
             {t('main.doneAlready')}
           </Button>
         </div>
       }
     >
-      {info.equipment.length > 0 && (
-        <div className={styles.tags}>
-          {info.equipment.map((item) => (
-            <Tag key={item} icon={equipmentIcon(item)}>
-              {equipmentName(item, locale)}
-            </Tag>
-          ))}
-        </div>
-      )}
-      <ExerciseDetails exercise={info} />
+      <ActivityScene
+        label={t(accumulated ? 'exerciseUI.blocks' : 'exerciseUI.continuous')}
+        title={info.name[locale]}
+        metric={formatSeconds(activity.durationSec)}
+        hint={when || undefined}
+        icon={mainActivityIcon(info.id)}
+      />
+      <ActivityMetadata areas={info.areas ?? []} equipment={info.equipment} />
       {plan && (
-        <Button variant="secondary" fullWidth onClick={() => setSheet('change')}>
+        <Button variant="ghost" className={styles.edit} onClick={() => setSheet('change')}>
           {t('main.change')}
         </Button>
       )}
+      <ActivityInstructions exercise={info} />
 
       {sheet === 'change' && plan && (
         <MainActivitySheet
@@ -206,21 +205,18 @@ function MainSession({ activity, info }: MainViewProps) {
 
   return (
     <FlowLayout
-      top={close(t('common.close'))}
-      header={
-        <ActivityHero
-          stage={<AvatarStage phase={DEMO_PHASE} pose="demo" label={t('main.stage')} />}
-          title={info.name[locale]}
-          name={subtitle}
-        />
+      top={
+        <ActivityTop label={t('mainActivity.sheetTitle')}>{close(t('common.close'))}</ActivityTop>
       }
+      header={<ActivityHeading title={info.name[locale]} subtitle={subtitle} />}
       footer={
         <div className={styles.controls}>
           <Button
-            variant="secondary"
+            variant={running ? 'secondary' : 'primary'}
             size="lg"
             onClick={() => (running ? pauseMain : startMain)(date, activity.id)}
           >
+            <LineIcon name={running ? 'pause' : 'play'} size={18} />
             {accumulated
               ? running
                 ? t('main.stopBlock')
@@ -230,6 +226,7 @@ function MainSession({ activity, info }: MainViewProps) {
                 : t('main.resume')}
           </Button>
           <Button
+            variant={running ? 'primary' : 'secondary'}
             size="lg"
             onClick={() =>
               // Before its time, ask first: it can't be undone.
@@ -238,17 +235,20 @@ function MainSession({ activity, info }: MainViewProps) {
                 : runScreenTransition(() => completeMain(date, activity.id))
             }
           >
+            <LineIcon name="check" size={18} />
             {t('main.finish')}
           </Button>
         </div>
       }
     >
+      <ActivityGuide exercise={move?.item.exercise} />
       {accumulated ? (
         <>
-          <TimerRing
+          <ActivityTimer
             progress={elapsed / target}
             label={t('main.timer')}
             seconds={Math.floor(elapsed)}
+            status={t('exerciseUI.accumulated')}
             caption={t('main.ofTotal', { minutes })}
           />
           <p className={styles.block}>
@@ -260,26 +260,31 @@ function MainSession({ activity, info }: MainViewProps) {
           </p>
         </>
       ) : (
-        <TimerRing
+        <ActivityTimer
           progress={elapsed / target}
           label={t('main.timer')}
           seconds={Math.ceil(target - elapsed)}
-          caption={running ? t('main.left') : t('main.paused')}
+          status={running ? t('exerciseUI.running') : t('main.paused')}
+          caption={running ? t('main.left') : undefined}
         />
       )}
+      <ActivityMetadata
+        areas={move?.item.exercise.areas ?? info.areas ?? []}
+        equipment={move?.item.exercise.equipment ?? info.equipment}
+      />
       {running && <p className={styles.away}>{t('main.away')}</p>}
       {move ? (
         <>
           <h2 className={styles.move}>{move.item.exercise.name[locale]}</h2>
-          <ExerciseDetails exercise={move.item.exercise} />
+          <ActivityInstructions exercise={move.item.exercise} />
           {following && (
-            <p className={styles.muted}>
+            <p className={styles.next}>
               {t('pause.play.nextUp', { name: following.exercise.name[locale] })}
             </p>
           )}
         </>
       ) : (
-        <ExerciseDetails exercise={info} />
+        <ActivityInstructions exercise={info} />
       )}
 
       {confirming && (

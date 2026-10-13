@@ -1,10 +1,14 @@
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
+import { CATALOG } from '@/content/catalog';
+import { generateDayPlan } from '@/domain/planner/generateDayPlan';
+import { summarizeDay } from '@/domain/day/closeDay';
 import { addDays, atTime } from '@/domain/time';
 import type {
   DailySummary,
   DateKey,
   DayRecord,
   EvolutionPhase,
+  ScheduledActivity,
   WeeklyResult,
   XpEntry,
 } from '@/domain/types';
@@ -14,7 +18,7 @@ import type { PersistedState } from '@/state/types';
  * Dev-only sample data to review the weekly result: a finished week (Monday 5 – Sunday
  * 11 October 2026, ISO week 41) and its history, judged on Monday 12 by the real engine.
  */
-export type WeekScenario = 'evolve' | 'stable' | 'room';
+export type WeekScenario = 'evolve' | 'stable' | 'bad' | 'neutral' | 'room';
 
 export const SCENARIO_WEEK = '2026-W41';
 const START: DateKey = '2026-10-05';
@@ -25,6 +29,7 @@ interface ScenarioShape {
   phase: EvolutionPhase;
   /** Good days among Monday–Friday. */
   good: number;
+  planned?: number;
   history: WeeklyResult[];
   unlocked: string[];
 }
@@ -61,7 +66,15 @@ const SHAPES: Record<WeekScenario, ScenarioShape> = {
     history: [past('2026-W40', '2026-09-28', 2, 3)],
     unlocked: [],
   },
-  // Already at the top with two items: a perfect week brings the third (the lamp).
+  bad: { phase: 3, good: 1, history: [past('2026-W40', '2026-09-28', 2, 3)], unlocked: [] },
+  neutral: {
+    phase: 2,
+    good: 2,
+    planned: 2,
+    history: [past('2026-W40', '2026-09-28', 1, 2)],
+    unlocked: [],
+  },
+  // Already at the top with two items: a good week brings the third (the lamp).
   room: {
     phase: 5,
     good: 5,
@@ -78,11 +91,55 @@ export function weekScenarioState(scenario: WeekScenario, current: PersistedStat
   const shape = SHAPES[scenario];
   const days: Partial<Record<DateKey, DayRecord>> = {};
   const xpLedger: XpEntry[] = [];
+  const settings = {
+    ...DEFAULT_SETTINGS,
+    discomfort: { neck: 3, upper_back: 2, hips_legs: 3 } as const,
+    notifications: current.settings.notifications,
+  };
   for (let i = 0; i < 5; i++) {
     const date = addDays(START, i);
+    if (i >= (shape.planned ?? 5)) {
+      days[date] = { date, status: 'day_off', returnBonus: false, recoveryUsed: false };
+      continue;
+    }
     const isGood = i < shape.good;
     const completed = isGood ? 5 : 3;
     const xp = completed * 100 + (isGood ? 300 + 200 : 0);
+    const plan = generateDayPlan({
+      date,
+      schedule: settings.schedule,
+      meetings: [],
+      settings,
+      catalog: CATALOG,
+    });
+    let microIndex = 0;
+    const areaOrder = ['hips_legs', 'neck', 'hips_legs', 'upper_back', 'hips_legs'];
+    plan.activities = plan.activities.map((item): ScheduledActivity => {
+      if (item.kind === 'main')
+        return {
+          ...item,
+          status: isGood ? 'completed' : 'missed',
+          ...(isGood && {
+            elapsedSec: item.durationSec,
+            completedAt: item.currentScheduledAt + item.durationSec * 1000,
+          }),
+        };
+      const index = microIndex++;
+      const area = areaOrder[index % areaOrder.length];
+      const exercise = CATALOG.exercises.find(
+        (move) => move.areas.length === 1 && move.areas[0] === area && move.equipment.length === 0,
+      )!;
+      return {
+        ...item,
+        content: { kind: 'exercises', exerciseIds: [exercise.id] },
+        status: index < completed ? 'completed' : 'missed',
+        ...(index < completed && {
+          elapsedSec: item.durationSec,
+          completedAt: item.currentScheduledAt + item.durationSec * 1000,
+          firstPrompt: index > 0,
+        }),
+      };
+    });
     days[date] = {
       date,
       status: 'closed',
@@ -90,23 +147,8 @@ export function weekScenarioState(scenario: WeekScenario, current: PersistedStat
       recoveryUsed: false,
       openedAt: atTime(date, '09:00'),
       closedAt: atTime(date, '17:00'),
-      summary: {
-        planned: 6,
-        completed,
-        firstPrompt: completed - 1,
-        postponed: 1,
-        ignored: 1,
-        skipped: 0,
-        missed: 6 - completed,
-        extras: 0,
-        mainCompleted: isGood,
-        microSec: completed * 45,
-        movementSec: completed * 45 + (isGood ? 1200 : 0),
-        interruptionSec: completed * 45,
-        xp,
-        isGood,
-        isPerfect: false,
-      } satisfies DailySummary,
+      plan,
+      summary: summarizeDay(plan, CATALOG, xp) satisfies DailySummary,
     };
     xpLedger.push({
       key: `sample:${date}`,
@@ -119,7 +161,7 @@ export function weekScenarioState(scenario: WeekScenario, current: PersistedStat
   return {
     prefs: current.prefs,
     onboardedAt: atTime('2026-09-21', '09:00'),
-    settings: { ...DEFAULT_SETTINGS, notifications: current.settings.notifications },
+    settings,
     dayOverrides: {},
     days,
     progress: {

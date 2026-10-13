@@ -1,79 +1,73 @@
-.xpCard {
-  display: grid;
-  gap: var(--space-1);
-}
-
-/* The main activity and the pauses, one row each, clearly apart. */
-.dayCard {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.dayCard > * + * {
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
-}
-
 .xpTotal {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-black);
+  gap: 6px;
+  font-size: 1.5rem;
+  font-weight: 400;
 }
-
-/* No XP this time: a smaller line, so the screen doesn't read as a big "0". */
-.xpTotal[data-quiet] {
+.xpTotal > span {
+  white-space: nowrap;
+}
+.noXp {
+  font-family: var(--font-body);
   font-size: var(--text-lg);
-  text-align: center;
 }
-
-.breakdown,
-.muted {
+.breakdown {
+  display: grid;
+  list-style: none;
+  padding: 0;
   margin: 0;
   color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
-
-.breakdown {
-  font-weight: var(--weight-semibold);
-  text-align: center;
+.breakdown li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
 }
-
+.muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.dayCard {
+  display: grid;
+  gap: 14px;
+}
+.dayCard h2,
+.ratingTitle {
+  font-size: 0.75rem;
+}
+.dayCard > * + * {
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
 .progressRow {
   display: grid;
-  gap: var(--space-2);
+  gap: 10px;
 }
-
 .progressHead {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: var(--text-sm);
 }
-
 .mainLine {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 10px;
   margin: 0;
   font-weight: var(--weight-semibold);
 }
-
-/* Just done: it leads the summary. */
-.mainLine[data-lead] {
-  font-size: var(--text-lg);
-  font-weight: var(--weight-black);
+.mainLine img {
+  flex-shrink: 0;
 }
-
-/* "¿Qué te ha parecido?" */
 .rating {
   display: grid;
-  gap: var(--space-3);
+  gap: 14px;
 }
-
-.ratingTitle {
-  font-family: var(--font-body);
-  font-size: var(--text-md);
-  font-weight: var(--weight-black);
+@media (max-width: 365px) {
+  .xpTotal {
+    font-size: 1.25rem;
+  }
 }

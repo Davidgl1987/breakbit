@@ -9,16 +9,14 @@ import { activityDate, useLevel } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
 import { showToast } from '@/state/toasts';
 import { Button } from '@/ui/components/Button/Button';
-import { Card } from '@/ui/components/Card/Card';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
 import { ProgressBar } from '@/ui/components/ProgressBar/ProgressBar';
 import { SegmentedProgress } from '@/ui/components/SegmentedProgress/SegmentedProgress';
-import { AvatarStage } from '@/ui/game/AvatarStage/AvatarStage';
 import { Celebration } from '@/ui/game/Celebration/Celebration';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
-import { ActivityHero } from './ActivityHero';
+import { ActivityHeading, ActivityScene, ActivityTop } from './ActivityPresentation';
 import { contentName } from './contentName';
 import { RatingCard } from './RatingCard';
 import styles from './CompletionView.module.css';
@@ -63,55 +61,55 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
   return (
     <FlowLayout
       top={
-        <IconButton label={t('common.close')} onClick={back}>
-          <LineIcon name="close" size={22} />
-        </IconButton>
+        <ActivityTop label={t('exerciseUI.oneMoreStep')}>
+          <IconButton label={t('common.close')} onClick={back}>
+            <LineIcon name="close" size={22} />
+          </IconButton>
+        </ActivityTop>
       }
-      header={
-        <ActivityHero
-          stage={
-            <AvatarStage phase={phase} pose="celebrate" label={t('pause.done.stage')}>
-              <Celebration />
-            </AvatarStage>
-          }
-          title={title}
-          // The time actually moved is kept for the stats, not shown off here.
-          name={contentName(activity.content, locale)}
-        />
-      }
+      header={<ActivityHeading title={title} />}
       footer={
         <Button size="lg" fullWidth onClick={back}>
           {t('pause.done.back')}
+          <LineIcon name="chevron-right" size={18} />
         </Button>
       }
     >
-      <Card as="section" variant="tinted" className={styles.xpCard}>
-        {entries.length > 0 ? (
-          <p className={styles.xpTotal}>
-            <PixelIcon name="xp" size={32} />
-            {t('pause.done.xp', { xp: total })}
-          </p>
-        ) : (
-          // An extra pause too soon after moving, or past the day's cap: still a good move.
-          <p className={styles.xpTotal} data-quiet="">
-            <PixelIcon name="extra" size={32} />
-            {t('gap.extraNoXp')}
-          </p>
-        )}
-        <p className={styles.breakdown}>
-          {entries.length > 0
-            ? entries
-                .map((entry) => xpLine(entry, t))
-                .filter(Boolean)
-                .join(' · ')
-            : t('pause.done.noXp')}
-        </p>
-      </Card>
+      <ActivityScene
+        label={t('exerciseUI.completed')}
+        title={contentName(activity.content, locale)}
+        phase={phase}
+        pose="celebrate"
+        artLabel={t('pause.done.stage')}
+        metric={
+          entries.length > 0 ? (
+            <span className={styles.xpTotal}>
+              <PixelIcon name="xp" size={24} />
+              <span>{t('pause.done.xp', { xp: total })}</span>
+            </span>
+          ) : (
+            <span className={styles.noXp}>{t('gap.extraNoXp')}</span>
+          )
+        }
+      >
+        <Celebration />
+      </ActivityScene>
+      {entries.length > 0 ? (
+        <ul className={styles.breakdown} aria-label={t('exerciseUI.xpBreakdown')}>
+          {entries.map((entry) => {
+            const line = xpLine(entry, t);
+            return line ? <li key={entry.key}>{line}</li> : null;
+          })}
+        </ul>
+      ) : (
+        <p className={styles.muted}>{t('pause.done.noXp')}</p>
+      )}
 
       {activity.kind === 'micro' && <RatingCard activity={activity} />}
 
       {progress && (progress.hasMain || progress.planned > 0) && (
-        <Card as="section" className={styles.dayCard}>
+        <section className={styles.dayCard}>
+          <h2>{t('exerciseUI.yourDay')}</h2>
           {(focus === 'main' ? ['main', 'pauses'] : ['pauses', 'main']).map((row) =>
             row === 'main'
               ? progress.hasMain && (
@@ -151,10 +149,10 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
                   </div>
                 ),
           )}
-        </Card>
+        </section>
       )}
 
-      <Card as="section" className={styles.progressRow}>
+      <section className={styles.progressRow}>
         <div className={styles.progressHead}>
           <strong>{t('today.level', { level: level.level })}</strong>
           <span className={styles.muted}>
@@ -166,7 +164,13 @@ export function CompletionView({ activity, title, xpKeys, focus }: CompletionVie
           max={level.needed}
           label={t('today.level', { level: level.level })}
         />
-      </Card>
+        <p className={styles.muted}>
+          {t('redesign.xpMissing', {
+            xp: Math.max(0, level.needed - level.current),
+            level: level.level + 1,
+          })}
+        </p>
+      </section>
     </FlowLayout>
   );
 }
