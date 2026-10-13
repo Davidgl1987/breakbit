@@ -307,6 +307,8 @@ export interface WeeklyResult {
   phaseAfter: EvolutionPhase;
   /** Room item a good week at the top phase unlocked. */
   unlocked?: string;
+  /** An explicitly saved priority redistribution; never apply it twice for this week. */
+  prioritiesRebalanced?: boolean;
 }
 
 export interface ProgressState {

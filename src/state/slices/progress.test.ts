@@ -53,4 +53,18 @@ describe('progress actions', () => {
     store().evaluateWeeks(atTime('2026-10-20', '09:00'));
     expect(store().progress.weeklyResults).toEqual([]);
   });
+
+  it('records a confirmed redistribution once without affecting evolution, XP or week visibility', () => {
+    store().evaluateWeeks(atTime('2026-10-12', '09:00'));
+    const before = store();
+    store().markWeekPrioritiesRebalanced('2026-W41');
+    expect(store().progress.weeklyResults[0]?.prioritiesRebalanced).toBe(true);
+    expect(store().progress.evolutionPhase).toBe(before.progress.evolutionPhase);
+    expect(store().progress.lastSeenWeek).toBe(before.progress.lastSeenWeek);
+    expect(store().xpLedger).toBe(before.xpLedger);
+    const progress = store().progress;
+    store().markWeekPrioritiesRebalanced('2026-W41');
+    store().markWeekPrioritiesRebalanced('2026-W01');
+    expect(store().progress).toBe(progress);
+  });
 });

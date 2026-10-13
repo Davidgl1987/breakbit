@@ -2,7 +2,6 @@ import type { ExerciseRating, ScheduledActivity } from '@/domain/types';
 import { useT } from '@/i18n/useT';
 import { activityDate } from '@/state/selectors';
 import { useAppStore } from '@/state/store';
-import { Card } from '@/ui/components/Card/Card';
 import { ChipGroup } from '@/ui/components/ChipGroup/ChipGroup';
 import type { IconName } from '@/ui/icons/iconNames';
 import styles from './CompletionView.module.css';
@@ -18,7 +17,7 @@ export function RatingCard({ activity }: { activity: ScheduledActivity }) {
   const { t } = useT();
   const ratePause = useAppStore((state) => state.ratePause);
   return (
-    <Card as="section" className={styles.rating}>
+    <section className={styles.rating}>
       <h2 className={styles.ratingTitle}>{t('pause.done.rating.title')}</h2>
       <ChipGroup<ExerciseRating | ''>
         label={t('pause.done.rating.title')}
@@ -34,6 +33,6 @@ export function RatingCard({ activity }: { activity: ScheduledActivity }) {
         }))}
       />
       <p className={styles.muted}>{t('pause.done.rating.hint')}</p>
-    </Card>
+    </section>
   );
 }

@@ -18,7 +18,19 @@ describe('validatePersistedState', () => {
 
   it('accepts a routine done twice', () => {
     const state = fullState();
-    firstActivity(state).content = { kind: 'routine', routineId: 'mobility_5', rounds: 2 };
+    firstActivity(state).content = {
+      kind: 'routine',
+      routineId: 'mobility_5',
+      rounds: 2,
+    };
+    expect(validatePersistedState(state)).toEqual([]);
+  });
+
+  it('accepts a saved weekly redistribution and older data without it', () => {
+    const state = fullState();
+    state.progress.weeklyResults[0]!.prioritiesRebalanced = true;
+    expect(validatePersistedState(state)).toEqual([]);
+    delete state.progress.weeklyResults[0]!.prioritiesRebalanced;
     expect(validatePersistedState(state)).toEqual([]);
   });
 
@@ -46,13 +58,22 @@ describe('validatePersistedState', () => {
     ['activity with unknown content', (s) => (firstActivity(s).content = { kind: 'video' })],
     [
       'routine done zero times',
-      (s) => (firstActivity(s).content = { kind: 'routine', routineId: 'wake_up', rounds: 0 }),
+      (s) =>
+        (firstActivity(s).content = {
+          kind: 'routine',
+          routineId: 'wake_up',
+          rounds: 0,
+        }),
     ],
     ['meeting without times', (s) => delete s.days[DATE].plan.meetings[0].end],
     ['summary with text counts', (s) => (s.days['2026-10-02'].summary.completed = 'four')],
     ['unknown mood', (s) => (s.days['2026-10-02'].mood = 'meh')],
     ['evolution phase out of range', (s) => (s.progress.evolutionPhase = 6)],
     ['weekly result with unknown outcome', (s) => (s.progress.weeklyResults[0].result = 'great')],
+    [
+      'weekly redistribution flag not boolean',
+      (s) => (s.progress.weeklyResults[0].prioritiesRebalanced = 'yes'),
+    ],
     ['XP entry with unknown reason', (s) => (s.xpLedger[0].reason = 'cheat')],
     ['XP entry without amount', (s) => delete s.xpLedger[0].amount],
     ['missing install date', (s) => delete s.meta.installedAt],
@@ -74,13 +95,23 @@ describe('validatePersistedState', () => {
 });
 
 describe('validateEvents', () => {
-  const event = { id: 'e1', type: 'exercise_completed', at: atTime(DATE, '10:00'), date: DATE };
+  const event = {
+    id: 'e1',
+    type: 'exercise_completed',
+    at: atTime(DATE, '10:00'),
+    date: DATE,
+  };
 
   it('accepts well-formed events', () => {
     expect(
       validateEvents([
         event,
-        { ...event, id: 'e2', activityId: 'p0', data: { minutes: 10, ok: true } },
+        {
+          ...event,
+          id: 'e2',
+          activityId: 'p0',
+          data: { minutes: 10, ok: true },
+        },
       ]),
     ).toEqual([]);
   });
