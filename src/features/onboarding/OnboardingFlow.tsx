@@ -6,9 +6,11 @@ import { IntensityStep } from './steps/IntensityStep';
 import { ScheduleStep } from './steps/ScheduleStep';
 import { SummaryStep } from './steps/SummaryStep';
 import { WelcomeStep } from './steps/WelcomeStep';
+import { IntroStep } from './steps/IntroStep';
 import { isOnboardingStep, onboardingPath, type OnboardingStepId } from './steps';
 
 const SCREENS: Record<OnboardingStepId, () => React.JSX.Element> = {
+  intro: IntroStep,
   welcome: WelcomeStep,
   schedule: ScheduleStep,
   discomfort: DiscomfortStep,
@@ -17,10 +19,10 @@ const SCREENS: Record<OnboardingStepId, () => React.JSX.Element> = {
   summary: SummaryStep,
 };
 
-/** /onboarding/:step — one screen per step, sharing a draft until "Empezar". */
+/** /onboarding/:step — brand, welcome and five steps sharing a draft until completion. */
 export function OnboardingFlow() {
   const { step } = useParams();
-  if (!isOnboardingStep(step)) return <Navigate to={onboardingPath('welcome')} replace />;
+  if (!isOnboardingStep(step)) return <Navigate to={onboardingPath('intro')} replace />;
   const Screen = SCREENS[step];
   return (
     <OnboardingDraftProvider>

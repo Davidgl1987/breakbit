@@ -37,7 +37,7 @@ export function ScheduleStep() {
         onChange={(workDays) => update((current) => ({ ...current, workDays }))}
       />
 
-      <ScheduleFields schedule={schedule} onChange={(next) => setSchedule(next)} />
+      <ScheduleFields grouped schedule={schedule} onChange={(next) => setSchedule(next)} />
 
       {messages.length > 0 && (
         <InlineMessage tone="danger">

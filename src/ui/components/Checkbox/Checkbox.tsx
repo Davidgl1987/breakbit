@@ -7,11 +7,22 @@ interface CheckboxProps {
   onChange: (checked: boolean) => void;
   label: ReactNode;
   disabled?: boolean;
+  labelPosition?: 'start' | 'end';
 }
 
-export function Checkbox({ checked, onChange, label, disabled }: CheckboxProps) {
+export function Checkbox({
+  checked,
+  onChange,
+  label,
+  disabled,
+  labelPosition = 'end',
+}: CheckboxProps) {
   return (
-    <label className={styles.row} data-disabled={disabled || undefined}>
+    <label
+      className={styles.row}
+      data-disabled={disabled || undefined}
+      data-label-position={labelPosition}
+    >
       <input
         type="checkbox"
         checked={checked}

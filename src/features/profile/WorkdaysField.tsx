@@ -1,7 +1,6 @@
 import type { Weekday } from '@/domain/types';
 import { weekdayName } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
-import { Card } from '@/ui/components/Card/Card';
 import { MultiChipGroup } from '@/ui/components/ChipGroup/MultiChipGroup';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import styles from './profile.module.css';
@@ -18,7 +17,7 @@ export function WorkdaysField({
 }) {
   const { t, locale } = useT();
   return (
-    <Card className={styles.section}>
+    <section className={styles.section}>
       <h3 className={styles.heading}>
         <PixelIcon name="calendar" size={24} />
         {t('onboarding.schedule.workDays')}
@@ -34,6 +33,6 @@ export function WorkdaysField({
         values={value.map((day) => `${day}` as const)}
         onChange={(values) => onChange(values.map((item) => Number(item) as Weekday))}
       />
-    </Card>
+    </section>
   );
 }
