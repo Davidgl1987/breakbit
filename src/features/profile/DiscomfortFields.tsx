@@ -21,8 +21,13 @@ export function DiscomfortFields({
   return (
     <>
       <Card className={styles.section}>
+        <div className={styles.scale}>
+          <span>{t('onboarding.design.scaleNone')}</span>
+          <span>{t('onboarding.design.scaleMore')}</span>
+        </div>
         {CATALOG.areas.map((area) => (
           <Slider05
+            layout="stacked"
             key={area.id}
             label={area.name[locale]}
             icon={areaIcon(area.id)}
