@@ -1,21 +1,26 @@
 import { useMemo } from 'react';
 import { CATALOG } from '@/content/catalog';
 import { areaStats } from '@/domain/stats/areas';
+import { heatmapWeeks } from '@/domain/stats/heatmap';
 import { weekInsights } from '@/domain/stats/insights';
-import { exerciseRatings } from '@/domain/stats/ratings';
+import { exerciseRatings, favouriteExercises, leastLikedExercises } from '@/domain/stats/ratings';
 import { weekStats } from '@/domain/stats/weekStats';
 import { addDays, startOfWeek, weekdayOf } from '@/domain/time';
 import { useToday } from '@/features/day/useToday';
 import { useT } from '@/i18n/useT';
 import { useAppStore } from '@/state/store';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
-import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { AreasCard } from './AreasCard';
 import { ConstancyCard } from './ConstancyCard';
 import { EvolutionCard } from './EvolutionCard';
 import { HistoryCard } from './HistoryCard';
 import { InsightsCard } from './InsightsCard';
-import { InitialProgress } from './InitialProgress';
+import {
+  FirstProgressStep,
+  FirstWeekCard,
+  InitialEvolutionCard,
+  PendingProgressSections,
+} from './InitialProgress';
 import { LikesCard } from './LikesCard';
 import { useHistory } from './useHistory';
 import { WeekSummaryCard } from './WeekSummaryCard';
@@ -46,38 +51,65 @@ export function ProgressScreen() {
     return {
       current: thisWeek,
       previous: lastWeek,
-      insights: weekInsights(thisWeek, lastWeek),
+      // Missed workdays alone are not a previous week of recorded activity.
+      insights: weekInsights(
+        thisWeek,
+        lastWeek.planned > 0 || lastWeek.mainDays > 0 || lastWeek.movementSec > 0
+          ? lastWeek
+          : undefined,
+      ),
       areas: areaStats(addDays(today, -(AREA_DAYS - 1)), today, history.days, CATALOG),
     };
   }, [monday, today, history, ledger]);
 
-  // Calendar-only records (absence/day off) are not a started workday. Imported
-  // summaries, XP, weekly results or rewards still keep their real statistics visible.
-  const hasHistory =
-    Object.values(history.days).some((day) => day?.plan || day?.summary) ||
-    ledger.length > 0 ||
-    results.length > 0 ||
-    phase > 1 ||
-    unlocked.length > 0;
-  if (!hasHistory) return <InitialProgress />;
+  const hasMovement = Object.entries(history.days).some(
+    ([date, day]) =>
+      date <= today &&
+      ((day?.summary?.completed ?? 0) > 0 ||
+        day?.summary?.mainCompleted ||
+        (day?.summary?.movementSec ?? 0) > 0 ||
+        day?.plan?.activities.some((activity) => activity.status === 'completed')),
+  );
+  // A plan without a completed pause still uses the approved first-step design.
+  // Imported XP, summaries, weekly results and rewards keep their actual evolution.
+  const hasEvolution =
+    hasMovement || ledger.length > 0 || results.length > 0 || phase > 1 || unlocked.length > 0;
+  const hasConstancy = heatmapWeeks(monday, 4, history)
+    .flat()
+    .some((cell) => typeof cell.level === 'number' && cell.level > 0);
+  const hasLikes = favouriteExercises(likes).length > 0 || leastLikedExercises(likes).length > 0;
+  const hasWeek =
+    current.completed > 0 || current.mainDays > 0 || current.movementSec > 0 || current.xp > 0;
+  const hasPreviousWeek = previous.planned > 0 || previous.mainDays > 0 || previous.movementSec > 0;
 
   return (
     <>
-      <ScreenHeader
-        title={t('progress.title')}
-        subtitle={t('progress.subtitle')}
-        trailing={<PixelIcon name="progress" size={32} />}
+      <ScreenHeader title={t('progress.initial.title')} />
+      {hasEvolution ? <EvolutionCard history={history} /> : <InitialEvolutionCard />}
+      {!hasEvolution && <FirstProgressStep />}
+      {hasWeek && (
+        <WeekSummaryCard
+          stats={current}
+          previous={hasPreviousWeek ? previous : undefined}
+          from={monday}
+          to={addDays(monday, 6)}
+        />
+      )}
+      {hasConstancy && <ConstancyCard history={history} />}
+      {hasLikes && <LikesCard stats={likes} />}
+      {areas.length > 0 && <AreasCard areas={areas} />}
+      <PendingProgressSections
+        constancy={!hasConstancy}
+        favourites={!hasLikes}
+        areas={areas.length === 0}
       />
-      <EvolutionCard history={history} />
-      <WeekSummaryCard stats={current} previous={previous} from={monday} to={addDays(monday, 6)} />
-      <ConstancyCard history={history} />
-      <LikesCard stats={likes} />
-      <AreasCard areas={areas} />
-      <details>
-        <summary>{t('common.seeMore')}</summary>
-        <InsightsCard insights={insights} today={today} />
-      </details>
-      <HistoryCard results={results} />
+      {hasWeek && insights.length > 0 && (
+        <details>
+          <summary>{t('common.seeMore')}</summary>
+          <InsightsCard insights={insights} today={today} />
+        </details>
+      )}
+      {results.length > 0 ? <HistoryCard results={results} /> : <FirstWeekCard />}
     </>
   );
 }
