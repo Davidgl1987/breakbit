@@ -15,33 +15,31 @@ Implementación del segundo bloque del rediseño aprobado.
 
 Se conserva el menú inferior aprobado. Los editores usan `ScheduleFields`, compartidos con onboarding; `ScheduleSheet` sirve para las horas del cierre y la fecha/horas de la próxima jornada. El guardado crea excepciones de calendario y no modifica la rutina semanal. Retrasar la próxima jornada marca los días laborales intermedios como descanso.
 
-## Recursos gráficos pendientes
+## Recursos gráficos integrados · 14 de octubre
 
-No se han generado imágenes nuevas. `sleep` y `rest` utilizan la alternativa `idle` de la misma fase hasta incorporar los recursos.
+Las cinco fases tienen recursos propios `sleep` y `rest`, aprobados visualmente e importados en `public/avatar/` a 128 × 128 px, con transparencia y la misma línea de base que las poses existentes. El importador admite `--poses sleep rest` para incorporar solo estas imágenes sin sustituir las demás y regenera el registro con todos los recursos disponibles.
 
-Generar para **cada fase 1, 2, 3, 4 y 5**:
+Uso para **cada fase 1, 2, 3, 4 y 5**:
 
 - `sleep`: avatar durmiendo antes de iniciar. Mismo personaje, paleta y pixel art; fondo transparente.
 - `rest`: una escena de tiempo libre diferente para cada fase, usada en descanso y «Hoy no trabajo». El lugar, la postura y la actividad deben reflejar lo activo que es el avatar en esa evolución. Mismo personaje, paleta y pixel art; fondo transparente.
 
-Mantener tamaño y encuadre compatibles con la escena principal. Ampliar primero el importador de avatares para reconocer `sleep` y `rest` (hoy solo acepta las poses existentes), y añadir después al registro de assets las entradas de cada fase y pose. Revisar entonces el fondo de habitación para las poses exteriores; hasta tener esos recursos no se cambia la escena.
+Los estados de Hoy y «Tengo un hueco» consumen estas poses a través del registro compartido. La escena omite la ventana del puesto de trabajo al dormir o descansar, de modo que las camas y los entornos exteriores no se representen como parte de una oficina.
 
 La jornada cerrada usa las imágenes `celebrate` que ya existen. No se requieren nuevos recursos para preparar o ajustar.
 
-## Descanso según la evolución · 12 de octubre
+## Descanso según la evolución
 
-Cada una de las cinco fases tendrá su propia imagen de descanso. La evolución también se verá en cómo el avatar disfruta de su tiempo libre: desde descansar en el sofá hasta pasar tiempo en la naturaleza o salir a correr.
+Cada fase tiene una imagen de descanso coherente con su ambientación y grado de actividad. Las escenas aprobadas son:
 
-Ideas iniciales, **orientativas y pendientes de decidir antes de generar las imágenes**:
+| Fase | Dormir | Descansar |
+| --- | --- | --- |
+| 1 · Encorvado | Nido de hojas y fibras | Roca y plátano |
+| 2 · Erguido | Camastro de troncos y pieles | Tronco y flor silvestre |
+| 3 · Sedentario | Cama individual con manta azul | Sofá y consola |
+| 4 · Activo | Cama de madera con manta verde | Lectura en un banco de parque |
+| 5 · Optimizado | Cama baja con manta verde petróleo | Trote tranquilo por un sendero |
 
-| Fase | Idea de escena distinta |
-| --- | --- |
-| 1 · Encorvado | Descansando en el sofá de casa. |
-| 2 · Erguido | Sentado en un banco en la naturaleza. |
-| 3 · Sedentario | Dando un paseo tranquilo por un parque. |
-| 4 · Activo | Preparándose para salir a correr, atándose las zapatillas al aire libre. |
-| 5 · Optimizado | Corriendo por un sendero en la naturaleza. |
-
-Podremos proponer más escenas y cambiar estas ideas. El requisito aprobado es que cada fase tenga una escena diferente y coherente con su grado de actividad. Al preparar los recursos, diseñar también el entorno de la card para que acompañe cada escena.
+La fase 2 conserva pelo largo alborotado, barba completa **y bigote** en ambas imágenes, siguiendo sus originales `2-cheer` y `2-thumbs_up`. Las fases 3–5 conservan el rostro humano sin barba. Los prompts y las correcciones están documentados en [prompts-avatar-rest.md](../prompts-avatar-rest.md).
 
 Las cinco imágenes de `sleep`, para antes de iniciar la jornada, siguen siendo un conjunto separado de las escenas de tiempo libre de `rest`.
