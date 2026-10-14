@@ -15,6 +15,8 @@ interface BottomSheetProps {
   actions?: ReactNode;
   /** Keep actions visible while a long form scrolls inside the panel. */
   scrollBody?: boolean;
+  /** Pixel headings for the new compact status/help panels. */
+  titleVariant?: 'body' | 'pixel';
 }
 
 /**
@@ -28,6 +30,7 @@ export function BottomSheet({
   children,
   actions,
   scrollBody = false,
+  titleVariant = 'body',
 }: BottomSheetProps) {
   const { t } = useT();
   const close = useEffectEvent(onClose);
@@ -103,7 +106,12 @@ export function BottomSheet({
       >
         <span className={styles.handle} aria-hidden="true" />
         <div className={styles.header}>
-          <h2 id={titleId} className={styles.title}>
+          <h2
+            id={titleId}
+            className={
+              titleVariant === 'pixel' ? `${styles.title} ${styles.pixelTitle}` : styles.title
+            }
+          >
             {title}
           </h2>
           <IconButton label={t('redesign.closePanel')} onClick={onClose}>

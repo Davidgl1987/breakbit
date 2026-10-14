@@ -180,6 +180,11 @@ describe('Settings notifications', () => {
     const { user } = ui();
     expect(request).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: 'Activar notificaciones' }));
+    expect(request).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Ahora no' }));
+    expect(request).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Activar notificaciones' }));
+    await user.click(screen.getByRole('button', { name: 'Permitir avisos' }));
     expect(request).toHaveBeenCalledOnce();
     expect(store().settings.notifications.enabled).toBe(true);
 
@@ -208,15 +213,20 @@ describe('Settings notifications', () => {
     expect(screen.getByRole('switch', { name: 'Sonido de las pausas' })).toBeDisabled();
   });
 
-  it('explains how to turn them on when blocked, the app’s own sound still on offer', () => {
-    stubNotifications('denied');
-    ui();
+  it('explains how to turn them on when blocked without requesting permission again', async () => {
+    const request = stubNotifications('denied');
+    const { user } = ui();
     expect(
-      screen.getByText(/Permítelas en la configuración de este sitio y vuelve aquí/),
+      screen.getByText('Puedes permitirlas desde la configuración de este sitio.'),
     ).toBeInTheDocument();
     expect(screen.getAllByRole('switch').map((item) => item.textContent)).toEqual([
       'Sonido de las pausas',
     ]);
+    await user.click(screen.getByRole('button', { name: 'Cómo activarlas' }));
+    expect(screen.getByRole('dialog', { name: 'Permitir los avisos' })).toBeInTheDocument();
+    expect(request).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Entendido' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('offers no sound when reminders are off', () => {
@@ -263,9 +273,12 @@ describe('Settings data', () => {
     const file = new File([JSON.stringify(backup)], 'copia.json', { type: 'application/json' });
     const { user } = ui();
     await user.upload(screen.getByLabelText('Importar copia', { selector: 'input' }), file);
-    const sheet = await screen.findByRole('dialog', { name: '¿Importar esta copia?' });
+    const sheet = await screen.findByRole('dialog', { name: 'Importar esta copia' });
     expect(store().settings.intensity).toBe('normal');
-    await user.click(within(sheet).getByRole('button', { name: 'Importar' }));
+    expect(sheet).toHaveTextContent('copia.json');
+    expect(sheet).toHaveTextContent(`Fase ${backup.state.progress.evolutionPhase}`);
+    expect(sheet).toHaveTextContent('Jornadas guardadas');
+    await user.click(within(sheet).getByRole('button', { name: 'Importar y sustituir' }));
     expect(await screen.findByText('Copia importada.')).toBeInTheDocument();
     expect(store().settings.intensity).toBe('soft');
     expect(store().xpLedger).toEqual(ledger);
@@ -276,9 +289,7 @@ describe('Settings data', () => {
     const file = new File(['{"hello":1}'], 'otro.json', { type: 'application/json' });
     const { user } = ui();
     await user.upload(screen.getByLabelText('Importar copia', { selector: 'input' }), file);
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      'Ese archivo no es una copia válida de Breakbit.',
-    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('No podemos leer esta copia');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -288,8 +299,8 @@ describe('Settings data', () => {
     store().replaceData({ ...historyScenarioState(store()) });
     const { user } = ui();
     await user.click(screen.getByRole('button', { name: /Delete my data/ }));
-    const sheet = screen.getByRole('dialog', { name: 'Delete all data?' });
-    await user.click(within(sheet).getByRole('button', { name: 'Delete everything' }));
+    const sheet = screen.getByRole('dialog', { name: 'Start fresh?' });
+    await user.click(within(sheet).getByRole('button', { name: 'Delete my data' }));
     expect(await screen.findByRole('button', { name: 'Get started' })).toBeInTheDocument();
     expect(store().onboardedAt).toBeUndefined();
     expect(store().days).toEqual({});
@@ -300,8 +311,8 @@ describe('Settings data', () => {
   it('deletes everything in Spanish too', async () => {
     const { user } = ui();
     await user.click(screen.getByRole('button', { name: /Borrar mis datos/ }));
-    const sheet = screen.getByRole('dialog', { name: '¿Borrar todos los datos?' });
-    await user.click(within(sheet).getByRole('button', { name: 'Borrar todo' }));
+    const sheet = screen.getByRole('dialog', { name: '¿Empezar de cero?' });
+    await user.click(within(sheet).getByRole('button', { name: 'Borrar mis datos' }));
     expect(await screen.findByRole('button', { name: 'Comenzar' })).toBeInTheDocument();
     expect(store().onboardedAt).toBeUndefined();
   });
@@ -312,5 +323,40 @@ describe('Settings data', () => {
     expect(screen.getByText('Versión 0.1.0')).toBeInTheDocument();
     expect(screen.getByText(/No es una herramienta médica/)).toBeInTheDocument();
     expect(screen.getByText(/no hay cuentas, ni servidor/)).toBeInTheDocument();
+  });
+
+  it('rejects newer backups with a persistent explanation and preserves current data', async () => {
+    const before = store().settings;
+    const { user } = ui();
+    const file = new File([JSON.stringify({ app: 'breakbit', version: 999 })], 'futura.json', {
+      type: 'application/json',
+    });
+    await user.upload(screen.getByLabelText('Importar copia', { selector: 'input' }), file);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Esta copia necesita una versión más reciente',
+    );
+    expect(store().settings).toBe(before);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Descartar error' }));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('cancels import and reset without changing the current data', async () => {
+    const backup = await exportBackup();
+    backup.state.settings = { ...backup.state.settings, intensity: 'soft' };
+    const before = store().settings;
+    const { user } = ui();
+    await user.upload(
+      screen.getByLabelText('Importar copia', { selector: 'input' }),
+      new File([JSON.stringify(backup)], 'copia.json', { type: 'application/json' }),
+    );
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancelar' }),
+    );
+    expect(store().settings).toBe(before);
+    await user.click(screen.getByRole('button', { name: 'Borrar mis datos' }));
+    await user.click(screen.getByRole('button', { name: 'Conservar mis datos' }));
+    expect(store().settings).toBe(before);
+    expect(store().onboardedAt).toBeDefined();
   });
 });

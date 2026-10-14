@@ -14,6 +14,7 @@ import { contentItems, suggestsStanding } from '@/features/day/contentItems';
 import { contentName } from '@/features/day/contentName';
 import { PauseContentView } from '@/features/day/PauseContentView';
 import { PauseSheet } from '@/features/day/PauseSheet';
+import { MissedPauseScreen } from './MissedPauseScreen';
 import { formatClock, formatSeconds } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
@@ -275,6 +276,8 @@ function pauseHint(activity: ScheduledActivity): 'pause.meeting' | 'pause.standi
 function PauseStatus({ activity }: { activity: ScheduledActivity }) {
   const { t, locale } = useT();
   const upcoming = isOpen(activity) && clock.now() < activity.currentScheduledAt;
+  if (!upcoming && activity.status !== 'completed' && activity.status !== 'skipped')
+    return <MissedPauseScreen />;
   const title = (() => {
     if (upcoming) {
       return t('pause.states.upcoming', { time: formatClock(activity.currentScheduledAt) });
@@ -291,16 +294,7 @@ function PauseStatus({ activity }: { activity: ScheduledActivity }) {
           <LineIcon name="close" size={22} />
         </IconButton>
       }
-      header={
-        <ScreenHeader
-          title={title}
-          subtitle={
-            activity.status === 'missed'
-              ? t('pause.states.missedBody')
-              : contentName(activity.content, locale)
-          }
-        />
-      }
+      header={<ScreenHeader title={title} subtitle={contentName(activity.content, locale)} />}
       footer={
         <Link
           to={ROUTES.today}

@@ -3,3 +3,29 @@
   place-items: center;
   min-height: 100dvh;
 }
+
+.content {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+.pixels {
+  display: flex;
+  gap: 6px;
+}
+.pixels i {
+  width: 7px;
+  height: 7px;
+  background: var(--color-primary-text);
+}
+.pixels i:nth-child(2) {
+  opacity: 0.5;
+}
+.pixels i:nth-child(3) {
+  opacity: 0.2;
+}
+.caption {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}

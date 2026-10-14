@@ -1,18 +1,11 @@
 import { useRef } from 'react';
 import { cx } from '@/ui/cx';
-import type { IconName } from '@/ui/icons/iconNames';
+import { AppIcon } from '@/ui/components/AppIcon/AppIcon';
 import { LineIcon } from '@/ui/icons/LineIcon';
-import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { useLeaveAnimation } from '@/ui/motion/useLeaveAnimation';
 import styles from './Toast.module.css';
 
 export type ToastTone = 'success' | 'info' | 'warning';
-
-const ICONS: Record<ToastTone, IconName> = {
-  success: 'success',
-  info: 'postponed',
-  warning: 'warning',
-};
 
 interface ToastProps {
   message: string;
@@ -27,7 +20,7 @@ export function Toast({ message, tone = 'info', closeLabel, onClose }: ToastProp
   useLeaveAnimation(ref, styles.leaving!);
   return (
     <div ref={ref} className={cx(styles.toast, styles[tone])}>
-      <PixelIcon name={ICONS[tone]} size={24} />
+      <AppIcon size={28} />
       <span className={styles.message}>{message}</span>
       <button type="button" className={styles.close} aria-label={closeLabel} onClick={onClose}>
         <LineIcon name="close" size={16} />
