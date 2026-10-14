@@ -204,17 +204,110 @@ describe('Progress on the first day', () => {
     },
   );
 
-  it('shows real statistics as soon as the first workday starts, even before completing a pause', () => {
+  it('keeps the approved placeholders after starting a day until something is completed', () => {
     clock.travelTo(sampleAt('09:30'));
     store().completeOnboarding(DEFAULT_SETTINGS);
     store().startDay(sampleDay());
     renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
-    expect(screen.queryByText('Tu historia empieza hoy.')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Esta semana' })).toBeInTheDocument();
+    expect(screen.getByText('Tu historia empieza hoy.')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Esta semana' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: /días buenos de/ })).not.toBeInTheDocument();
+    expect(within(section('Lo que verás aquí')).getAllByRole('listitem')).toHaveLength(3);
+    expect(screen.getByRole('heading', { name: 'Tu primera semana' })).toBeInTheDocument();
+  });
+
+  it('replaces constancy and areas independently while favourites wait for a rating', () => {
+    clock.travelTo(sampleAt('10:10'));
+    store().completeOnboarding(DEFAULT_SETTINGS);
+    const plan = sampleDay();
+    plan.activities[0] = { ...plan.activities[0]!, status: 'completed' };
+    store().startDay(plan);
+    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
     expect(screen.getByRole('img', { name: /días buenos de/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Molestias que más cuidas' })).toBeInTheDocument();
+    const pending = section('Lo que verás aquí');
+    expect(within(pending).getAllByRole('listitem')).toHaveLength(1);
+    expect(pending).toHaveTextContent('Tus favoritosA partir de tus valoraciones.');
+    expect(pending).not.toHaveTextContent('Tu constancia');
+    expect(pending).not.toHaveTextContent('Las zonas que cuidas');
     expect(
-      screen.getByText('Valora tus pausas al terminarlas y verás aquí cuáles te gustan más.'),
-    ).toBeInTheDocument();
+      screen.queryByRole('heading', { name: 'Frente a la semana pasada' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Tu primera semana' })).toBeInTheDocument();
+  });
+
+  it('removes the pending group when all its sections have data, keeping the first-week card', () => {
+    clock.travelTo(sampleAt('10:10'));
+    store().completeOnboarding(DEFAULT_SETTINGS);
+    const plan = sampleDay();
+    plan.activities[0] = { ...plan.activities[0]!, status: 'completed', rating: 'liked' };
+    store().startDay(plan);
+    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    expect(screen.getByRole('heading', { name: 'Tus favoritos' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Lo que verás aquí' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Tu primera semana' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Tus semanas' })).not.toBeInTheDocument();
+  });
+
+  it('preserves old favourites, XP and weekly history while recent sections stay pending', () => {
+    const imported = historyScenarioState(store());
+    store().replaceData({
+      ...imported,
+      days: Object.fromEntries(
+        Object.entries(imported.days).filter(([date]) => date <= '2026-09-09'),
+      ),
+      xpLedger: imported.xpLedger.filter((entry) => entry.date <= '2026-09-09'),
+    });
+    clock.travelTo(HISTORY_NOW);
+    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    expect(section('Tus favoritos')).toHaveTextContent('Apertura de pecho');
+    const pending = section('Lo que verás aquí');
+    expect(within(pending).getAllByRole('listitem')).toHaveLength(2);
+    expect(pending).toHaveTextContent('Tu constancia');
+    expect(pending).toHaveTextContent('Las zonas que cuidas');
+    expect(pending).not.toHaveTextContent('Tus favoritos');
+    expect(screen.getByRole('heading', { name: 'Tus semanas' })).toBeInTheDocument();
+    expect(screen.getByText(/XP total/)).toHaveTextContent('11.900');
+    expect(screen.queryByRole('heading', { name: 'Esta semana' })).not.toBeInTheDocument();
+  });
+
+  it('uses imported summary-only movement for the calendar and weekly figures', () => {
+    clock.travelTo(sampleAt('17:10'));
+    store().completeOnboarding(DEFAULT_SETTINGS);
+    useAppStore.setState({
+      days: {
+        [SAMPLE_DATE]: {
+          date: SAMPLE_DATE,
+          status: 'closed',
+          returnBonus: false,
+          recoveryUsed: false,
+          summary: {
+            planned: 1,
+            completed: 1,
+            firstPrompt: 1,
+            postponed: 0,
+            ignored: 0,
+            skipped: 0,
+            missed: 0,
+            extras: 0,
+            mainCompleted: false,
+            microSec: 40,
+            movementSec: 40,
+            interruptionSec: 40,
+            xp: 120,
+            isGood: false,
+            isPerfect: false,
+          },
+        },
+      },
+    });
+    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    expect(screen.getByRole('img', { name: /días buenos de/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Esta semana' })).toBeInTheDocument();
+    const pending = section('Lo que verás aquí');
+    expect(within(pending).getAllByRole('listitem')).toHaveLength(2);
+    expect(pending).toHaveTextContent('Tus favoritos');
+    expect(pending).toHaveTextContent('Las zonas que cuidas');
   });
 
   it('keeps imported progress visible even if there are no saved daily plans', () => {

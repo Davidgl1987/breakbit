@@ -13,7 +13,7 @@ export function WeekSummaryCard({
   to,
 }: {
   stats: WeekStats;
-  previous: WeekStats;
+  previous?: WeekStats;
   from: DateKey;
   to: DateKey;
 }) {
@@ -48,32 +48,28 @@ export function WeekSummaryCard({
               <span>{t('progress.week.movement')}</span>
             </div>
           </div>
-          <div className={styles.comparison}>
-            <h3>{t('redesign.comparison')}</h3>
-            {previous.plannedDays ? (
-              <>
-                <dl className={styles.facts}>
-                  <div>
-                    <dt>{t('progress.week.completed')}</dt>
-                    <dd>
-                      {stats.completed - previous.completed >= 0 ? '+' : '−'}
-                      {Math.abs(stats.completed - previous.completed)}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{t('progress.week.movement')}</dt>
-                    <dd>
-                      {stats.movementSec - previous.movementSec >= 0 ? '+' : '−'}
-                      {formatActiveTime(Math.abs(stats.movementSec - previous.movementSec))}
-                    </dd>
-                  </div>
-                </dl>
-                <p className={styles.muted}>{t('redesign.comparable')}</p>
-              </>
-            ) : (
-              <p className={styles.muted}>{t('redesign.noComparison')}</p>
-            )}
-          </div>
+          {previous && previous.plannedDays > 0 && (
+            <div className={styles.comparison}>
+              <h3>{t('redesign.comparison')}</h3>
+              <dl className={styles.facts}>
+                <div>
+                  <dt>{t('progress.week.completed')}</dt>
+                  <dd>
+                    {stats.completed - previous.completed >= 0 ? '+' : '−'}
+                    {Math.abs(stats.completed - previous.completed)}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t('progress.week.movement')}</dt>
+                  <dd>
+                    {stats.movementSec - previous.movementSec >= 0 ? '+' : '−'}
+                    {formatActiveTime(Math.abs(stats.movementSec - previous.movementSec))}
+                  </dd>
+                </div>
+              </dl>
+              <p className={styles.muted}>{t('redesign.comparable')}</p>
+            </div>
+          )}
           <details className={styles.more}>
             <summary>{t('redesign.details')}</summary>
             <dl className={styles.facts}>
