@@ -36,13 +36,17 @@
   display: grid;
   gap: 12px;
   margin: 0;
-  padding-left: 23px;
+  padding: 0;
+  list-style: none;
 }
 .steps li {
-  padding-left: 6px;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: baseline;
   line-height: 1.6;
 }
-.steps li::marker {
+.stepNumber {
   color: var(--color-primary-text);
   font-family: var(--font-display);
   font-size: 0.625rem;
