@@ -196,8 +196,19 @@ describe('decision screen', () => {
 
     openAt(31);
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Se pasó su momento' }),
+      screen.getByRole('heading', { level: 1, name: 'Esta pausa ya pasó' }),
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Volver a Hoy' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Tengo un hueco' })).toHaveAttribute('href', '/gap');
+  });
+
+  it('does not offer a gap after closing the workday', () => {
+    clock.travelTo(T + 31 * MIN);
+    store().reconcile(T + 31 * MIN);
+    store().closeDay(DATE);
+    renderWithRouter(<AppRoutes />, { route: pausePath(first.id) });
+    expect(screen.getByRole('heading', { name: 'Esta pausa ya pasó' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Tengo un hueco' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Volver a Hoy' })).toHaveAttribute('href', '/');
   });
 

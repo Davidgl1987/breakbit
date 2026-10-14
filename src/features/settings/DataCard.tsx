@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { toDateKey } from '@/domain/time';
+import { levelFromXp, totalXp } from '@/domain/progress/xp';
 import { formatLongDate } from '@/i18n/translate';
 import { useT } from '@/i18n/useT';
 import { clock } from '@/services/clock';
@@ -8,10 +9,10 @@ import { downloadJson } from '@/services/download';
 import { isStoragePersisted, requestPersistentStorage } from '@/services/storagePersistence';
 import { BackupError, exportBackup, importBackup, parseBackup, resetAllData } from '@/state/backup';
 import { showToast } from '@/state/toasts';
-import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
 import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { DataConfirmationSheet, type BackupPreview } from './DataConfirmationSheet';
 import styles from './SettingsScreen.module.css';
 
 /**
@@ -21,7 +22,11 @@ import styles from './SettingsScreen.module.css';
 export function DataCard() {
   const { t, locale } = useT();
   const fileInput = useRef<HTMLInputElement>(null);
-  const [pending, setPending] = useState<{ raw: unknown; date: string } | null>(null);
+  const [pending, setPending] = useState<BackupPreview | null>(null);
+  const [fileError, setFileError] = useState<'invalid' | 'newer' | null>(null);
+  const [reading, setReading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   // Whether the browser keeps the data under storage pressure; unknown until read.
   const [persisted, setPersisted] = useState<boolean>();
@@ -47,21 +52,48 @@ export function DataCard() {
   };
 
   const readFile = async (file: File) => {
+    setReading(true);
+    setFileError(null);
+    setPending(null);
     try {
       const raw: unknown = JSON.parse(await file.text());
       // Checked in full before asking; nothing changes yet.
-      parseBackup(raw);
+      const { state } = parseBackup(raw);
       const exportedAt = (raw as { exportedAt?: unknown }).exportedAt;
       const date =
-        typeof exportedAt === 'number' ? formatLongDate(locale, toDateKey(exportedAt)) : '—';
-      setPending({ raw, date });
+        typeof exportedAt === 'number' &&
+        Number.isFinite(exportedAt) &&
+        !Number.isNaN(new Date(exportedAt).getTime())
+          ? formatLongDate(locale, toDateKey(exportedAt))
+          : '—';
+      const xp = totalXp(state.xpLedger);
+      setPending({
+        raw,
+        date,
+        filename: file.name,
+        days: Object.keys(state.days).length,
+        phase: state.progress.evolutionPhase,
+        level: levelFromXp(xp).level,
+        xp,
+      });
     } catch (error) {
-      showToast(
-        error instanceof BackupError && error.code === 'unsupported_version'
-          ? t('settings.data.newer')
-          : t('settings.data.invalid'),
-        'warning',
+      setFileError(
+        error instanceof BackupError && error.code === 'unsupported_version' ? 'newer' : 'invalid',
       );
+    } finally {
+      setReading(false);
+    }
+  };
+
+  const exportFromCard = async () => {
+    setExporting(true);
+    setExportError(false);
+    try {
+      await exportCopy();
+    } catch {
+      setExportError(true);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -92,7 +124,8 @@ export function DataCard() {
         <Button
           variant="secondary"
           aria-label={t('settings.data.export')}
-          onClick={() => void exportCopy()}
+          disabled={exporting || reading}
+          onClick={() => void exportFromCard()}
         >
           <PixelIcon name="export" size={24} />
           {t('settings.data.exportAction')}
@@ -100,6 +133,7 @@ export function DataCard() {
         <Button
           variant="secondary"
           aria-label={t('settings.data.import')}
+          disabled={reading || exporting}
           onClick={() => fileInput.current?.click()}
         >
           <PixelIcon name="import" size={24} />
@@ -113,65 +147,75 @@ export function DataCard() {
         className="visually-hidden"
         aria-label={t('settings.data.import')}
         tabIndex={-1}
+        disabled={reading || exporting}
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = '';
           if (file) void readFile(file);
         }}
       />
+      {fileError && (
+        <div className={styles.importError} role="alert">
+          <div className={styles.errorHeading}>
+            <PixelIcon name="warning" size={24} />
+            <strong>
+              {t(fileError === 'newer' ? 'special.data.newerTitle' : 'special.data.invalidTitle')}
+            </strong>
+            <button
+              className={styles.errorClose}
+              aria-label={t('special.data.dismiss')}
+              onClick={() => setFileError(null)}
+            >
+              <LineIcon name="close" size={18} />
+            </button>
+          </div>
+          <p>{t(fileError === 'newer' ? 'special.data.newerBody' : 'special.data.invalidBody')}</p>
+          <p className={styles.muted}>{t('special.data.unchanged')}</p>
+          <button
+            className={styles.textLink}
+            disabled={reading}
+            onClick={() => fileInput.current?.click()}
+          >
+            {t('special.data.retry')}
+            <LineIcon name="chevron-right" size={18} />
+          </button>
+        </div>
+      )}
+      {exportError && (
+        <p className={styles.operationError} role="alert">
+          {t('special.data.operationFailed')}
+        </p>
+      )}
       <button
         className={`${styles.dataLink} ${styles.dangerLink}`}
         onClick={() => setConfirmReset(true)}
+        disabled={reading || exporting}
       >
         {t('settings.data.reset')}
         <LineIcon name="chevron-right" size={18} />
       </button>
 
       {pending && (
-        <BottomSheet
-          open
+        <DataConfirmationSheet
+          preview={pending}
           onClose={() => setPending(null)}
-          title={t('settings.data.importSheet.title')}
-          actions={
-            <>
-              <Button
-                fullWidth
-                onClick={() => {
-                  void importBackup(pending.raw).then(() => {
-                    setPending(null);
-                    showToast(t('settings.data.imported'), 'success');
-                  });
-                }}
-              >
-                {t('settings.data.importSheet.confirm')}
-              </Button>
-              <Button variant="ghost" fullWidth onClick={() => setPending(null)}>
-                {t('settings.data.importSheet.cancel')}
-              </Button>
-            </>
-          }
-        >
-          <p>{t('settings.data.importSheet.body', { date: pending.date })}</p>
-        </BottomSheet>
+          onExport={exportCopy}
+          onConfirm={async () => {
+            await importBackup(pending.raw);
+            setPending(null);
+            showToast(t('settings.data.imported'), 'success');
+          }}
+        />
       )}
       {confirmReset && (
-        <BottomSheet
-          open
+        <DataConfirmationSheet
           onClose={() => setConfirmReset(false)}
-          title={t('settings.data.resetSheet.title')}
-          actions={
-            <>
-              <Button variant="destructive" fullWidth onClick={() => void resetAllData()}>
-                {t('settings.data.resetSheet.confirm')}
-              </Button>
-              <Button variant="ghost" fullWidth onClick={() => setConfirmReset(false)}>
-                {t('settings.data.resetSheet.cancel')}
-              </Button>
-            </>
-          }
-        >
-          <p>{t('settings.data.resetSheet.body')}</p>
-        </BottomSheet>
+          onExport={exportCopy}
+          onConfirm={async () => {
+            await resetAllData();
+            setConfirmReset(false);
+          }}
+        />
       )}
     </Card>
   );
