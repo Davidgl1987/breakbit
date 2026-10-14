@@ -2,6 +2,47 @@
   color: var(--color-text-muted);
 }
 
+.statusTop {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+.statusBack {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  padding-block: var(--space-2);
+  color: var(--color-primary-text);
+  text-decoration: none;
+}
+.missedScene {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+.statusKicker {
+  color: var(--color-primary-text);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+}
+.statusAvatar {
+  justify-self: end;
+}
+.statusHint {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+}
+.statusHint h2 {
+  font-size: 0.8rem;
+}
+.statusHint p {
+  color: var(--color-text-muted);
+}
+
 .postpone {
   display: grid;
   gap: var(--space-3);

@@ -215,3 +215,115 @@
   font-size: var(--text-sm);
   text-decoration: none;
 }
+
+/* Shared status/help panels: the existing sheet owns scrolling, focus and actions. */
+.specialBody {
+  display: grid;
+  gap: var(--space-5);
+  color: var(--color-text);
+}
+.specialBody > .textLink {
+  justify-self: center;
+}
+.appPreview,
+.notificationPreview,
+.backupFile {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+.appPreview > p,
+.notificationPreview > div,
+.backupFile > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.notificationPreview {
+  padding: var(--space-4);
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-md);
+}
+.helpSteps {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+.backupFacts {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+.backupFacts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.backupFacts dt {
+  color: var(--color-text-muted);
+}
+.backupFacts dd {
+  margin: 0;
+  text-align: end;
+}
+.resetList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+.resetList li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.dangerText {
+  color: var(--color-danger-text);
+}
+.importError {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  margin-top: var(--space-2);
+  border-left: 3px solid var(--color-danger-text);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-soft);
+  font-size: var(--text-sm);
+}
+.errorHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.errorHeading strong {
+  flex: 1;
+  min-width: 0;
+}
+.errorClose {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -6px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+.importError .textLink {
+  justify-self: start;
+}
+.operationError {
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
