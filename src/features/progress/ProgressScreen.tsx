@@ -15,6 +15,7 @@ import { ConstancyCard } from './ConstancyCard';
 import { EvolutionCard } from './EvolutionCard';
 import { HistoryCard } from './HistoryCard';
 import { InsightsCard } from './InsightsCard';
+import { InitialProgress } from './InitialProgress';
 import { LikesCard } from './LikesCard';
 import { useHistory } from './useHistory';
 import { WeekSummaryCard } from './WeekSummaryCard';
@@ -33,6 +34,8 @@ export function ProgressScreen() {
   const history = useHistory(today);
   const ledger = useAppStore((state) => state.xpLedger);
   const results = useAppStore((state) => state.progress.weeklyResults);
+  const phase = useAppStore((state) => state.progress.evolutionPhase);
+  const unlocked = useAppStore((state) => state.progress.unlockedRoomItems);
   const monday = startOfWeek(today);
 
   const likes = useMemo(() => exerciseRatings(history.days, CATALOG), [history]);
@@ -47,6 +50,16 @@ export function ProgressScreen() {
       areas: areaStats(addDays(today, -(AREA_DAYS - 1)), today, history.days, CATALOG),
     };
   }, [monday, today, history, ledger]);
+
+  // Calendar-only records (absence/day off) are not a started workday. Imported
+  // summaries, XP, weekly results or rewards still keep their real statistics visible.
+  const hasHistory =
+    Object.values(history.days).some((day) => day?.plan || day?.summary) ||
+    ledger.length > 0 ||
+    results.length > 0 ||
+    phase > 1 ||
+    unlocked.length > 0;
+  if (!hasHistory) return <InitialProgress />;
 
   return (
     <>

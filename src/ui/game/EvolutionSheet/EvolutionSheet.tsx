@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { EvolutionPhase } from '@/domain/types';
 import { useT } from '@/i18n/useT';
 import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
@@ -7,7 +8,15 @@ import styles from './EvolutionSheet.module.css';
 const PHASES: EvolutionPhase[] = [1, 2, 3, 4, 5];
 
 /** The avatar's five phases, revealed on demand in the shared bottom sheet. */
-export function EvolutionSheet({ phase, onClose }: { phase: EvolutionPhase; onClose: () => void }) {
+export function EvolutionSheet({
+  phase,
+  onClose,
+  children,
+}: {
+  phase: EvolutionPhase;
+  onClose: () => void;
+  children?: ReactNode;
+}) {
   const { t } = useT();
   return (
     <BottomSheet open onClose={onClose} title={t('evolution.title')}>
@@ -24,6 +33,7 @@ export function EvolutionSheet({ phase, onClose }: { phase: EvolutionPhase; onCl
           </li>
         ))}
       </ol>
+      {children}
     </BottomSheet>
   );
 }

@@ -9,6 +9,7 @@ import type { DateKey, ExerciseRating, ScheduledActivity } from '@/domain/types'
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
+import { SAMPLE_DATE, sampleAt, sampleDay } from '@/test/sampleDay';
 
 const store = () => useAppStore.getState();
 const section = (title: string) =>
@@ -165,17 +166,62 @@ describe('Progress with some history', () => {
 });
 
 describe('Progress on the first day', () => {
-  it('invites to start instead of showing empty numbers', () => {
+  it('invites to start with one XP bar and goes to Today without starting a workday', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    expect(screen.getByText('Tu historia empieza hoy.')).toBeInTheDocument();
+    expect(screen.getAllByRole('progressbar')).toHaveLength(1);
+    expect(screen.queryByText('Aún no hay jornadas esta semana.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: /días buenos de/ })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: 'Ir a Hoy' }));
+    expect(screen.getByRole('heading', { name: 'Tu plan de hoy' })).toBeInTheDocument();
+    expect(Object.values(store().days).some((day) => day?.plan)).toBe(false);
+  });
+
+  it('opens the shared phases panel and closes with Escape without changing XP or phase', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    await user.click(screen.getByRole('button', { name: 'Ver fases y recompensas' }));
+    const panel = screen.getByRole('dialog', { name: 'Tu evolución' });
+    expect(within(panel).getAllByRole('listitem')).toHaveLength(5);
+    expect(within(panel).getByRole('listitem', { current: 'step' })).toHaveTextContent('Encorvado');
+    expect(panel).toHaveTextContent('El XP aumenta tu nivel');
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(store().progress.evolutionPhase).toBe(1);
+    expect(store().xpLedger).toEqual([]);
+    expect(screen.getByRole('button', { name: 'Ver fases y recompensas' })).toHaveFocus();
+  });
+
+  it.each(['absent', 'day_off'] as const)(
+    'keeps the first step for a calendar-only %s record',
+    (status) => {
+      useAppStore.setState({
+        days: {
+          [SAMPLE_DATE]: { date: SAMPLE_DATE, status, returnBonus: false, recoveryUsed: false },
+        },
+      });
+      renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+      expect(screen.getByText('Tu historia empieza hoy.')).toBeInTheDocument();
+    },
+  );
+
+  it('shows real statistics as soon as the first workday starts, even before completing a pause', () => {
+    clock.travelTo(sampleAt('09:30'));
+    store().completeOnboarding(DEFAULT_SETTINGS);
+    store().startDay(sampleDay());
     renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
-    expect(screen.getByText('Aún no hay jornadas esta semana.')).toBeInTheDocument();
+    expect(screen.queryByText('Tu historia empieza hoy.')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Esta semana' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /días buenos de/ })).toBeInTheDocument();
     expect(
-      screen.getByText('Cuando hagas tus pausas verás aquí qué zonas mueves más.'),
+      screen.getByText('Valora tus pausas al terminarlas y verás aquí cuáles te gustan más.'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('Haz tus primeras pausas y aquí verás cómo va tu semana.'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Tu primera semana se evaluará el lunes siguiente.'),
-    ).toBeInTheDocument();
+  });
+
+  it('keeps imported progress visible even if there are no saved daily plans', () => {
+    const imported = historyScenarioState(store());
+    store().replaceData({ ...imported, days: {} });
+    renderWithRouter(<AppRoutes />, { route: ROUTES.progress });
+    expect(screen.queryByText('Tu historia empieza hoy.')).not.toBeInTheDocument();
+    expect(screen.getByText('XP total', { exact: false })).toBeInTheDocument();
   });
 });
