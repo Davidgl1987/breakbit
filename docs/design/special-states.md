@@ -1,6 +1,6 @@
 # Estados especiales
 
-Rama de revisión: `codex/redesign-special-states`. Las siete propuestas aprobadas se implementan sin modificar el progreso inicial (propuesta aparte pendiente de aprobación).
+Rama de revisión: `codex/redesign-special-states`. Las siete propuestas aprobadas se implementaron aquí; el progreso inicial tiene su propia revisión en `progress-initial.md`.
 
 ## Instalación y avisos
 
@@ -31,4 +31,4 @@ Rama de revisión: `codex/redesign-special-states`. Las siete propuestas aprobad
 - `BottomSheet` añade un título pixel opcional para estos paneles. El cierre, foco y comportamiento de los paneles anteriores se conservan.
 - Copias traducidas en español e inglés; fuentes y menú inferior existentes.
 
-Pendiente de aprobación: progreso sin historial y la generación de poses específicas de descanso por fase, documentadas en el ciclo de jornada.
+El progreso sin historial se aprobó e implementó después en `codex/redesign-progress-empty`; véase `progress-initial.md`. Sigue pendiente la generación de poses específicas de descanso por fase, documentadas en el ciclo de jornada.

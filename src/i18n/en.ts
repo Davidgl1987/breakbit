@@ -470,6 +470,23 @@ export const en: Messages = {
     until: '{label} · until {time}',
   },
   progress: {
+    initial: {
+      title: 'Your progress',
+      firstPhase: 'YOUR FIRST PHASE',
+      pause: 'It all starts with a break.',
+      story: 'Your story starts today.',
+      firstStep: 'The first step',
+      startHint: 'Start a workday and complete your first break. Your progress will grow here.',
+      goToday: 'Go to Today',
+      preview: 'What you will see here',
+      constancy: 'Four weeks of movement.',
+      favourites: 'Based on your ratings.',
+      areasTitle: 'The areas you look after',
+      areas: 'Based on the breaks you complete.',
+      firstWeek: 'Your first week',
+      weekHint: 'The following Monday you will see your summary and can review your priorities.',
+      rewards: 'XP increases your level and unlocks rewards for your space.',
+    },
     title: 'Progress',
     subtitle: 'From small habits to a big change.',
     evolution: {

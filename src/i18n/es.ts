@@ -476,6 +476,23 @@ export const es = {
     until: '{label} · hasta las {time}',
   },
   progress: {
+    initial: {
+      title: 'Tu progreso',
+      firstPhase: 'TU PRIMERA FASE',
+      pause: 'Todo empieza con una pausa.',
+      story: 'Tu historia empieza hoy.',
+      firstStep: 'El primer paso',
+      startHint: 'Inicia una jornada y completa tu primera pausa. Aquí irá creciendo tu progreso.',
+      goToday: 'Ir a Hoy',
+      preview: 'Lo que verás aquí',
+      constancy: 'Cuatro semanas de movimiento.',
+      favourites: 'A partir de tus valoraciones.',
+      areasTitle: 'Las zonas que cuidas',
+      areas: 'Según las pausas que completes.',
+      firstWeek: 'Tu primera semana',
+      weekHint: 'El lunes siguiente verás tu resumen y podrás revisar tus prioridades.',
+      rewards: 'El XP aumenta tu nivel y desbloquea recompensas para tu espacio.',
+    },
     title: 'Progreso',
     subtitle: 'De hábitos pequeños a un gran cambio.',
     evolution: {
