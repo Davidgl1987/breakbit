@@ -27,7 +27,7 @@ describe('AppRoutes', () => {
   });
 
   it.each([
-    ['/progress', 'Progreso'],
+    ['/progress', 'Tu progreso'],
     ['/settings', 'Ajustes'],
   ])('renders %s inside the tabs layout', (route, heading) => {
     renderWithRouter(<AppRoutes />, { route });
@@ -43,7 +43,7 @@ describe('AppRoutes', () => {
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('link', { name: 'Cerrar' }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Progreso' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Tu progreso' })).toBeInTheDocument();
   });
 
   it('keeps the original tab mounted behind the time sheet and restores focus on Escape', async () => {

@@ -16,9 +16,14 @@ export function ExerciseDetails({
     <>
       <p className={styles.muted}>{exercise.description[locale]}</p>
       {exercise.steps.length > 0 && (
-        <ol className={styles.steps} aria-label={t('pause.howTo')}>
+        <ol className={styles.steps} role="list" aria-label={t('pause.howTo')}>
           {exercise.steps.map((step, index) => (
-            <li key={index}>{step[locale]}</li>
+            <li key={index}>
+              <span className={styles.stepNumber} aria-hidden="true">
+                {index + 1}.
+              </span>
+              <span>{step[locale]}</span>
+            </li>
           ))}
         </ol>
       )}
