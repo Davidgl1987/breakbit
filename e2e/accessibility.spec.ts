@@ -78,7 +78,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await page.getByRole('link', { name: 'Cerrar' }).click();
 
     await page.getByRole('link', { name: 'Progreso' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Progreso' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Tu progreso' })).toBeVisible();
     await scan('progress');
     await page.getByRole('link', { name: 'Ajustes' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Ajustes' })).toBeVisible();

@@ -36,7 +36,7 @@ test('tabs slide and the gap sheet animates without moving the background', asyn
   await expect(page.getByRole('dialog', { name: 'Tengo un hueco' })).toBeVisible();
   await settled();
   await page.getByRole('button', { name: 'Cerrar panel' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Progreso' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Tu progreso' })).toBeVisible();
   await settled();
   await page.getByRole('link', { name: 'Hoy', exact: true }).click();
   await settled();
