@@ -37,14 +37,16 @@ afterEach(() => {
 });
 
 describe('installing Breakbit', () => {
-  it('explains how, where the browser has no dialog of its own', () => {
-    ui();
-    expect(screen.getByRole('heading', { name: 'Instalar Breakbit' })).toBeInTheDocument();
+  it('opens help where the browser has no dialog of its own', async () => {
+    const { user } = ui();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cómo instalarla' }));
+    expect(screen.getByRole('dialog', { name: 'Instalar Breakbit' })).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'Desde el menú del navegador, elige «Instalar» o «Añadir a pantalla de inicio».',
-      ),
+      screen.getByText('Elige «Instalar» o «Añadir a pantalla de inicio».'),
     ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cerrar panel' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it("uses the browser's own dialog when it offers one", async () => {
@@ -59,7 +61,7 @@ describe('installing Breakbit', () => {
   it('disappears once installed', () => {
     Object.defineProperty(navigator, 'standalone', { value: true, configurable: true });
     ui();
-    expect(screen.queryByRole('heading', { name: 'Instalar Breakbit' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Breakbit, a mano' })).not.toBeInTheDocument();
   });
 });
 
