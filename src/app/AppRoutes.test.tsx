@@ -50,14 +50,14 @@ describe('AppRoutes', () => {
     useAppStore.getState().startDay(sampleDay());
     clock.travelTo(sampleAt('09:20'));
     const { user } = renderWithRouter(<AppRoutes />, { route: '/progress' });
-    const title = screen.getByRole('heading', { level: 1, name: 'Progreso' });
+    const title = screen.getByRole('heading', { level: 1, name: 'Tu progreso' });
     const fab = screen.getByRole('link', { name: 'Tengo un hueco' });
     await user.click(fab);
     expect(screen.getByRole('dialog', { name: 'Tengo un hueco' })).toBeInTheDocument();
     expect(title).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'Progreso' })).toBe(title);
+    expect(screen.getByRole('heading', { level: 1, name: 'Tu progreso' })).toBe(title);
     expect(fab).toHaveFocus();
   });
 
