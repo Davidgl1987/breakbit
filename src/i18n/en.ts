@@ -153,6 +153,11 @@ export const en: Messages = {
       body: 'Prepare your breaks and an activity at your pace.',
       prepare: 'Prepare workday',
     },
+    prepared: {
+      kicker: 'Workday prepared',
+      title: 'All set for today',
+      body: 'Your scheduled hours start at {time}. If you start earlier, you can change the start time.',
+    },
     late: { kicker: 'Scheduled hours ended', title: 'Still working?' },
     closed: {
       kicker: 'Workday completed',

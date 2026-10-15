@@ -156,6 +156,11 @@ export const es = {
       body: 'Prepara tus pausas y una actividad a tu ritmo.',
       prepare: 'Preparar jornada',
     },
+    prepared: {
+      kicker: 'Jornada preparada',
+      title: 'Todo listo para hoy',
+      body: 'Tu horario empieza a las {time}. Si empiezas antes, puedes cambiar la hora de inicio.',
+    },
     late: { kicker: 'Horario terminado', title: '¿Sigues trabajando?' },
     closed: {
       kicker: 'Jornada completada',
