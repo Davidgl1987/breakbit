@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { MONDAY_MORNING, onboard } from './helpers';
+import { MONDAY_MORNING, monday, onboard, travelTo } from './helpers';
 
 /** Records the kind of every screen transition (`<html data-transition>`). */
 async function recordTransitions(page: Page) {
@@ -21,12 +21,11 @@ test.beforeEach(async ({ page }) => {
   await onboard(page);
   await page.getByRole('link', { name: 'Preparar jornada' }).click();
   await page.getByRole('button', { name: 'Empezar jornada' }).click();
+  await travelTo(page, monday('09:00'));
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
 });
 
-test('tabs slide and the gap sheet animates without moving the background', async ({
-  page,
-}) => {
+test('tabs slide and the gap sheet animates without moving the background', async ({ page }) => {
   const kinds = await recordTransitions(page);
   const settled = () => expect(page.locator('html[data-transition]')).toHaveCount(0);
 

@@ -78,12 +78,52 @@ describe('Today', () => {
     }
     expect(screen.getByRole('region', { name: 'Actividad de hoy' })).toBeInTheDocument();
     expect(screen.getByText('0/5 pausas')).toBeInTheDocument();
-    const timeline = screen.getByRole('heading', {
-      name: 'Tu jornada',
-    }).parentElement!;
+    const timeline = screen
+      .getByRole('heading', {
+        name: 'Tu jornada',
+      })
+      .closest('section')!;
     expect(within(timeline).getByText('Empieza tu jornada')).toBeInTheDocument();
     expect(within(timeline).getByText('Comida · hasta las 15:00')).toBeInTheDocument();
     expect(within(timeline).getAllByText(/^Pausa · /)).toHaveLength(5);
+    expect(within(timeline).getByRole('link', { name: 'Ajustar mi día' })).toHaveAttribute(
+      'href',
+      '/day/start',
+    );
+  });
+
+  it('shows a saved plan as prepared before its start and lets the user change the start time', async () => {
+    travel(MONDAY, '08:26');
+    startMonday();
+    const record = store().days[MONDAY]!;
+    const ledger = store().xpLedger;
+    const { user, container } = renderWithRouter(<AppRoutes />);
+
+    expect(screen.getByRole('heading', { name: 'Todo listo para hoy' })).toBeInTheDocument();
+    expect(screen.getByText('Tu jornada empieza a las 09:00')).toBeInTheDocument();
+    expect(container.querySelector('img[src$="/1-sleep.png"]')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Próxima pausa' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Cerrar jornada/ })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('link', { name: 'Ajustar horario' }));
+    expect(screen.getByRole('heading', { name: 'Ajusta tu día' })).toBeInTheDocument();
+    fireEvent.change(
+      within(screen.getByRole('group', { name: 'Horario' })).getByLabelText('Inicio'),
+      {
+        target: { value: '08:30' },
+      },
+    );
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(store().days[MONDAY]!.plan!.schedule.workStart).toBe('08:30');
+    expect(store().days[MONDAY]!.openedAt).toBe(record.openedAt);
+    expect(store().xpLedger).toEqual(ledger);
+    expect(store().days[MONDAY]!.status).toBe('active');
+    expect(screen.getByText('Tu jornada empieza a las 08:30')).toBeInTheDocument();
+
+    act(() => travel(MONDAY, '08:30'));
+    expect(screen.queryByRole('heading', { name: 'Todo listo para hoy' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();
   });
 
   it('shows the next exercise step by step', async () => {

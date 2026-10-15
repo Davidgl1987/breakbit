@@ -26,6 +26,7 @@ export function dayActions(
 ): DayActions {
   const savePlan = (plan: DayPlan) => {
     assertValidSchedule(plan.schedule);
+    const savedAt = clock.now();
     set((state) => {
       const existing = state.days[plan.date];
       return {
@@ -36,8 +37,10 @@ export function dayActions(
             // A new day after missing workdays: ×1.5 base XP, once per absence.
             returnBonus: existing ? existing.returnBonus : hasReturnBonus(state, plan.date),
             recoveryUsed: false,
-            openedAt: clock.now(),
             ...existing,
+            // Explicitly saving after the clock moved back repairs a future opening
+            // time, while normal edits keep the original opening time.
+            openedAt: Math.min(existing?.openedAt ?? savedAt, savedAt),
             date: plan.date,
             status: 'active',
             plan,
