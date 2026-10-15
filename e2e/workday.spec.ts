@@ -11,7 +11,7 @@ test('a workday: start it, do a pause, use a gap and close the day', async ({ pa
   // Start the day with the proposed plan.
   await page.getByRole('link', { name: 'Preparar jornada' }).click();
   await page.getByRole('button', { name: 'Empezar jornada' }).click();
-  await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
 
   // Go to the first pause's time: it shows up on Today.
   const firstPause = page.locator('li', { hasText: 'Pausa ·' }).first();
@@ -49,7 +49,7 @@ test('the data survives a reload', async ({ page }) => {
   await onboard(page);
   await page.getByRole('link', { name: 'Preparar jornada' }).click();
   await page.getByRole('button', { name: 'Empezar jornada' }).click();
-  await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
 });
