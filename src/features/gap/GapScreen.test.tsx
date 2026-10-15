@@ -83,7 +83,7 @@ describe('Tengo un hueco', () => {
     await user.click(screen.getByRole('button', { name: 'Volver a lo mío' }));
     const timeline = screen.getByRole('heading', {
       name: 'Tu jornada',
-    }).parentElement!;
+    }).closest('section')!;
     expect(within(timeline).getByText('Pausa extra')).toBeInTheDocument();
     expect(screen.getByText('1 pausa extra')).toBeInTheDocument();
   });
