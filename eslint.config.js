@@ -61,6 +61,8 @@ export default tseslint.config(
       'docs',
       'test-results',
       'playwright-report',
+      // Disposable local previews and review checkouts, also excluded by .gitignore.
+      '**/*.local/**',
     ],
   },
   {
@@ -68,6 +70,7 @@ export default tseslint.config(
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: 2023,
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
       globals: { ...globals.browser },
     },
     plugins: { 'react-hooks': reactHooks },
