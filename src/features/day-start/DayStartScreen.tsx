@@ -63,6 +63,12 @@ export function DayStartScreen() {
 
   // Adjusting a day under way, or planning it.
   const [current] = useState(() => (record?.status === 'active' ? record.plan : undefined));
+  // A plan saved with a future clock must be rebuilt from the actual time, even if
+  // its hours stay unchanged. Never replace activities the user already acted on.
+  const refreshFuturePlan =
+    record?.openedAt !== undefined &&
+    record.openedAt > now &&
+    current?.activities.every((item) => item.status === 'pending' && item.startedAt === undefined);
   const [draft, setDraft] = useState<DayDraft>(() =>
     current
       ? {
@@ -82,8 +88,8 @@ export function DayStartScreen() {
     () =>
       scheduleIssueMessages(draft.schedule).length > 0
         ? undefined
-        : preview(draft, current, date, now, planner),
-    [draft, current, date, now, planner],
+        : preview(draft, current, date, now, planner, refreshFuturePlan),
+    [draft, current, date, now, planner, refreshFuturePlan],
   );
   const summary = plan && summarizePlan(plan, CATALOG);
   const interruptionMin = summary ? Math.round(summary.interruptionSec / 60) : 0;
@@ -243,9 +249,10 @@ function preview(
   date: DayPlan['date'],
   now: number,
   planner: ReturnType<typeof useDayPlanner>,
+  refreshFuturePlan = false,
 ): DayPlan {
   const main = draft.main && choiceFits(draft.main, draft.schedule) ? draft.main : undefined;
-  if (current) {
+  if (current && !refreshFuturePlan) {
     const sameDay =
       sameSchedule(draft.schedule, current.schedule) &&
       JSON.stringify(draft.meetings) === JSON.stringify(current.meetings);

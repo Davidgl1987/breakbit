@@ -7,6 +7,19 @@
   box-shadow: none;
 }
 
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.edit {
+  color: var(--color-primary-text);
+  font-size: var(--text-sm);
+}
+
 .title {
   font-size: var(--text-xl);
   font-family: var(--font-display);

@@ -1,3 +1,5 @@
+import { Link } from 'react-router';
+import { ROUTES } from '@/app/routes';
 import type { DayPlan, Instant } from '@/domain/types';
 import { contentName } from '@/features/day/contentName';
 import { formatClock } from '@/i18n/translate';
@@ -44,7 +46,12 @@ export function DayTimelineCard({ plan, now, nextId }: DayTimelineCardProps) {
 
   return (
     <Card as="section" className={styles.card}>
-      <h3 className={styles.title}>{t('today.dayTitle')}</h3>
+      <div className={styles.header}>
+        <h3 className={styles.title}>{t('today.dayTitle')}</h3>
+        <Link className={styles.edit} to={ROUTES.dayStart}>
+          {t('today.adjustDay')}
+        </Link>
+      </div>
       <ol className={styles.list}>
         {timelineItems(plan).map((item, index) => {
           const end = 'end' in item ? item.end : item.at;

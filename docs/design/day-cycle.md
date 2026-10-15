@@ -28,6 +28,14 @@ Los estados de Hoy y «Tengo un hueco» consumen estas poses a través del regis
 
 La jornada cerrada usa las imágenes `celebrate` que ya existen. No se requieren nuevos recursos para preparar o ajustar.
 
+## Plan guardado antes del inicio · 15 de octubre
+
+Guardar desde «Empezar jornada» conserva un registro `active` aunque el horario empiece más tarde. Antes de esa hora, si todavía no se ha iniciado ni completado ninguna actividad, Hoy presenta «Jornada preparada» con el avatar durmiendo y acceso directo a «Ajustar horario». No presenta la siguiente pausa como si ya se estuviera trabajando ni ofrece cerrar la jornada en este estado. Al llegar a la hora guardada, muestra la pausa siguiente.
+
+«Ajustar mi día», en la cabecera de la cronología, vuelve a dar acceso al editor compartido durante la jornada. Cambiar el inicio actualiza el mismo registro y recalcula las pausas sin cerrar el día ni borrar el historial o los XP. No requiere migrar ni borrar datos existentes.
+
+Si un plan sin actividad tiene una apertura fechada en el futuro respecto al reloj actual, el editor recalcula la propuesta desde la hora real incluso al conservar el horario. Solo al guardar se actualiza el plan y se corrige la apertura futura; abrir o cancelar el editor no modifica los datos. Las actividades ya iniciadas o completadas se conservan.
+
 ## Descanso según la evolución
 
 Cada fase tiene una imagen de descanso coherente con su ambientación y grado de actividad. Las escenas aprobadas son:

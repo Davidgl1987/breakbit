@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
 import { CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
+import { planDay } from '@/domain/day/planDay';
+import { atTime } from '@/domain/time';
 import type { DateKey } from '@/domain/types';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
@@ -37,7 +39,7 @@ describe('day start', () => {
     const record = store().days[MONDAY];
     expect(record).toMatchObject({ status: 'active', date: MONDAY });
     expect(record?.plan?.activities.length).toBeGreaterThan(0);
-    expect(screen.getByText('Próxima pausa')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Todo listo para hoy' })).toBeInTheDocument();
   });
 
   it("adds a meeting to today's plan", async () => {
@@ -145,6 +147,35 @@ describe('day start', () => {
     expect(morning(after)).toEqual(morning(before));
     const ids = after.activities.map((item) => item.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('rebuilds an untouched future-dated plan when saving the same hours at the actual time', async () => {
+    clock.travelTo(atTime(MONDAY, '10:09'));
+    store().startDay(
+      planDay({
+        date: MONDAY,
+        schedule: DEFAULT_SETTINGS.schedule,
+        settings: DEFAULT_SETTINGS,
+        catalog: CATALOG,
+        now: clock.now(),
+      }),
+    );
+    const future = store().days[MONDAY]!;
+    const ledger = store().xpLedger;
+    clock.travelTo(atTime(MONDAY, '08:26'));
+    const { user } = renderWithRouter(<AppRoutes />, { route: '/day/start' });
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    const saved = store().days[MONDAY]!;
+    expect(saved.openedAt).toBeLessThan(future.openedAt!);
+    expect(saved.openedAt).toBeLessThanOrEqual(clock.now());
+    expect(saved.plan!.schedule).toEqual(future.plan!.schedule);
+    expect(saved.plan!.activities.filter((item) => item.kind === 'micro')).toHaveLength(5);
+    expect(
+      saved.plan!.activities.some((item) => item.currentScheduledAt < atTime(MONDAY, '10:09')),
+    ).toBe(true);
+    expect(store().xpLedger).toEqual(ledger);
+    expect(screen.getByRole('heading', { name: 'Todo listo para hoy' })).toBeInTheDocument();
   });
 
   it('saves nothing until "Empezar jornada"', async () => {

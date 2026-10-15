@@ -6,6 +6,7 @@ import { DAY_END_LEAD_MIN } from '@/domain/config';
 import { mainChoiceOf } from '@/domain/day/planDay';
 import { dayProgress } from '@/domain/day/progress';
 import { mainActivityOf, nextPause, workEnd } from '@/domain/day/today';
+import { atTime } from '@/domain/time';
 import type { DayPlan, Instant, Meeting } from '@/domain/types';
 import { DaySceneCard } from '@/features/day/DaySceneCard';
 import { MainActivityPreviewSheet } from '@/features/day/MainActivityPreviewSheet';
@@ -17,6 +18,7 @@ import { useDayPlanner } from '@/features/day/useDayPlanner';
 import { useT } from '@/i18n/useT';
 import { useAppStore } from '@/state/store';
 import { Card } from '@/ui/components/Card/Card';
+import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { DayProgressCard } from './DayProgressCard';
@@ -63,12 +65,28 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
   const main = mainActivityOf(plan);
   const progress = dayProgress(plan, CATALOG);
   const minutesLeft = (workEnd(plan) - now) / 60_000;
+  const beforeStart =
+    now < atTime(plan.date, plan.schedule.workStart) &&
+    !plan.activities.some((item) => item.startedAt !== undefined || item.status === 'completed');
   // From 10 min before the end, the way to close the day.
   const endingSoon = minutesLeft <= DAY_END_LEAD_MIN;
 
   return (
     <>
-      {over ? (
+      {beforeStart ? (
+        <DaySceneCard
+          pose="sleep"
+          kicker={t('cycle.prepared.kicker')}
+          title={t('cycle.prepared.title')}
+          footer={
+            <Link to={ROUTES.dayStart} className={buttonClassName({ fullWidth: true, size: 'lg' })}>
+              {t('today.states.adjustHours')}
+            </Link>
+          }
+        >
+          <p>{t('cycle.prepared.body', { time: plan.schedule.workStart })}</p>
+        </DaySceneCard>
+      ) : over ? (
         <DaySceneCard
           kicker={t('today.states.over')}
           title={t('cycle.over.title')}
@@ -98,7 +116,9 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
           </Link>
         </Card>
       ) : null}
-      {!over && <NextPauseCard pause={next} now={now} onSee={() => setSheet('pause')} />}
+      {!over && !beforeStart && (
+        <NextPauseCard pause={next} now={now} onSee={() => setSheet('pause')} />
+      )}
       <DayProgressCard progress={progress} date={plan.date} />
       {!over && <MainActivityTodayCard plan={plan} now={now} onEdit={() => setSheet('activity')} />}
       {!over && (
@@ -148,7 +168,7 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
       ) : (
         <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
       )}
-      {!over && !endingSoon && (
+      {!over && !endingSoon && !beforeStart && (
         <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
           {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
         </Link>
