@@ -13,9 +13,9 @@ Rama: `codex/redesign-exercises`.
 - Completado: celebración y XP en una sola escena, desglose en filas, valoración opcional, resumen diario y nivel sin apilar fondos de cards.
 - Se conservan fuentes, colores y esquinas pixeladas, el menú inferior, la X de línea y los cierres por fondo/Escape de los paneles.
 
-## Recursos pendientes
+## Guías visuales
 
-`ActivityGuide` consulta `exerciseVisual(exercise.id)` para mostrar la futura guía de cada ejercicio. Hasta que se incorporen las imágenes o animaciones al registro, mantiene el avatar de demostración de fase 5. La guía se ajusta completa dentro del marco; ni el temporizador ni los controles se superponen. Las actividades sin una rutina guiada usan también esa pose provisional. Las celebraciones utilizan la fase del usuario.
+`ActivityGuide` consulta `exerciseGuide(exercise.id)` para mostrar la secuencia de cada ejercicio. Las 16 tandas incorporan 196 imágenes para los 82 ejercicios del catálogo, con dos o tres posturas por guía; el registro contiene sus secuencias y cadencias. El visor alterna imágenes, permite pausar o navegar manualmente y mantiene el temporizador independiente debajo. Con movimiento reducido comienza en modo manual. Las actividades sin ejercicio guiado y los fallos de carga utilizan una referencia de fase 5 sin auriculares; las celebraciones conservan la fase del usuario. Véase [el plan de guías](exercise-guides.md).
 
 ## Comportamiento
 

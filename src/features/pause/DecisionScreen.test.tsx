@@ -95,8 +95,13 @@ describe('decision screen', () => {
     await user.click(screen.getByRole('button', { name: 'Vamos' }));
     expect(activity()).toMatchObject({ startedAt: near(T + MIN), firstPrompt: true });
 
-    // The exercise: the avatar showing the move, the timer ring, then the steps.
-    expect(screen.getByRole('img', { name: 'Demostración del ejercicio' })).toBeInTheDocument();
+    // The exercise opens its real visual guide, with the timer and steps underneath.
+    const guide = screen.getByRole('region', { name: 'Guía visual' });
+    expect(within(guide).getByRole('img')).toHaveAttribute(
+      'src',
+      expect.stringMatching(/^\/exercises\/[^/]+\/01\.png$/),
+    );
+    expect(within(guide).getByRole('button', { name: 'Postura siguiente' })).toBeInTheDocument();
     const timer = screen.getByRole('progressbar', { name: 'Tiempo de la pausa' });
     const seconds = activity().durationSec;
     expect(timer).toHaveTextContent(

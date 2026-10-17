@@ -357,6 +357,14 @@ export const en: Messages = {
     endBeforeStart: 'The meeting must end after it starts.',
     outside: 'The meeting must be within your workday.',
   },
+  exerciseGuide: {
+    title: 'Visual guide',
+    previous: 'Previous pose',
+    next: 'Next pose',
+    position: 'Pose {current}/{total}',
+    pause: 'Pause guide',
+    resume: 'Resume guide',
+  },
   pause: {
     howTo: 'How to do it',
     standing: 'If you can, do it standing up.',
