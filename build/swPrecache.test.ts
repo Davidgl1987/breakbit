@@ -44,4 +44,14 @@ describe('offline shell', () => {
       '/breakbit/index.html',
     ]);
   });
+
+  it('keeps exercise frames and their shared avatar available offline', () => {
+    expect(
+      shellFiles(['exercises/avatar.png', 'exercises/chin_tuck/01.png'], '/breakbit/'),
+    ).toEqual([
+      '/breakbit/',
+      '/breakbit/exercises/avatar.png',
+      '/breakbit/exercises/chin_tuck/01.png',
+    ]);
+  });
 });

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { exerciseVisual, type AvatarPose } from '@/assets/registry';
+import { exerciseGuide, type AvatarPose } from '@/assets/registry';
+import { EXERCISE_AVATAR } from '@/assets/exerciseGuides';
 import type { BodyArea, EquipmentId, EvolutionPhase, Exercise } from '@/domain/types';
 import { useT } from '@/i18n/useT';
 import { Card } from '@/ui/components/Card/Card';
@@ -8,6 +9,7 @@ import { PixelIcon } from '@/ui/icons/PixelIcon';
 import type { IconName } from '@/ui/icons/iconNames';
 import { areaIcon, areaName, equipmentIcon, equipmentName } from './catalogDisplay';
 import { ExerciseDetails } from './ExerciseDetails';
+import { ExerciseGuide } from './ExerciseGuide';
 import styles from './ActivityPresentation.module.css';
 
 /** Shared top row; the close affordance remains the existing line X. */
@@ -80,15 +82,12 @@ export function ActivityScene({
 
 /** The complete guide area is reserved for art. Time and controls always sit outside. */
 export function ActivityGuide({ exercise }: { exercise?: Exercise }) {
-  const { t, locale } = useT();
-  const visual = exercise && exerciseVisual(exercise.id);
+  const { t } = useT();
+  const guide = exercise && exerciseGuide(exercise.id);
+  if (guide) return <ExerciseGuide key={exercise.id} guide={guide} />;
   return (
     <div className={styles.guide}>
-      {visual ? (
-        <img src={visual} alt={`${t('pause.demo')}: ${exercise.name[locale]}`} />
-      ) : (
-        <Avatar phase={5} pose="demo" size="xl" framed={false} label={t('pause.demo')} />
-      )}
+      <img src={EXERCISE_AVATAR} alt={t('pause.demo')} draggable={false} />
     </div>
   );
 }
