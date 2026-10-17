@@ -360,6 +360,14 @@ export const es = {
     endBeforeStart: 'La reunión debe terminar después de empezar.',
     outside: 'La reunión debe estar dentro de tu jornada.',
   },
+  exerciseGuide: {
+    title: 'Guía visual',
+    previous: 'Postura anterior',
+    next: 'Postura siguiente',
+    position: 'Postura {current}/{total}',
+    pause: 'Pausar guía',
+    resume: 'Reanudar guía',
+  },
   pause: {
     howTo: 'Cómo hacerlo',
     standing: 'Si puedes, hazlo mejor de pie.',
