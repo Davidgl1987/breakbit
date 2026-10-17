@@ -16,6 +16,7 @@ export function shellFiles(files: readonly string[], base = '/'): string[] {
     file.startsWith('app-icons/') ||
     file.startsWith('brand/') ||
     (file.startsWith('avatar/') && file.endsWith('.png')) ||
+    (file.startsWith('exercises/') && file.endsWith('.png')) ||
     (file.startsWith('icons/') && /\.(svg|png)$/.test(file)) ||
     (file.startsWith('assets/') && /\.(js|css|woff2|ttf)$/.test(file));
   return [
