@@ -15,7 +15,7 @@ export function PauseSheet({ content, slot, onClose }: PauseSheetProps) {
   const { locale } = useT();
   return (
     <BottomSheet open onClose={onClose} title={contentName(content, locale)}>
-      <PauseContentView content={content} slot={slot} />
+      <PauseContentView content={content} slot={slot} showGuides collapsible />
     </BottomSheet>
   );
 }
