@@ -37,33 +37,33 @@ describe('exercise guide', () => {
     expect(container.querySelector('line[marker-end]')).not.toBeInTheDocument();
   });
 
-  it('returns to neutral between sides and preserves a held stretch before switching', () => {
+  it('changes every second, returning to neutral between sides even for held stretches', () => {
     render(<ExerciseGuide guide={EXERCISE_GUIDES.neck_side_tilt!} />);
     loadFrames();
-    act(() => vi.advanceTimersByTime(2000));
-    expect(screen.getByText('Postura 2/3')).toBeInTheDocument();
-    act(() => vi.advanceTimersByTime(24_999));
-    expect(screen.getByText('Postura 2/3')).toBeInTheDocument();
-    act(() => vi.advanceTimersByTime(1));
+    act(() => vi.advanceTimersByTime(999));
     expect(screen.getByText('Postura 1/3')).toBeInTheDocument();
-    act(() => vi.advanceTimersByTime(2000));
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.getByText('Postura 2/3')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.getByText('Postura 1/3')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1000));
     expect(screen.getByText('Postura 3/3')).toBeInTheDocument();
-    act(() => vi.advanceTimersByTime(25_000));
+    act(() => vi.advanceTimersByTime(1000));
     expect(screen.getByText('Postura 1/3')).toBeInTheDocument();
   });
 
-  it('waits for all images, cycles at each pose duration and pauses independently', () => {
+  it('waits for all images, cycles every second and pauses independently', () => {
     render(<ExerciseGuide guide={guide} />);
     act(() => vi.advanceTimersByTime(10_000));
     expect(screen.getByText('Postura 1/2')).toBeInTheDocument();
     loadFrames();
-    act(() => vi.advanceTimersByTime(guide.frames[0]!.durationMs));
+    act(() => vi.advanceTimersByTime(1000));
     expect(screen.getByText('Postura 2/2')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Pausar guía' }));
     act(() => vi.advanceTimersByTime(20_000));
     expect(screen.getByText('Postura 2/2')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Reanudar guía' }));
-    act(() => vi.advanceTimersByTime(guide.frames[1]!.durationMs));
+    act(() => vi.advanceTimersByTime(1000));
     expect(screen.getByText('Postura 1/2')).toBeInTheDocument();
   });
 

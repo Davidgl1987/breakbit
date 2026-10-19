@@ -7,6 +7,8 @@ import { LineIcon } from '@/ui/icons/LineIcon';
 import styles from './ExerciseGuide.module.css';
 
 const motionQuery = '(prefers-reduced-motion: reduce)';
+// The visual preview cycles every second; exercise hold times remain in the instructions.
+const FRAME_INTERVAL_MS = 1000;
 const subscribeMotion = (listener: () => void) => {
   const query = window.matchMedia(motionQuery);
   query.addEventListener('change', listener);
@@ -107,10 +109,10 @@ export function ExerciseGuide({ guide }: { guide: Guide }) {
     if (!automatic || !visible || !ready || failed) return;
     const timer = window.setTimeout(
       () => setPosition((value) => (value + 1) % guide.sequence.length),
-      frame.durationMs,
+      FRAME_INTERVAL_MS,
     );
     return () => window.clearTimeout(timer);
-  }, [automatic, visible, ready, failed, frame.durationMs, guide.sequence, position]);
+  }, [automatic, visible, ready, failed, guide.sequence, position]);
 
   const move = (direction: number) => {
     setPaused(true);

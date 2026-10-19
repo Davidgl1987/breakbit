@@ -305,7 +305,9 @@ function PauseStatus({ activity }: { activity: ScheduledActivity }) {
         </Link>
       }
     >
-      {upcoming && <PauseContentView content={activity.content} slot={activity.slot} />}
+      {upcoming && (
+        <PauseContentView content={activity.content} slot={activity.slot} showGuides collapsible />
+      )}
     </FlowLayout>
   );
 }
