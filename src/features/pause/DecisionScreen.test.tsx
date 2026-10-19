@@ -50,6 +50,8 @@ describe('decision screen', () => {
     await user.click(screen.getByRole('button', { name: 'Ver los pasos' }));
     const preview = screen.getByRole('dialog');
     expect(within(preview).getByRole('list', { name: 'Cómo hacerlo' })).toBeInTheDocument();
+    expect(within(preview).getByRole('region', { name: 'Guía visual' })).toBeInTheDocument();
+    expect(within(preview).getByRole('button', { name: 'Pausar guía' })).toBeInTheDocument();
     expect(activity().startedAt).toBeUndefined();
     expect(store().xpLedger).toEqual([]);
     await user.keyboard('{Escape}');

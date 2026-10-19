@@ -17,6 +17,12 @@ Rama: `codex/redesign-exercises`.
 
 `ActivityGuide` consulta `exerciseGuide(exercise.id)` para mostrar la secuencia de cada ejercicio. Las 16 tandas incorporan 196 imágenes para los 82 ejercicios del catálogo, con dos o tres posturas por guía; el registro contiene sus secuencias y cadencias. El visor alterna imágenes, permite pausar o navegar manualmente y mantiene el temporizador independiente debajo. Con movimiento reducido comienza en modo manual. Las actividades sin ejercicio guiado y los fallos de carga utilizan una referencia de fase 5 sin auriculares; las celebraciones conservan la fase del usuario. Véase [el plan de guías](exercise-guides.md).
 
+### Consulta antes de empezar · 18 de octubre de 2026
+
+En `codex/exercise-preview-guides`, «Ver ejercicio» de Hoy y «Ver los pasos» del aviso reutilizan el mismo visor antes de las instrucciones. Consultarlo no inicia la pausa ni concede XP. Los ejercicios de una rutina se despliegan individualmente y solo mantienen su guía montada mientras están abiertos. La vista de una pausa futura también muestra sus guías. Se conservan la X, Escape y el cierre por el fondo del panel.
+
+Ajuste del 19 de octubre: solo puede quedar abierto un ejercicio del acordeón; abrir otro cierra el anterior. Todas las guías alternan las posturas cada segundo, tanto en la vista previa como durante el ejercicio. Esa cadencia visual es independiente de los tiempos de mantenimiento indicados en los pasos y del cronómetro de la sesión.
+
 ## Comportamiento
 
 Se reutilizan `useStepTimer`, las sesiones de actividad principal, `ExerciseDetails`, `PauseSheet`, `RatingCard`/`ChipGroup`, `MainActivitySheet` y `BottomSheet`. No cambian duraciones, vueltas, selección del catálogo, reglas de XP, límites de extras, bonus ni retorno desde notificaciones o recuperación al cerrar jornada.

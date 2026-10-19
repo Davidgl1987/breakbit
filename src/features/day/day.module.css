@@ -24,6 +24,10 @@
   gap: var(--space-1);
 }
 
+.guidedExercise {
+  gap: var(--space-3);
+}
+
 .exerciseName {
   font-size: var(--text-md);
 }
