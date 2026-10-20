@@ -53,8 +53,39 @@ jobs:
         with:
           path: dist
 
+  # End-to-end tests against their own production build at the root (playwright.config.ts),
+  # in parallel with the Pages build; nothing is published unless both pass.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Both projects (phone and desktop) run in Chromium.
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm e2e
+
+      # Traces of the failed tests: `pnpm exec playwright show-trace <trace.zip>`.
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: test-results
+          retention-days: 7
+
   deploy:
-    needs: build
+    needs: [build, e2e]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

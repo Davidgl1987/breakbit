@@ -16,6 +16,9 @@
 }
 
 .edit {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
   color: var(--color-primary-text);
   font-size: var(--text-sm);
 }
