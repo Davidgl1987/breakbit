@@ -1,4 +1,19 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+
+/** Every image on the page has finished loading and decoded to something. */
+async function expectAllImagesLoaded(page: Page): Promise<void> {
+  await expect
+    .poll(() =>
+      page
+        .locator('img')
+        .evaluateAll(
+          (images) =>
+            (images as HTMLImageElement[]).filter((image) => !image.complete || !image.naturalWidth)
+              .length,
+        ),
+    )
+    .toBe(0);
+}
 
 test('opens without a connection once it has been visited', async ({ page, context }) => {
   await page.goto('/');
@@ -18,13 +33,13 @@ test('opens without a connection once it has been visited', async ({ page, conte
   page.on('requestfailed', (request) => failed.push(request.url()));
   await page.reload();
   await expect(page.getByRole('button', { name: 'Comenzar' })).toBeVisible();
-  // Pixel icons included, though the first visit showed them before the worker was there.
-  const icons = page.locator('img[src^="/icons/"]');
-  await expect(icons.first()).toBeVisible();
-  const broken = await icons.evaluateAll(
-    (images) => images.filter((image) => !(image as HTMLImageElement).naturalWidth).length,
-  );
-  expect(broken).toBe(0);
+  // Brand art included, though the first visit showed it before the worker was there.
+  await expect(page.locator('img[src^="/brand/"]').first()).toBeVisible();
+  await expectAllImagesLoaded(page);
+  // The next screen's pixel icons were never shown online: they come from the kept shell.
+  await page.getByRole('button', { name: 'Comenzar' }).click();
+  await expect(page.locator('img[src^="/icons/"]').first()).toBeVisible();
+  await expectAllImagesLoaded(page);
   expect(failed).toEqual([]);
   await context.setOffline(false);
 });
