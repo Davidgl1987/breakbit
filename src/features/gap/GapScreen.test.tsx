@@ -81,9 +81,11 @@ describe('Tengo un hueco', () => {
     expect(screen.getByText('+1 pausa extra')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Volver a lo mío' }));
-    const timeline = screen.getByRole('heading', {
-      name: 'Tu jornada',
-    }).closest('section')!;
+    const timeline = screen
+      .getByRole('heading', {
+        name: 'Tu jornada',
+      })
+      .closest('section')!;
     expect(within(timeline).getByText('Pausa extra')).toBeInTheDocument();
     expect(screen.getByText('1 pausa extra')).toBeInTheDocument();
   });
@@ -183,6 +185,26 @@ describe('Tengo un hueco', () => {
     expect(moves[0]!.open).toBe(true);
     expect(within(moves[0]!).getByRole('list', { name: 'Cómo hacerlo' })).toBeVisible();
     expect(moves[1]!.open).toBe(false);
+  });
+
+  it('previews the moves to do, art only, instead of the avatar', () => {
+    setUp('09:20');
+    const plan = sampleDay();
+    store().startDay({
+      ...plan,
+      activities: plan.activities.filter((item) => item.kind !== 'main'),
+    });
+    ui(gapPath('m10'));
+    const preview = screen.getByRole('region', { name: 'Guía visual' });
+    const sources = within(preview)
+      .getAllByRole('img', { hidden: true })
+      .map((image) => image.getAttribute('src')!);
+    // Every move of the routine, each with its own postures.
+    expect(sources.every((src) => /^\/exercises\/\w+\/0\d\.png$/.test(src))).toBe(true);
+    expect(new Set(sources.map((src) => src.split('/')[2])).size).toBe(5);
+    expect(within(preview).getByRole('button', { name: 'Pausar guía' })).toBeInTheDocument();
+    expect(within(preview).queryByRole('button', { name: 'Postura siguiente' })).toBeNull();
+    expect(document.querySelector('img[src^="/avatar/"]')).toBeNull();
   });
 
   it('shows the main activity duration rather than the time option', () => {

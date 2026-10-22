@@ -89,7 +89,7 @@ export function MovePlayer({
         )
       }
     >
-      <ActivityGuide exercise={exercise} />
+      <ActivityGuide exercise={exercise} controls={false} />
       <ActivityTimer
         key={timer.index}
         progress={timer.progress}

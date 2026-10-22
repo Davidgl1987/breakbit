@@ -23,6 +23,8 @@ En `codex/exercise-preview-guides`, «Ver ejercicio» de Hoy y «Ver los pasos»
 
 Ajuste del 19 de octubre: solo puede quedar abierto un ejercicio del acordeón; abrir otro cierra el anterior. Todas las guías alternan las posturas cada segundo, tanto en la vista previa como durante el ejercicio. Esa cadencia visual es independiente de los tiempos de mantenimiento indicados en los pasos y del cronómetro de la sesión.
 
+Ajuste del 22 de octubre: en la pantalla del ejercicio (pausa, rutina de la actividad principal y Exercise Lab) la guía es solo la imagen en movimiento, sin navegación de posturas, botón de pausa ni texto debajo. Tocar la imagen pausa o reanuda la guía; en pausa aparece un ▶ pequeño en su esquina. Con movimiento reducido empieza quieta, con ese ▶ visible. Las vistas previas («Ver ejercicio», «Ver los pasos» y el acordeón) conservan los controles. «Tengo un hueco» sustituye el avatar genérico de la tarjeta por la guía en pequeño de lo que propone: si son varios movimientos, cada uno una vez y en orden (`movesGuide`). La actividad principal mantiene su icono.
+
 ## Comportamiento
 
 Se reutilizan `useStepTimer`, las sesiones de actividad principal, `ExerciseDetails`, `PauseSheet`, `RatingCard`/`ChipGroup`, `MainActivitySheet` y `BottomSheet`. No cambian duraciones, vueltas, selección del catálogo, reglas de XP, límites de extras, bonus ni retorno desde notificaciones o recuperación al cerrar jornada.

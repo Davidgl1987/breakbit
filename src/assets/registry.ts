@@ -24,6 +24,22 @@ export function exerciseGuide(exerciseId: string): ExerciseGuide | undefined {
   return EXERCISE_GUIDES[exerciseId];
 }
 
+/**
+ * The demonstrations of several moves played one after another (each move once, in order),
+ * for a preview of a pause with more than one. Moves without guide art are left out.
+ */
+export function movesGuide(exerciseIds: readonly string[]): ExerciseGuide | undefined {
+  const guides = [...new Set(exerciseIds)].flatMap((id) => exerciseGuide(id) ?? []);
+  if (guides.length <= 1) return guides[0];
+  const frames: ExerciseGuide['frames'][number][] = [];
+  const sequence: number[] = [];
+  for (const guide of guides) {
+    sequence.push(...guide.sequence.map((index) => index + frames.length));
+    frames.push(...guide.frames);
+  }
+  return { frames, sequence };
+}
+
 /** First posture for static previews and availability checks in Exercise Lab. */
 export function exerciseVisual(exerciseId: string): string | undefined {
   return exerciseGuide(exerciseId)?.frames[0]?.src;
