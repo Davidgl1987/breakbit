@@ -70,6 +70,21 @@ describe('local notification scheduler', () => {
     expect(shown).toEqual([]);
   });
 
+  it('still shows a late notice while it says it is relevant (waking up after the start)', async () => {
+    const late = (id: string, until: number) => ({
+      ...planned(id, NOW - 40 * MIN),
+      kind: 'day_start' as const,
+      tag: id,
+      until,
+    });
+    createLocalScheduler({ render, onOpen: () => {} }).sync(
+      [late('day-start', NOW + 6 * 60 * MIN), late('expired', NOW - MIN)],
+      NOW,
+    );
+    await flush();
+    expect(shown.map((item) => item.options?.tag)).toEqual(['day-start']);
+  });
+
   it('stays quiet while the app is in front (the banner covers it)', async () => {
     vi.spyOn(document, 'hasFocus').mockReturnValue(true);
     createLocalScheduler({ render, onOpen: () => {} }).sync([planned('a', NOW)], NOW);

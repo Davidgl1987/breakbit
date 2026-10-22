@@ -110,6 +110,13 @@
   height: auto;
   aspect-ratio: 1;
 }
+/* The pause's moves in turn, art only; a tap pauses it. */
+.preview {
+  right: 12px;
+  bottom: 12px;
+  width: 128px;
+  pointer-events: auto;
+}
 .activityArt {
   width: 120px;
   height: 120px;

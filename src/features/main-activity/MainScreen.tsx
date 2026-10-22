@@ -241,7 +241,7 @@ function MainSession({ activity, info }: MainViewProps) {
         </div>
       }
     >
-      <ActivityGuide exercise={move?.item.exercise} />
+      <ActivityGuide exercise={move?.item.exercise} controls={false} />
       {accumulated ? (
         <>
           <ActivityTimer

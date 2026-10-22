@@ -6,6 +6,7 @@ import { GAP, XP } from '@/domain/config';
 import { isGapOption, proposeGap, type GapOption, type GapProposal } from '@/domain/gap/gap';
 import { isMainRunning } from '@/domain/main/session';
 import type { DateKey, DayPlan } from '@/domain/types';
+import { MovesPreview } from '@/features/day/ActivityPresentation';
 import {
   areaIcon,
   areaName,
@@ -27,15 +28,11 @@ import { Button } from '@/ui/components/Button/Button';
 import { Card } from '@/ui/components/Card/Card';
 import { FlowLayout } from '@/ui/components/FlowLayout/FlowLayout';
 import { IconButton } from '@/ui/components/IconButton/IconButton';
-import { Avatar } from '@/ui/game/Avatar/Avatar';
 import { LineIcon } from '@/ui/icons/LineIcon';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { gapReturnPath } from './gapReturn';
 import styles from './GapScreen.module.css';
-
-/** The most evolved avatar shows every exercise (one set of art for all phases). */
-const DEMO_PHASE = 5;
 
 /**
  * /gap/:option — a proposal for the time chosen: the pause waiting for an answer, the
@@ -173,17 +170,20 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
         <span className={styles.kicker}>{t(`gap.preview.kinds.${proposal.kind}`)}</span>
         <h2 id="gap-proposal-title">{name}</h2>
         <strong className={styles.duration}>{duration}</strong>
-        <span className={styles.art} aria-hidden="true">
-          {main && content.content.kind === 'main' ? (
+        {main && content.content.kind === 'main' ? (
+          <span className={styles.art} aria-hidden="true">
             <PixelIcon
               name={mainActivityIcon(content.content.activityId)}
               size={48}
               className={styles.activityArt}
             />
-          ) : (
-            <Avatar phase={DEMO_PHASE} pose="demo" size="lg" framed={false} />
-          )}
-        </span>
+          </span>
+        ) : (
+          // What to do, moving: each move in turn. Tapping it pauses the preview.
+          <div className={`${styles.art} ${styles.preview}`}>
+            <MovesPreview exercises={items.map(({ exercise }) => exercise)} />
+          </div>
+        )}
         {!main && <span className={styles.window} aria-hidden="true" />}
       </Card>
 
