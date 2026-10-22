@@ -96,6 +96,8 @@ describe('buildNotificationSchedule', () => {
         at: atTime(DATE, '09:00'),
         date: DATE,
         tag: 'day-start',
+        // Waking the computer at 9:20 still brings it, while the workday lasts.
+        until: atTime(DATE, settings.schedule.workEnd),
       },
     ]);
     expect(schedule({ record: undefined, schedule: null })).toEqual([]);
@@ -177,6 +179,7 @@ describe('end of the workday', () => {
         at: atTime(DATE, settings.schedule.workEnd) - 10 * MIN,
         date: DATE,
         tag: 'day-end',
+        until: atTime(DATE, settings.schedule.workEnd) + 120 * MIN,
       },
     ]);
   });

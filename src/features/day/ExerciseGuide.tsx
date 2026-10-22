@@ -89,8 +89,19 @@ function GuideCue({ cue }: { cue: NonNullable<ExerciseGuideFrame['cue']> }) {
   );
 }
 
+interface ExerciseGuideProps {
+  guide: Guide;
+  /**
+   * Posture navigation, play/pause and the caption under the art. Without them only the
+   * moving art remains; tapping it pauses or resumes, and a paused guide shows a play badge.
+   */
+  controls?: boolean;
+  /** Borderless and sized by its container, for a preview inside a card. */
+  compact?: boolean;
+}
+
 /** Demonstration playback is independent of the exercise timer and awards no progress. */
-export function ExerciseGuide({ guide }: { guide: Guide }) {
+export function ExerciseGuide({ guide, controls = true, compact = false }: ExerciseGuideProps) {
   const { t, locale } = useT();
   const captionId = useId();
   const reduce = useSyncExternalStore(subscribeMotion, reducedMotion, () => true);
@@ -118,9 +129,19 @@ export function ExerciseGuide({ guide }: { guide: Guide }) {
     setPaused(true);
     setPosition((value) => (value + direction + guide.sequence.length) % guide.sequence.length);
   };
+  const togglePlayback = () => {
+    if (automatic) setPaused(true);
+    else {
+      setExplicitPlay(true);
+      setPaused(false);
+    }
+  };
 
   return (
-    <section className={styles.guide} aria-label={t('exerciseGuide.title')}>
+    <section
+      className={compact ? `${styles.guide} ${styles.compact}` : styles.guide}
+      aria-label={t('exerciseGuide.title')}
+    >
       <div className={styles.stage}>
         {failed ? (
           <img src={EXERCISE_AVATAR} alt={t('pause.demo')} draggable={false} />
@@ -140,8 +161,22 @@ export function ExerciseGuide({ guide }: { guide: Guide }) {
           ))
         )}
         {!failed && frame.gazeLine && <GuideGazeArrow gazeLine={frame.gazeLine} />}
+        {!failed && !controls && (
+          <button
+            type="button"
+            className={styles.stageToggle}
+            aria-label={t(automatic ? 'exerciseGuide.pause' : 'exerciseGuide.resume')}
+            onClick={togglePlayback}
+          >
+            {!automatic && (
+              <span className={styles.playBadge} aria-hidden="true">
+                <LineIcon name="play" size={compact ? 14 : 18} />
+              </span>
+            )}
+          </button>
+        )}
       </div>
-      {!failed && (
+      {!failed && controls && (
         <>
           <div className={styles.controls}>
             <div className={styles.navigation}>
@@ -158,13 +193,7 @@ export function ExerciseGuide({ guide }: { guide: Guide }) {
             <button
               type="button"
               className={styles.playback}
-              onClick={() => {
-                if (automatic) setPaused(true);
-                else {
-                  setExplicitPlay(true);
-                  setPaused(false);
-                }
-              }}
+              onClick={togglePlayback}
               aria-describedby={captionId}
             >
               <LineIcon name={automatic ? 'pause' : 'play'} size={16} />

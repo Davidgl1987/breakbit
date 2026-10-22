@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { exerciseGuide, type AvatarPose } from '@/assets/registry';
+import { exerciseGuide, movesGuide, type AvatarPose } from '@/assets/registry';
 import { EXERCISE_AVATAR } from '@/assets/exerciseGuides';
 import type { BodyArea, EquipmentId, EvolutionPhase, Exercise } from '@/domain/types';
 import { useT } from '@/i18n/useT';
@@ -80,16 +80,35 @@ export function ActivityScene({
   );
 }
 
-/** The complete guide area is reserved for art. Time and controls always sit outside. */
-export function ActivityGuide({ exercise }: { exercise?: Exercise }) {
+/**
+ * The complete guide area is reserved for art. Time and controls always sit outside.
+ * `controls`: the guide's own posture navigation, play/pause and caption (previews keep
+ * them; the exercise screen shows only the moving art).
+ */
+export function ActivityGuide({
+  exercise,
+  controls = true,
+}: {
+  exercise?: Exercise;
+  controls?: boolean;
+}) {
   const { t } = useT();
   const guide = exercise && exerciseGuide(exercise.id);
-  if (guide) return <ExerciseGuide key={exercise.id} guide={guide} />;
+  if (guide) return <ExerciseGuide key={exercise.id} guide={guide} controls={controls} />;
   return (
     <div className={styles.guide}>
       <img src={EXERCISE_AVATAR} alt={t('pause.demo')} draggable={false} />
     </div>
   );
+}
+
+/** A small moving preview of what a pause holds: each of its moves in turn, art only. */
+export function MovesPreview({ exercises }: { exercises: readonly Exercise[] }) {
+  const { t } = useT();
+  const ids = exercises.map((exercise) => exercise.id);
+  const guide = movesGuide(ids);
+  if (guide) return <ExerciseGuide key={ids.join()} guide={guide} controls={false} compact />;
+  return <img src={EXERCISE_AVATAR} alt={t('pause.demo')} draggable={false} />;
 }
 
 export function ActivityMetadata({

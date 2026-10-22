@@ -38,7 +38,10 @@ interface LocalSchedulerOptions {
 
 const DELIVERED_HINT = 'notified';
 const MAX_REMEMBERED = 200;
-/** After a sleep or a long time closed, old reminders are dropped instead of piling up. */
+/**
+ * After a sleep or a long time closed, old reminders are dropped instead of piling up,
+ * unless they say how long they stay relevant (`until`: the start and end of the day).
+ */
 const STALE_MS = 5 * 60_000;
 
 /**
@@ -66,7 +69,7 @@ export function createLocalScheduler({
         saveDelivered([...delivered]);
       }
       for (const notification of fresh) {
-        if (now - notification.at > STALE_MS) continue;
+        if (now > (notification.until ?? notification.at + STALE_MS)) continue;
         onDue?.(notification);
         if (appInFront()) continue;
         const content = render(notification);

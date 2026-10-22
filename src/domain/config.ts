@@ -136,3 +136,8 @@ export const WEEK = {
 
 /** End-of-day summary is offered this many minutes before the configured end. */
 export const DAY_END_LEAD_MIN = 10;
+/**
+ * A late end-of-day notice (the computer was asleep, the tab frozen) is still shown up to
+ * this long after the workday ends; the start-of-day one, until the workday ends.
+ */
+export const DAY_END_LATE_MIN = 120;
