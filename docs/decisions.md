@@ -971,3 +971,15 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - La escena de descanso podrá representar actividad fuera de la jornada. Se utiliza en los estados de descanso y «Hoy no trabajo».
 - Las cinco poses durmiendo (`sleep`) para antes de iniciar la jornada se prepararán por separado.
 - Recursos pendientes de generar. Requisitos de encuadre, importación y primeras ideas en [Ciclo de jornada](design/day-cycle.md).
+
+## Avisos de inicio y fin de jornada · 22 de octubre
+
+- El canal local descartaba cualquier aviso con más de 5 min de retraso (tras un reposo del
+  ordenador o una pestaña congelada), también el de inicio de jornada: al abrir el portátil a las
+  9:10 con Breakbit en segundo plano, no llegaba nunca. Ahora un aviso puede decir hasta cuándo
+  sigue teniendo sentido (`until`): el de inicio, mientras dure la jornada y no se haya empezado;
+  el de cierre, hasta 2 h después del fin (`DAY_END_LATE_MIN`) mientras siga abierta. Las pausas y
+  sus recordatorios siguen caducando a los 5 min.
+- Sigue sin backend: los avisos solo salen con Breakbit abierta (en primer o segundo plano). Con
+  la app cerrada, y en iPhone en cuanto pasa a segundo plano, no hay avisos; eso solo lo resolvería
+  Web Push con un servidor.

@@ -33,6 +33,58 @@
   color: var(--color-primary-text);
   pointer-events: none;
 }
+/* Without controls, the whole art pauses and resumes the guide. */
+.stageToggle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 10px;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.stageToggle:focus-visible {
+  /* Inside the frame: the guide clips anything outside it. */
+  outline-offset: -3px;
+}
+.playBadge {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-primary-text);
+  box-shadow: var(--shadow-sm);
+}
+/* A preview inside a card: no frame of its own, as wide as its container. */
+.compact {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.compact .stage {
+  height: auto;
+  padding: 0;
+}
+.compact .stage img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.compact .gazeArrow {
+  width: 100%;
+}
+.compact .stageToggle {
+  padding: 4px;
+}
+.compact .playBadge {
+  width: 24px;
+  height: 24px;
+}
 .controls {
   display: flex;
   align-items: center;

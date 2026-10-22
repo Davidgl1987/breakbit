@@ -1,4 +1,4 @@
-import { DAY_END_LEAD_MIN, PAUSE_WINDOW } from '../config';
+import { DAY_END_LATE_MIN, DAY_END_LEAD_MIN, PAUSE_WINDOW } from '../config';
 import { isOpen, windowEnd } from '../pause/window';
 import { atTime } from '../time';
 import type { DateKey, DayRecord, DaySchedule, Instant, NotificationPrefs } from '../types';
@@ -20,6 +20,11 @@ export interface PlannedNotification {
   date: DateKey;
   tag: string;
   activityId?: string;
+  /**
+   * Still worth showing until then if it comes late (after a sleep or a frozen tab).
+   * Without it, a channel drops notifications that are a few minutes old.
+   */
+  until?: Instant;
 }
 
 export interface ScheduleInput {
@@ -34,13 +39,14 @@ export interface ScheduleInput {
 
 /**
  * Today's reminders, past and future, following the user's preferences:
- * - the start of the workday, while the day hasn't been started;
+ * - the start of the workday, while the day hasn't been started (late, until it ends);
  * - each open microbreak when its (possibly postponed) time comes;
  * - a reminder every 10 min while it gets no answer ("Vamos", postpone or discard) and its
  *   window is open. Just opening the screen is not an answer;
  * - the main activity at its time, while it hasn't started, and once a session completes
  *   on its own (a walk with the phone away). Both follow the pauses preference;
- * - the end of the workday, 10 min before it, while the day is under way.
+ * - the end of the workday, 10 min before it, while the day is under way (late, up to two
+ *   hours after it ends).
  */
 export function buildNotificationSchedule({
   date,
@@ -59,6 +65,7 @@ export function buildNotificationSchedule({
       at: atTime(date, schedule.workStart),
       date,
       tag: 'day-start',
+      until: atTime(date, schedule.workEnd),
     });
   }
 
@@ -109,12 +116,14 @@ export function buildNotificationSchedule({
   }
 
   if (prefs.dayEnd && record?.status === 'active' && record.plan) {
+    const end = atTime(date, record.plan.schedule.workEnd);
     planned.push({
       id: `day-end:${date}`,
       kind: 'day_end',
-      at: atTime(date, record.plan.schedule.workEnd) - DAY_END_LEAD_MIN * MINUTE,
+      at: end - DAY_END_LEAD_MIN * MINUTE,
       date,
       tag: 'day-end',
+      until: end + DAY_END_LATE_MIN * MINUTE,
     });
   }
 
