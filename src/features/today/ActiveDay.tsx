@@ -5,7 +5,7 @@ import { CATALOG } from '@/content/catalog';
 import { DAY_END_LEAD_MIN } from '@/domain/config';
 import { mainChoiceOf } from '@/domain/day/planDay';
 import { dayProgress } from '@/domain/day/progress';
-import { mainActivityOf, nextPause, workEnd } from '@/domain/day/today';
+import { dayEquipment, mainActivityOf, nextPause, workEnd } from '@/domain/day/today';
 import { atTime } from '@/domain/time';
 import type { DayPlan, Instant, Meeting } from '@/domain/types';
 import { DaySceneCard } from '@/features/day/DaySceneCard';
@@ -41,6 +41,7 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
   const [sheet, setSheet] = useState<Sheet>(null);
   const planner = useDayPlanner();
   const updateDayPlan = useAppStore((state) => state.updateDayPlan);
+  const settings = useAppStore((state) => state.settings);
 
   // New meetings re-plan the rest of the day around what already happened.
   const setMeetings = (meetings: Meeting[]) => {
@@ -184,6 +185,7 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
         <MainActivitySheet
           schedule={plan.schedule}
           meetings={plan.meetings}
+          equipment={dayEquipment(plan, settings)}
           current={mainChoiceOf(plan)}
           onClose={() => setSheet(null)}
           onSave={(choice) => {

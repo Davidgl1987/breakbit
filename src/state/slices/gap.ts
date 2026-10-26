@@ -31,7 +31,7 @@ export function gapActions(
         }
         case 'advance': {
           const updated = updateActivity(date, proposal.target.id, (_item, plan, now) =>
-            advancePause(plan, proposal, now, contentContext(get().settings)),
+            advancePause(plan, proposal, now, contentContext(get().settings, plan)),
           );
           return updated && started(updated.id, option, 'advance');
         }

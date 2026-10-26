@@ -983,3 +983,44 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 - Sigue sin backend: los avisos solo salen con Breakbit abierta (en primer o segundo plano). Con
   la app cerrada, y en iPhone en cuanto pasa a segundo plano, no hay avisos; eso solo lo resolvería
   Web Push con un servidor.
+
+## Avisos de los descansos · 26 de octubre
+
+- **Al empezar cada descanso** del día (los de "Descanso habitual" del horario de ese día) llega
+  un aviso: "Empieza tu descanso · Hasta las 11:15. Levántate y despéjate." y abre Hoy. Sigue el
+  interruptor de las pausas, que pasa a llamarse "Pausas, descansos y actividad principal" (sin
+  migración: es el mismo ajuste).
+- **Si la actividad principal está en ese descanso** (lo normal: se propone en el descanso más
+  largo), no hay dos avisos: el suyo hace de aviso del descanso ("Empieza tu descanso · Tu
+  actividad: Paseo · 15 min") cuando empieza justo con él. Si ya está hecha, llega el del descanso.
+- No se avisa de un descanso en el que cae alguna reunión. La comida no tiene aviso.
+- Si llegan tarde (el ordenador dormía), el aviso de la actividad principal sigue valiendo hasta el
+  fin de su bloque y el del descanso hasta que acaba (`until`).
+- Siguen saliendo solo con Breakbit abierta (en primer o segundo plano), como todos los avisos.
+
+## Material de hoy · 26 de octubre
+
+- **Tarjeta "Material de hoy"** en "Preparar jornada", como la de "Actividad de hoy": muestra el
+  material que el plan **va a usar** (nombres e iconos) y cuántas veces ("Lo usarás 2 veces hoy.");
+  sin material, "Movimientos sin material y caminar.". De partida es lo que haya salido al generar
+  el plan con todo el material de Ajustes disponible.
+- **"Cambiar"** abre un panel con todo el material del usuario en Ajustes (y cualquiera que ya
+  tenga el día), marcado según lo que usa el plan. Lo que se marque pasa a ser la elección del día:
+  el único material que se usa y **cada pieza al menos una vez** si cabe en algún sitio. Guardar
+  sin cambiar nada no cuenta como elección (no rehace las pausas). Sin material en Ajustes, el
+  panel explica dónde añadirlo. Solo cambia ese día; Ajustes no se toca.
+- **Cómo se garantiza** (`ensureEquipmentUsed`, tras planificar): una pieza que el plan no usa
+  entra en una pausa que aún no ha llegado (uno de sus movimientos, o una rutina que la lleve si es
+  un descanso), prefiriendo pausas sin material; si no hay ninguna, se cambia la actividad
+  principal por una que la use y encaje en su momento y duración. Nunca toca lo ya hecho o
+  empezado, ni la única actividad que usa otra pieza elegida. Lo que no cabe (la esterilla sin
+  descanso libre, el escritorio elevable sin hueco de trabajo de pie) se dice en la tarjeta: "Hoy no
+  hay sitio para: Escritorio elevable.".
+- **El plan guarda la elección** (`DayPlan.equipment`, migración v5 sin cambios en los datos) y
+  todo lo que replanifica ese día la respeta: avance de pausas, aplazar, actividad principal,
+  "Tengo un hueco", "Cambiar actividad", ajustar la jornada y cambios de ritmo o molestias en
+  Ajustes. Sin elección, el día usa el material de Ajustes como hasta ahora (`dayEquipment`).
+- **Actividad elegida sin su material**: si se desmarca el material que necesita, se descarta la
+  elección y se propone otra; "Cambiar actividad" solo ofrece las que permite el material del día.
+- **Cambiar el material en Ajustes** con la jornada en marcha borra la elección de hoy: el día
+  vuelve a usar el de Ajustes.

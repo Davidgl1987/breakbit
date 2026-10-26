@@ -29,7 +29,7 @@ export function mainActions(
         if (started === item) return item;
         // It now happens at its real time: pauses that would clash with it move.
         return item.startedAt === undefined
-          ? rebalance(withActivity(plan, started), now, contentContext(get().settings))
+          ? rebalance(withActivity(plan, started), now, contentContext(get().settings, plan))
           : started;
       });
       if (updated && firstStart) log('exercise_started', { activityId: id });
@@ -52,7 +52,7 @@ export function mainActions(
         const completed = session.completeMain(item, now);
         if (completed === item) return item;
         // Pauses too close after it move later.
-        return rebalance(withActivity(plan, completed), now, contentContext(get().settings));
+        return rebalance(withActivity(plan, completed), now, contentContext(get().settings, plan));
       });
       if (!updated) return;
       const record = get().days[date];

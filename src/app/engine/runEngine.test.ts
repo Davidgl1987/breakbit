@@ -55,19 +55,24 @@ describe('runEngine', () => {
 describe('notificationContent', () => {
   beforeEach(() => store().startDay(plan));
 
-  it.each(['day_start', 'day_end', 'pause', 'pause_reminder', 'main', 'main_done'] as const)(
-    'uses the application icon for %s',
-    (kind) => {
-      const activity = plan.activities.find(
-        (item) => item.kind === (kind.startsWith('main') ? 'main' : 'micro'),
-      )!;
-      const content = notificationContent(
-        { id: kind, kind, date: DATE, at: first.scheduledAt, tag: kind, activityId: activity.id },
-        store(),
-      );
-      expect(content?.icon).toBe(`${import.meta.env.BASE_URL}app-icons/icon-192.png`);
-    },
-  );
+  it.each([
+    'day_start',
+    'day_end',
+    'pause',
+    'pause_reminder',
+    'main',
+    'main_done',
+    'break',
+  ] as const)('uses the application icon for %s', (kind) => {
+    const activity = plan.activities.find(
+      (item) => item.kind === (kind.startsWith('main') ? 'main' : 'micro'),
+    )!;
+    const content = notificationContent(
+      { id: kind, kind, date: DATE, at: first.scheduledAt, tag: kind, activityId: activity.id },
+      store(),
+    );
+    expect(content?.icon).toBe(`${import.meta.env.BASE_URL}app-icons/icon-192.png`);
+  });
 
   it('names the exercise and links to the decision screen', () => {
     const content = notificationContent(
@@ -101,6 +106,48 @@ describe('notificationContent', () => {
     );
     expect(content?.title).toBe('Tu pausa sigue esperando');
     expect(content?.body).toMatch(/quedan 20 min$/);
+  });
+
+  it('announces a break with when it ends, and opens Today', () => {
+    const content = notificationContent(
+      {
+        id: `break:${DATE}:11:00`,
+        kind: 'break',
+        at: atTime(DATE, '11:00'),
+        date: DATE,
+        tag: 'break',
+        until: atTime(DATE, '11:15'),
+      },
+      store(),
+    );
+    expect(content).toMatchObject({
+      title: 'Empieza tu descanso',
+      body: 'Hasta las 11:15. Levántate y despéjate.',
+      url: '/',
+    });
+  });
+
+  it('says the break starts when the main activity opens it, and not otherwise', () => {
+    const main = plan.activities.find((item) => item.kind === 'main')!;
+    const notice = (at: number) =>
+      notificationContent(
+        { id: 'main', kind: 'main', at, date: DATE, tag: 'main', activityId: main.id },
+        store(),
+      );
+    // The default day puts it in the 11:00 break.
+    expect(main.currentScheduledAt).toBe(atTime(DATE, '11:00'));
+    expect(notice(main.currentScheduledAt)).toMatchObject({
+      title: 'Empieza tu descanso',
+      body: expect.stringMatching(/^Tu actividad: /),
+    });
+    const later = atTime(DATE, '16:00');
+    store().updateDayPlan({
+      ...plan,
+      activities: plan.activities.map((item) =>
+        item.id === main.id ? { ...item, currentScheduledAt: later } : item,
+      ),
+    });
+    expect(notice(later)?.title).toBe('Hora de tu actividad');
   });
 
   it('opens the start of the day', () => {

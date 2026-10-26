@@ -146,6 +146,27 @@ describe('Settings', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Tus pausas de hoy se han ajustado.');
   });
 
+  it("keeps today's chosen equipment when another setting re-plans the day", async () => {
+    store().updateSettings({ equipment: ['resistance_band', 'mat'] });
+    store().startDay({ ...sampleDay(), equipment: ['mat'] });
+    const before = store().days[SAMPLE_DATE]!.plan;
+    clock.travelTo(sampleAt('09:30'));
+    const { user } = ui();
+    await user.click(screen.getByRole('button', { name: /Editar Intensidad/ }));
+    await user.click(screen.getByRole('radio', { name: 'Activo' }));
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(store().settings.intensity).toBe('active');
+    expect(store().days[SAMPLE_DATE]!.plan).not.toBe(before);
+    expect(store().days[SAMPLE_DATE]!.plan!.equipment).toEqual(['mat']);
+
+    // New equipment in Settings replaces today's choice: the day uses Settings again.
+    await user.click(screen.getByRole('button', { name: /Editar Equipamiento disponible/ }));
+    await user.click(screen.getByRole('checkbox', { name: /Kettlebell/ }));
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(store().settings.equipment).toEqual(['resistance_band', 'mat', 'kettlebell']);
+    expect(store().days[SAMPLE_DATE]!.plan!.equipment).toBeUndefined();
+  });
+
   it('saves equipment and pace', async () => {
     const { user } = ui(settingsPath('equipment'));
     await user.click(screen.getByRole('checkbox', { name: /Esterilla/ }));
@@ -188,7 +209,9 @@ describe('Settings notifications', () => {
     expect(request).toHaveBeenCalledOnce();
     expect(store().settings.notifications.enabled).toBe(true);
 
-    await user.click(screen.getByRole('switch', { name: 'Pausas y actividad principal' }));
+    await user.click(
+      screen.getByRole('switch', { name: 'Pausas, descansos y actividad principal' }),
+    );
     expect(store().settings.notifications.microbreaks).toBe(false);
     expect(screen.getByRole('switch', { name: 'Fin de jornada' })).toHaveAttribute(
       'aria-checked',
@@ -209,7 +232,9 @@ describe('Settings notifications', () => {
     expect(play).toHaveBeenCalledOnce();
 
     // Without pause reminders there is nothing to sound.
-    await user.click(screen.getByRole('switch', { name: 'Pausas y actividad principal' }));
+    await user.click(
+      screen.getByRole('switch', { name: 'Pausas, descansos y actividad principal' }),
+    );
     expect(screen.getByRole('switch', { name: 'Sonido de las pausas' })).toBeDisabled();
   });
 

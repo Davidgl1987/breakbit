@@ -23,7 +23,9 @@ export function useSaveSettings() {
     const date = toDateKey(now);
     const record = state.days[date];
     if (record?.status !== 'active' || !record.plan || now >= workEnd(record.plan)) return false;
-    const plan = replanDay(record.plan, {
+    // New equipment in Settings replaces today's own choice; anything else keeps it.
+    const { equipment: _choice, ...withoutChoice } = record.plan;
+    const plan = replanDay(patch.equipment ? withoutChoice : record.plan, {
       settings: state.settings,
       catalog: CATALOG,
       now,

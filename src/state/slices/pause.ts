@@ -32,7 +32,11 @@ export function pauseActions(
       for (const record of Object.values(days)) {
         if (!record?.plan || record.status !== 'active') continue;
         if (compareDateKeys(record.date, today) > 0) continue;
-        const { plan, events } = advanceDay(record.plan, now, contentContext(settings));
+        const { plan, events } = advanceDay(
+          record.plan,
+          now,
+          contentContext(settings, record.plan),
+        );
         if (plan === record.plan) continue;
         changed[record.date] = { ...record, plan };
         for (const event of events) {
@@ -64,7 +68,7 @@ export function pauseActions(
         const postponed = lifecycle.postpone(item, minutes, now);
         if (postponed === item) return plan;
         // Pauses that now come too close afterwards move later.
-        return rebalance(withActivity(plan, postponed), now, contentContext(get().settings));
+        return rebalance(withActivity(plan, postponed), now, contentContext(get().settings, plan));
       });
       if (updated) log('exercise_postponed', { activityId: id, data: { minutes } });
     },

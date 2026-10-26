@@ -5,7 +5,7 @@ import { hasEquipment } from '@/domain/planner/selectExercise';
 import { mainActivityDuration } from '@/domain/planner/selectMainActivity';
 import { buildTimeline, overlaps, slotAt } from '@/domain/planner/timeline';
 import { isValidHHmm, toMinutes } from '@/domain/time';
-import type { DaySchedule, HHmm, Meeting } from '@/domain/types';
+import type { DaySchedule, EquipmentId, HHmm, Meeting } from '@/domain/types';
 import { useT } from '@/i18n/useT';
 import { useAppStore } from '@/state/store';
 import { BottomSheet } from '@/ui/components/BottomSheet/BottomSheet';
@@ -20,6 +20,8 @@ import styles from './day.module.css';
 interface MainActivitySheetProps {
   schedule: DaySchedule;
   meetings: readonly Meeting[];
+  /** The day's equipment: only activities it allows are offered. */
+  equipment: readonly EquipmentId[];
   current?: MainActivityChoice;
   onSave: (choice: MainActivityChoice) => void;
   onClose: () => void;
@@ -29,6 +31,7 @@ interface MainActivitySheetProps {
 export function MainActivitySheet({
   schedule,
   meetings,
+  equipment,
   current,
   onSave,
   onClose,
@@ -36,7 +39,7 @@ export function MainActivitySheet({
   const { t, locale } = useT();
   const settings = useAppStore((state) => state.settings);
   const activities = CATALOG.mainActivities.filter((activity) =>
-    hasEquipment(activity.equipment, settings.equipment),
+    hasEquipment(activity.equipment, equipment),
   );
   const durationOf = (activityId: string) => {
     if (activityId === current?.activityId) return current.durationMin;

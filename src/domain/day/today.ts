@@ -11,7 +11,19 @@ import type {
   EquipmentId,
   Instant,
   ScheduledActivity,
+  UserSettings,
 } from '../types';
+
+/**
+ * The equipment a day may use: the one chosen for it ("Material de hoy"), or else the
+ * user's.
+ */
+export function dayEquipment(
+  plan: Pick<DayPlan, 'equipment'> | undefined,
+  settings: Pick<UserSettings, 'equipment'>,
+): EquipmentId[] {
+  return plan?.equipment ?? [...settings.equipment];
+}
 
 /**
  * What today is, for the Today screen:

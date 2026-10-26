@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router';
 import { mainDonePath, ROUTES } from '@/app/routes';
 import { mainChoiceOf } from '@/domain/day/planDay';
+import { dayEquipment } from '@/domain/day/today';
 import { isMainRunning, mainElapsedSec } from '@/domain/main/session';
 import { isOpen } from '@/domain/pause/window';
 import type { MainActivity, ScheduledActivity } from '@/domain/types';
@@ -73,6 +74,7 @@ function MainIntro({ activity, info }: MainViewProps) {
   const { t, locale } = useT();
   const date = activityDate(activity.id);
   const plan = useAppStore((state) => state.days[date]?.plan);
+  const settings = useAppStore((state) => state.settings);
   const startMain = useAppStore((state) => state.startMain);
   const completeMain = useAppStore((state) => state.completeMain);
   const updateDayPlan = useAppStore((state) => state.updateDayPlan);
@@ -131,6 +133,7 @@ function MainIntro({ activity, info }: MainViewProps) {
         <MainActivitySheet
           schedule={plan.schedule}
           meetings={plan.meetings}
+          equipment={dayEquipment(plan, settings)}
           current={mainChoiceOf(plan)}
           onClose={() => setSheet(null)}
           onSave={(choice) => {
