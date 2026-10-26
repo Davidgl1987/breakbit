@@ -1,12 +1,20 @@
 import { DAY_END_LATE_MIN, DAY_END_LEAD_MIN, PAUSE_WINDOW } from '../config';
 import { isOpen, windowEnd } from '../pause/window';
 import { atTime } from '../time';
-import type { DateKey, DayRecord, DaySchedule, Instant, NotificationPrefs } from '../types';
+import type {
+  DateKey,
+  DayPlan,
+  DayRecord,
+  DaySchedule,
+  Instant,
+  NotificationPrefs,
+  TimeBlock,
+} from '../types';
 
 const MINUTE = 60_000;
 
 export type NotificationKind =
-  'pause' | 'pause_reminder' | 'day_start' | 'day_end' | 'main' | 'main_done';
+  'pause' | 'pause_reminder' | 'day_start' | 'day_end' | 'main' | 'main_done' | 'break';
 
 /**
  * A reminder the app should show at `at`. Ids are deterministic, so a delivery channel
@@ -43,8 +51,11 @@ export interface ScheduleInput {
  * - each open microbreak when its (possibly postponed) time comes;
  * - a reminder every 10 min while it gets no answer ("Vamos", postpone or discard) and its
  *   window is open. Just opening the screen is not an answer;
- * - the main activity at its time, while it hasn't started, and once a session completes
- *   on its own (a walk with the phone away). Both follow the pauses preference;
+ * - the main activity at its time, while it hasn't started (late, until its planned end),
+ *   and once a session completes on its own (a walk with the phone away);
+ * - each of the day's breaks as it starts (late, until it ends), unless the main activity
+ *   is in it (its own notice says so) or a meeting takes part of it. The main activity and
+ *   the breaks follow the pauses preference;
  * - the end of the workday, 10 min before it, while the day is under way (late, up to two
  *   hours after it ends).
  */
@@ -101,6 +112,20 @@ export function buildNotificationSchedule({
         date,
         tag: `main:${main.id}`,
         activityId: main.id,
+        until: main.currentScheduledAt + main.durationSec * 1000,
+      });
+    }
+
+    for (const block of record.plan.schedule.breaks) {
+      if (!breakIsFree(record.plan, block)) continue;
+      const start = atTime(date, block.start);
+      planned.push({
+        id: `break:${date}:${block.start}`,
+        kind: 'break',
+        at: start,
+        date,
+        tag: 'break',
+        until: start + block.durationMin * MINUTE,
       });
     }
     if (main?.status === 'completed' && main.startedAt !== undefined && main.completedAt) {
@@ -128,4 +153,25 @@ export function buildNotificationSchedule({
   }
 
   return planned.sort((a, b) => a.at - b.at);
+}
+
+/**
+ * A break worth announcing: the main activity still to do isn't in it (its own notice
+ * comes then) and no meeting takes any of it.
+ */
+function breakIsFree(plan: DayPlan, block: TimeBlock): boolean {
+  const start = atTime(plan.date, block.start);
+  const end = start + block.durationMin * MINUTE;
+  const overlaps = (from: Instant, to: Instant) => from < end && to > start;
+  const main = plan.activities.find((item) => item.kind === 'main');
+  if (
+    main &&
+    isOpen(main) &&
+    overlaps(main.currentScheduledAt, main.currentScheduledAt + main.durationSec * 1000)
+  ) {
+    return false;
+  }
+  return !plan.meetings.some((meeting) =>
+    overlaps(atTime(plan.date, meeting.start), atTime(plan.date, meeting.end)),
+  );
 }

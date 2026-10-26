@@ -208,6 +208,9 @@ function validateDay(v: Validator, day: unknown, date: string, path: string): vo
     });
     v.integer(plan.rerollCount, `${planPath}.rerollCount`, 0);
     v.integer(plan.targetMicroCount, `${planPath}.targetMicroCount`, 0);
+    v.optional(plan.equipment, `${planPath}.equipment`, (equipment, equipmentPath) =>
+      v.array(equipment, equipmentPath, (item, itemPath) => v.string(item, itemPath)),
+    );
     v.array(plan.activities, `${planPath}.activities`, (activity, activityPath) =>
       validateActivity(v, activity, activityPath),
     );

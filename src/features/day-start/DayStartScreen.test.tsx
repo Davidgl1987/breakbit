@@ -1,18 +1,23 @@
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppRoutes } from '@/app/AppRoutes';
 import { CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import { planDay } from '@/domain/day/planDay';
+import { equipmentInPlan } from '@/domain/day/today';
 import { atTime } from '@/domain/time';
-import type { DateKey } from '@/domain/types';
+import type { DateKey, DayPlan } from '@/domain/types';
+import { EquipmentTodayCard } from '@/features/day/EquipmentTodayCard';
 import { clock } from '@/services/clock';
 import { useAppStore } from '@/state/store';
 import { renderWithRouter } from '@/test/render';
+import { sampleDay } from '@/test/sampleDay';
 
 const MONDAY: DateKey = '2026-10-05';
 const store = () => useAppStore.getState();
 const startButton = () => screen.getByRole('button', { name: 'Empezar jornada' });
+const gearCard = () =>
+  screen.getByRole('heading', { level: 3, name: 'Material de hoy' }).closest('section')!;
 
 function setTime(group: string, field: 'Inicio' | 'Fin', value: string, root = document.body) {
   const fields = within(within(root).getByRole('group', { name: group }));
@@ -213,9 +218,122 @@ describe('day start', () => {
     expect(within(sheet).getByRole('radio', { name: /Trabajo de pie/ })).toBeInTheDocument();
   });
 
-  it('says so when no gear is needed today', () => {
-    renderWithRouter(<AppRoutes />, { route: '/day/start' });
-    expect(screen.getByText('Hoy no hace falta material.')).toBeInTheDocument();
-    expect(screen.queryByText('A mano hoy')).not.toBeInTheDocument();
+  it("shows the equipment the plan uses, and offers all of the user's to change it", async () => {
+    store().updateSettings({ equipment: ['resistance_band', 'mat', 'kettlebell'] });
+    const { user } = renderWithRouter(<AppRoutes />, { route: '/day/start' });
+    const proposed = within(gearCard()).getByRole('strong').textContent;
+
+    await user.click(screen.getByRole('button', { name: 'Cambiar material de hoy' }));
+    const sheet = screen.getByRole('dialog', { name: 'Material de hoy' });
+    const boxes = within(sheet).getAllByRole('checkbox');
+    // All of the user's equipment, ticked as the plan uses it.
+    expect(boxes).toHaveLength(3);
+    const ticked = boxes
+      .filter((box) => (box as HTMLInputElement).checked)
+      .map(
+        (box) =>
+          CATALOG.equipment.find((item) =>
+            box.closest('label')?.textContent?.includes(item.name.es),
+          )!.name.es,
+      );
+    expect(ticked.length > 0 ? ticked.join(', ') : 'Sin material').toBe(proposed);
+
+    // Something else than the plan's proposal: only one piece it doesn't use.
+    const owned = ['resistance_band', 'mat', 'kettlebell'];
+    const target =
+      CATALOG.equipment.find((item) => owned.includes(item.id) && !ticked.includes(item.name.es)) ??
+      CATALOG.equipment.find((item) => item.id === 'kettlebell')!;
+    for (const box of boxes) if ((box as HTMLInputElement).checked) await user.click(box);
+    await user.click(within(sheet).getByRole('checkbox', { name: new RegExp(target.name.es) }));
+    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+
+    // Chosen, so the plan uses it.
+    expect(within(gearCard()).getByRole('strong')).toHaveTextContent(target.name.es);
+    expect(within(gearCard()).getByText(/^Lo usarás/)).toBeInTheDocument();
+    await user.click(startButton());
+    const plan = store().days[MONDAY]!.plan!;
+    expect(plan.equipment).toEqual([target.id]);
+    expect(equipmentInPlan(plan, CATALOG)).toEqual([target.id]);
+    // Only today: Settings keep the user's equipment.
+    expect(store().settings.equipment).toEqual(owned);
+  });
+
+  it('replaces a chosen activity whose equipment is left out today', async () => {
+    store().updateSettings({ equipment: ['resistance_band'] });
+    const { user } = renderWithRouter(<AppRoutes />, { route: '/day/start' });
+    await user.click(screen.getByRole('button', { name: 'Cambiar' }));
+    let sheet = screen.getByRole('dialog', { name: 'Actividad de hoy' });
+    await user.click(within(sheet).getByRole('radio', { name: /Mini bloque con banda/ }));
+    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+    expect(screen.getByText('Mini bloque con banda')).toBeInTheDocument();
+    expect(within(gearCard()).getByRole('strong')).toHaveTextContent('Banda elástica');
+
+    await user.click(screen.getByRole('button', { name: 'Cambiar material de hoy' }));
+    sheet = screen.getByRole('dialog', { name: 'Material de hoy' });
+    await user.click(within(sheet).getByRole('checkbox', { name: /Banda elástica/ }));
+    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+    expect(within(gearCard()).getByRole('strong')).toHaveTextContent('Sin material');
+    expect(screen.queryByText('Mini bloque con banda')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Cambiar' }));
+    sheet = screen.getByRole('dialog', { name: 'Actividad de hoy' });
+    expect(within(sheet).queryByRole('radio', { name: /Mini bloque con banda/ })).toBeNull();
+  });
+
+  it('keeps the equipment chosen for the day when adjusting it', async () => {
+    store().updateSettings({ equipment: ['resistance_band', 'mat'] });
+    const first = renderWithRouter(<AppRoutes />, { route: '/day/start' });
+    await first.user.click(screen.getByRole('button', { name: 'Cambiar material de hoy' }));
+    const sheet = screen.getByRole('dialog', { name: 'Material de hoy' });
+    for (const box of within(sheet).getAllByRole('checkbox')) {
+      if ((box as HTMLInputElement).checked) await first.user.click(box);
+    }
+    await first.user.click(within(sheet).getByRole('checkbox', { name: /Esterilla/ }));
+    await first.user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+    await first.user.click(startButton());
+    first.unmount();
+    expect(store().days[MONDAY]!.plan!.equipment).toEqual(['mat']);
+
+    const { user } = renderWithRouter(<AppRoutes />, { route: '/day/start' });
+    await user.click(screen.getByRole('button', { name: 'Cambiar material de hoy' }));
+    const again = screen.getByRole('dialog', { name: 'Material de hoy' });
+    expect(within(again).getByRole('checkbox', { name: /Banda elástica/ })).not.toBeChecked();
+    expect(within(again).getByRole('checkbox', { name: /Esterilla/ })).toBeChecked();
+  });
+
+  it('says how to add equipment when the user has none', async () => {
+    const { user } = renderWithRouter(<AppRoutes />, { route: '/day/start' });
+    expect(within(gearCard()).getByRole('strong')).toHaveTextContent('Sin material');
+    expect(within(gearCard()).getByText('Movimientos sin material y caminar.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cambiar material de hoy' }));
+    const sheet = screen.getByRole('dialog', { name: 'Material de hoy' });
+    expect(within(sheet).getByText(/No tienes material en Ajustes/)).toBeInTheDocument();
+    expect(within(sheet).queryByRole('checkbox')).toBeNull();
+  });
+});
+
+describe("today's equipment card", () => {
+  const withMat = (): DayPlan => {
+    const plan = sampleDay();
+    return {
+      ...plan,
+      activities: plan.activities.map((item) =>
+        item.kind === 'main'
+          ? { ...item, content: { kind: 'main', activityId: 'mat_mobility' } }
+          : item,
+      ),
+    };
+  };
+
+  it('shows what the plan uses, and how often', () => {
+    render(<EquipmentTodayCard plan={withMat()} used={['mat']} />);
+    expect(screen.getByRole('strong')).toHaveTextContent('Esterilla');
+    expect(screen.getByText('Lo usarás 1 vez hoy.')).toBeInTheDocument();
+  });
+
+  it('says which chosen piece found no room today', () => {
+    render(<EquipmentTodayCard plan={sampleDay()} used={[]} chosen={['standing_desk']} />);
+    expect(screen.getByRole('strong')).toHaveTextContent('Sin material');
+    expect(screen.getByText('Hoy no hay sitio para: Escritorio elevable.')).toBeInTheDocument();
   });
 });

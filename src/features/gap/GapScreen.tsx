@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router';
 import { gapPath, ROUTES } from '@/app/routes';
 import { CATALOG } from '@/content/catalog';
+import { dayEquipment } from '@/domain/day/today';
 import { GAP_OPTIONS, gapMainActivity, slotNow } from '@/domain/gap/gap';
 import { DaySceneCard } from '@/features/day/DaySceneCard';
 import { useToday } from '@/features/day/useToday';
@@ -21,14 +22,14 @@ export function GapScreen() {
   const navigate = useNavigate();
   const { state: routerState } = useLocation();
   const { now, date, state } = useToday();
-  const equipment = useAppStore((store) => store.settings.equipment);
+  const settings = useAppStore((store) => store.settings);
   const summary = useAppStore((store) => store.days[date]?.summary);
   const close = () => navigate(gapReturnPath(routerState), { replace: true });
 
   if (state.kind === 'active') {
     const main = gapMainActivity(state.plan, slotNow(state.plan, now), {
       catalog: CATALOG,
-      equipment,
+      equipment: dayEquipment(state.plan, settings),
     });
     return (
       <BottomSheet open title={t('gap.title')} onClose={close}>

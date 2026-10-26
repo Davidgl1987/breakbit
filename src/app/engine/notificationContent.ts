@@ -1,8 +1,10 @@
 import { mainDonePath, mainPath, pausePath, ROUTES } from '@/app/routes';
 import type { PlannedNotification } from '@/domain/notifications/schedule';
 import { windowEnd } from '@/domain/pause/window';
+import { atTime } from '@/domain/time';
 import { contentName } from '@/features/day/contentName';
 import {
+  formatClock,
   formatDuration,
   formatSeconds,
   translate,
@@ -38,6 +40,16 @@ export function notificationContent(
       icon: APP_ICON,
     };
   }
+  if (notification.kind === 'break') {
+    return {
+      title: t('notifications.break.title'),
+      body: t('notifications.break.body', {
+        time: notification.until === undefined ? '' : formatClock(notification.until),
+      }),
+      url: ROUTES.today,
+      icon: APP_ICON,
+    };
+  }
 
   const activity = notification.activityId
     ? selectActivity(notification.activityId)(state)
@@ -45,9 +57,14 @@ export function notificationContent(
   if (!activity) return undefined;
   const name = contentName(activity.content, state.prefs.locale);
   if (notification.kind === 'main') {
+    // In a break that starts with it: the break's notice is this one.
+    const breakStarts = (state.days[notification.date]?.plan?.schedule.breaks ?? []).some(
+      (block) => atTime(notification.date, block.start) === activity.currentScheduledAt,
+    );
+    const key = breakStarts ? 'notifications.mainBreak' : 'notifications.main';
     return {
-      title: t('notifications.main.title'),
-      body: t('notifications.main.body', {
+      title: t(`${key}.title`),
+      body: t(`${key}.body`, {
         name,
         duration: formatDuration(activity.durationSec / 60),
       }),

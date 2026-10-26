@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-route
 import { mainPath, pausePlayPath, ROUTES } from '@/app/routes';
 import { CATALOG } from '@/content/catalog';
 import { GAP, XP } from '@/domain/config';
+import { dayEquipment } from '@/domain/day/today';
 import { isGapOption, proposeGap, type GapOption, type GapProposal } from '@/domain/gap/gap';
 import { isMainRunning } from '@/domain/main/session';
 import type { DateKey, DayPlan } from '@/domain/types';
@@ -70,7 +71,7 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
         {
           catalog: CATALOG,
           discomfort: settings.discomfort,
-          equipment: settings.equipment,
+          equipment: dayEquipment(plan, settings),
           ledger,
         },
         `${date}#gap#${option}#${extras}#${another}`,

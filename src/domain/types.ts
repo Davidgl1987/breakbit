@@ -244,6 +244,13 @@ export interface DayPlan {
   targetMicroCount: number;
   /** Sorted by original time. */
   activities: ScheduledActivity[];
+  /**
+   * "Material de hoy" as the user chose it when preparing the day: the only equipment the
+   * day uses, each piece at least once when something fits; every re-plan keeps it. Without
+   * a choice there is none, and the day uses the user's equipment as the planner sees fit
+   * (see `dayEquipment`).
+   */
+  equipment?: EquipmentId[];
 }
 
 // ---------- Day, progress and history ----------

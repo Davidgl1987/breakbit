@@ -8,14 +8,17 @@ import styles from './profile.module.css';
 
 /**
  * The catalog's equipment the user has at hand, only for variety. Nothing ticked is `[]`: gear-free moves and
- * walking are the base of Breakbit and always available.
+ * walking are the base of Breakbit and always available. `items` limits the list (today's
+ * equipment offers only the user's own).
  */
 export function EquipmentFields({
   value,
   onChange,
+  items,
 }: {
   value: readonly EquipmentId[];
   onChange: (equipment: EquipmentId[]) => void;
+  items?: readonly EquipmentId[];
 }) {
   const { t, locale } = useT();
   const toggle = (item: EquipmentId, checked: boolean) =>
@@ -31,24 +34,26 @@ export function EquipmentFields({
         {t('onboarding.equipment.always')}
       </p>
       <div className={styles.equipment}>
-        {CATALOG.equipment.map((item) => (
-          <div className={styles.equipmentRow} key={item.id}>
-            <Checkbox
-              labelPosition="start"
-              checked={value.includes(item.id)}
-              onChange={(checked) => toggle(item.id, checked)}
-              label={
-                <span className={styles.option}>
-                  <PixelIcon name={equipmentIcon(item.id)} size={32} />
-                  <span className={styles.optionTexts}>
-                    {item.name[locale]}
-                    <span className={styles.optionHint}>{item.hint[locale]}</span>
+        {CATALOG.equipment
+          .filter((item) => !items || items.includes(item.id))
+          .map((item) => (
+            <div className={styles.equipmentRow} key={item.id}>
+              <Checkbox
+                labelPosition="start"
+                checked={value.includes(item.id)}
+                onChange={(checked) => toggle(item.id, checked)}
+                label={
+                  <span className={styles.option}>
+                    <PixelIcon name={equipmentIcon(item.id)} size={32} />
+                    <span className={styles.optionTexts}>
+                      {item.name[locale]}
+                      <span className={styles.optionHint}>{item.hint[locale]}</span>
+                    </span>
                   </span>
-                </span>
-              }
-            />
-          </div>
-        ))}
+                }
+              />
+            </div>
+          ))}
       </div>
     </>
   );

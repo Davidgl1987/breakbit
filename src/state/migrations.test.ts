@@ -54,6 +54,11 @@ describe('migrateState', () => {
     expect(migrateState(state, 3, NOW).settings.discomfort).toEqual(state.settings.discomfort);
   });
 
+  it('keeps v4 plans as they were when days get their own equipment', () => {
+    const state = initialState(NOW);
+    expect(migrateState(state, 4, NOW)).toBe(state);
+  });
+
   it('refuses data from a newer version', () => {
     expect(() => migrateState({}, STATE_VERSION + 1, NOW)).toThrow();
   });

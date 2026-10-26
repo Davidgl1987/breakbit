@@ -167,6 +167,62 @@ describe('main activity reminders', () => {
   it('follows the pauses preference', () => {
     expect(forMain({ prefs: { ...settings.notifications, microbreaks: false } })).toEqual([]);
   });
+
+  it('still reminds of it late, until its planned end', () => {
+    const notice = schedule().find((item) => item.kind === 'main');
+    expect(notice?.until).toBe(main.currentScheduledAt + main.durationSec * 1000);
+  });
+});
+
+describe('breaks', () => {
+  const block = settings.schedule.breaks[0]!;
+  const start = atTime(DATE, block.start);
+  const end = start + block.durationMin * MIN;
+  const withMain = (patch: Partial<ScheduledActivity>) =>
+    record({
+      ...plan,
+      activities: plan.activities.map((item) =>
+        item.kind === 'main' ? { ...item, ...patch } : item,
+      ),
+    });
+  // The main activity somewhere else in the day: the break is just a break.
+  const elsewhere = withMain({ currentScheduledAt: atTime(DATE, '16:00') });
+  const breaks = (input: Partial<ScheduleInput>) =>
+    schedule(input).filter((item) => item.kind === 'break');
+
+  it('announces each break as it starts, and while it lasts if late', () => {
+    expect(breaks({ record: elsewhere })).toEqual([
+      {
+        id: `break:${DATE}:${block.start}`,
+        kind: 'break',
+        at: start,
+        date: DATE,
+        tag: 'break',
+        until: end,
+      },
+    ]);
+  });
+
+  it('leaves it to the main activity when that is in the break, until it is done', () => {
+    expect(breaks({ record: withMain({ currentScheduledAt: start }) })).toEqual([]);
+    expect(breaks({ record: withMain({ currentScheduledAt: start - 5 * MIN }) })).toEqual([]);
+    const doneEarlier = withMain({
+      currentScheduledAt: start,
+      status: 'completed',
+      completedAt: start - 60 * MIN,
+    });
+    expect(breaks({ record: doneEarlier })).toHaveLength(1);
+  });
+
+  it('stays quiet when a meeting takes part of it, or without pause reminders', () => {
+    const meeting = { id: 'm1', start: '10:45', end: '11:05', canMove: true } as const;
+    const busy = { ...elsewhere, plan: { ...elsewhere.plan!, meetings: [meeting] } };
+    expect(breaks({ record: busy })).toEqual([]);
+    expect(
+      breaks({ record: elsewhere, prefs: { ...settings.notifications, microbreaks: false } }),
+    ).toEqual([]);
+    expect(breaks({ record: undefined })).toEqual([]);
+  });
 });
 
 describe('end of the workday', () => {

@@ -34,6 +34,14 @@ describe('validatePersistedState', () => {
     expect(validatePersistedState(state)).toEqual([]);
   });
 
+  it("accepts a day's own equipment and older plans without it", () => {
+    const state = fullState();
+    state.days[DATE]!.plan!.equipment = ['resistance_band'];
+    expect(validatePersistedState(state)).toEqual([]);
+    delete state.days[DATE]!.plan!.equipment;
+    expect(validatePersistedState(state)).toEqual([]);
+  });
+
   it.each<[string, Mutation]>([
     ['unknown theme', (s) => (s.prefs.theme = 'neon')],
     ['unsupported language', (s) => (s.prefs.locale = 'fr')],
@@ -66,6 +74,7 @@ describe('validatePersistedState', () => {
         }),
     ],
     ['meeting without times', (s) => delete s.days[DATE].plan.meetings[0].end],
+    ["day's equipment that is not a list", (s) => (s.days[DATE].plan.equipment = 'mat')],
     ['summary with text counts', (s) => (s.days['2026-10-02'].summary.completed = 'four')],
     ['unknown mood', (s) => (s.days['2026-10-02'].mood = 'meh')],
     ['evolution phase out of range', (s) => (s.progress.evolutionPhase = 6)],

@@ -5,6 +5,7 @@ import { microbreakViolations } from '@/test/planInvariants';
 import { generateDayPlan } from '../planner/generateDayPlan';
 import { atTime, fromMinutes, minutesOfDay, toMinutes } from '../time';
 import type { DayPlan, DayRecord, ScheduledActivity } from '../types';
+import { equipmentInPlan } from './today';
 import { changeMainActivity, choiceFits, planDay, recentExerciseIds, replanDay } from './planDay';
 
 const DATE = '2026-10-05';
@@ -16,6 +17,17 @@ const at = (time: `${number}:${number}`) => atTime(DATE, time);
 describe('planDay', () => {
   it('plans the whole day before work starts, like the planner', () => {
     expect(planDay({ ...base, now: at('08:00') })).toEqual(generateDayPlan(base));
+  });
+
+  it("plans with today's chosen equipment only, using each piece, and keeps the choice", () => {
+    const owner = { ...base, settings: makeSettings({ equipment: ['resistance_band', 'mat'] }) };
+    const plan = planDay({ ...owner, now: at('08:00'), chosenEquipment: ['kettlebell'] });
+    expect(plan.equipment).toEqual(['kettlebell']);
+    expect(equipmentInPlan(plan, CATALOG)).toEqual(['kettlebell']);
+    // Re-planning the day (a settings change) keeps both the choice and its use.
+    const kept = replanDay(plan, { settings: owner.settings, catalog: CATALOG, now: at('12:00') });
+    expect(kept.equipment).toEqual(['kettlebell']);
+    expect(equipmentInPlan(kept, CATALOG)).toContain('kettlebell');
   });
 
   it('plans only what is left when the day starts late', () => {

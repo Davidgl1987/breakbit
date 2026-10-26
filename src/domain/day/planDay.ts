@@ -1,4 +1,5 @@
 import { byScheduledAt, createActivity } from '../planner/activities';
+import { ensureEquipmentUsed } from '../planner/ensureEquipment';
 import { generateDayPlan, type PlanInput } from '../planner/generateDayPlan';
 import { placeChosenMainActivity, type MainActivityChoice } from '../planner/placeMainActivity';
 import { contentExerciseIds, type ContentContext } from '../planner/pauseContent';
@@ -12,6 +13,7 @@ import type {
   DayPlan,
   DayRecord,
   DaySchedule,
+  EquipmentId,
   Instant,
   ScheduledActivity,
 } from '../types';
@@ -26,6 +28,11 @@ export interface PlanDayRequest extends Omit<PlanInput, 'from'> {
    * happened (or is happening) is kept, and only the rest of the day is planned again.
    */
   previous?: DayPlan;
+  /**
+   * "Material de hoy" chosen by the user: the only equipment the day uses (instead of the
+   * settings'), each piece at least once when something fits. Kept in the plan.
+   */
+  chosenEquipment?: readonly EquipmentId[];
 }
 
 /**
@@ -34,7 +41,20 @@ export interface PlanDayRequest extends Omit<PlanInput, 'from'> {
  * are done, under way, or already due stay as they are, and new pauses keep their
  * distance from them.
  */
-export function planDay({ now, previous, ...input }: PlanDayRequest): DayPlan {
+export function planDay({ chosenEquipment, ...request }: PlanDayRequest): DayPlan {
+  if (!chosenEquipment) return planWith(request);
+  const equipment = [...chosenEquipment];
+  const plan = planWith({ ...request, settings: { ...request.settings, equipment } });
+  const used = ensureEquipmentUsed(
+    plan,
+    { catalog: request.catalog, discomfort: request.settings.discomfort, equipment },
+    request.now,
+    `${request.date}#${request.rerollCount ?? 0}#equipment`,
+  );
+  return { ...used, equipment };
+}
+
+function planWith({ now, previous, ...input }: Omit<PlanDayRequest, 'chosenEquipment'>): DayPlan {
   const fresh = generateDayPlan({ ...input, from: now });
   if (!previous) return fresh;
 
@@ -151,7 +171,8 @@ export function choiceFits(choice: MainActivityChoice, schedule: DaySchedule): b
 /**
  * Re-plans the rest of a day under way after the user changed their settings (discomfort,
  * equipment, pace): what's done or under way stays, the hours and meetings stay, and the
- * main activity stays unless its equipment is no longer available.
+ * main activity stays unless its equipment is no longer available. The day's own equipment
+ * choice ("Material de hoy") stays too.
  */
 export function replanDay(
   plan: DayPlan,
@@ -162,10 +183,12 @@ export function replanDay(
     recentExerciseIds,
   }: Pick<PlanDayRequest, 'settings' | 'catalog' | 'now' | 'recentExerciseIds'>,
 ): DayPlan {
+  const chosenEquipment = plan.equipment;
   const main = mainChoiceOf(plan);
   const activityId = main?.activityId;
   const activity = catalog.mainActivities.find((item) => item.id === activityId);
-  const keepMain = activity !== undefined && hasEquipment(activity.equipment, settings.equipment);
+  const available = chosenEquipment ?? settings.equipment;
+  const keepMain = activity !== undefined && hasEquipment(activity.equipment, available);
   return planDay({
     date: plan.date,
     schedule: plan.schedule,
@@ -175,6 +198,7 @@ export function replanDay(
     rerollCount: plan.rerollCount,
     recentExerciseIds,
     ...(keepMain && main && { mainActivity: main }),
+    ...(chosenEquipment && { chosenEquipment }),
     now,
     previous: plan,
   });

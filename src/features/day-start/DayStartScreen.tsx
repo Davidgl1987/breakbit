@@ -7,9 +7,11 @@ import { choiceFits, mainChoiceOf } from '@/domain/day/planDay';
 import { equipmentInPlan } from '@/domain/day/today';
 import { summarizePlan } from '@/domain/planner/summary';
 import type { MainActivityChoice } from '@/domain/planner/placeMainActivity';
+import { hasEquipment } from '@/domain/planner/selectExercise';
 import { toDateKey } from '@/domain/time';
-import type { DayPlan, DaySchedule, Meeting } from '@/domain/types';
-import { AtHandRow } from '@/features/day/AtHandRow';
+import type { DayPlan, DaySchedule, EquipmentId, Meeting } from '@/domain/types';
+import { EquipmentSheet } from '@/features/day/EquipmentSheet';
+import { EquipmentTodayCard } from '@/features/day/EquipmentTodayCard';
 import { MainActivityCard } from '@/features/day/MainActivityCard';
 import { MainActivitySheet } from '@/features/day/MainActivitySheet';
 import { MeetingSheet } from '@/features/day/MeetingSheet';
@@ -38,15 +40,21 @@ import styles from './DayStartScreen.module.css';
 interface DayDraft {
   schedule: DaySchedule;
   meetings: Meeting[];
+  /**
+   * "Material de hoy" once the user changes it (or the day under way already had a choice).
+   * Until then the plan uses the user's equipment as it sees fit.
+   */
+  equipment?: EquipmentId[];
   /** Only set when the user picked it, or the day is already under way. */
   main?: MainActivityChoice;
 }
 
-type Sheet = 'main' | 'meeting' | null;
+type Sheet = 'main' | 'gear' | 'meeting' | null;
 
 /**
- * /day/start — "Tu día": today's hours, main activity and meetings, with what they mean
- * (pauses, interruption, gear). Starts the day, or adjusts it once it is under way.
+ * /day/start — "Tu día": today's hours, equipment, main activity and meetings, with what
+ * they mean (pauses, interruption, gear used). Starts the day, or adjusts it once it is
+ * under way.
  */
 export function DayStartScreen() {
   const { t, locale } = useT();
@@ -74,6 +82,7 @@ export function DayStartScreen() {
       ? {
           schedule: current.schedule,
           meetings: current.meetings,
+          equipment: current.equipment,
           main: mainChoiceOf(current),
         }
       : {
@@ -88,12 +97,13 @@ export function DayStartScreen() {
     () =>
       scheduleIssueMessages(draft.schedule).length > 0
         ? undefined
-        : preview(draft, current, date, now, planner, refreshFuturePlan),
-    [draft, current, date, now, planner, refreshFuturePlan],
+        : preview(draft, current, settings.equipment, date, now, planner, refreshFuturePlan),
+    [draft, current, settings.equipment, date, now, planner, refreshFuturePlan],
   );
   const summary = plan && summarizePlan(plan, CATALOG);
   const interruptionMin = summary ? Math.round(summary.interruptionSec / 60) : 0;
-  const gear = plan && equipmentInPlan(plan, CATALOG);
+  // What today's plan uses: the card shows it, and the sheet starts from it.
+  const gear = plan ? equipmentInPlan(plan, CATALOG) : [];
 
   const setSchedule = (schedule: DaySchedule) => setDraft((value) => ({ ...value, schedule }));
   const addMeeting = (meeting: Omit<Meeting, 'id'>) => {
@@ -172,6 +182,15 @@ export function DayStartScreen() {
         )}
       </section>
 
+      {plan && (
+        <EquipmentTodayCard
+          plan={plan}
+          used={gear}
+          chosen={draft.equipment}
+          onChange={() => setSheet('gear')}
+        />
+      )}
+
       {plan && <MainActivityCard plan={plan} onChange={() => setSheet('main')} />}
 
       <section className={styles.section}>
@@ -207,21 +226,28 @@ export function DayStartScreen() {
         </Button>
       </section>
 
-      {gear &&
-        (gear.length > 0 ? (
-          <AtHandRow equipment={gear} />
-        ) : (
-          <p className={styles.note}>{t('dayStart.noGear')}</p>
-        ))}
-
       {sheet === 'main' && plan && (
         <MainActivitySheet
           schedule={draft.schedule}
           meetings={draft.meetings}
+          equipment={draft.equipment ?? settings.equipment}
           current={mainChoiceOf(plan)}
           onClose={() => setSheet(null)}
           onSave={(main) => {
             setDraft((value) => ({ ...value, main }));
+            setSheet(null);
+          }}
+        />
+      )}
+      {sheet === 'gear' && (
+        <EquipmentSheet
+          current={draft.equipment ?? gear}
+          owned={settings.equipment}
+          onClose={() => setSheet(null)}
+          onSave={(equipment) => {
+            // Saving what the plan already uses, without a choice yet, changes nothing.
+            const same = !draft.equipment && sameItems(equipment, gear);
+            if (!same) setDraft((value) => ({ ...value, equipment }));
             setSheet(null);
           }}
         />
@@ -241,21 +267,29 @@ export function DayStartScreen() {
 /**
  * The plan the screen shows and saves. Before the day starts everything is proposed
  * afresh; once it is under way, changing only the main activity moves just that, and
- * new hours or meetings re-plan the rest of the day around what already happened.
+ * new hours, equipment or meetings re-plan the rest of the day around what already
+ * happened. A chosen main activity stays while it fits the hours and the equipment.
  */
 function preview(
   draft: DayDraft,
   current: DayPlan | undefined,
+  owned: readonly EquipmentId[],
   date: DayPlan['date'],
   now: number,
   planner: ReturnType<typeof useDayPlanner>,
   refreshFuturePlan = false,
 ): DayPlan {
-  const main = draft.main && choiceFits(draft.main, draft.schedule) ? draft.main : undefined;
+  const main =
+    draft.main &&
+    choiceFits(draft.main, draft.schedule) &&
+    mainAllowed(draft.main.activityId, draft.equipment ?? owned)
+      ? draft.main
+      : undefined;
   if (current && !refreshFuturePlan) {
     const sameDay =
       sameSchedule(draft.schedule, current.schedule) &&
-      JSON.stringify(draft.meetings) === JSON.stringify(current.meetings);
+      JSON.stringify(draft.meetings) === JSON.stringify(current.meetings) &&
+      JSON.stringify(draft.equipment) === JSON.stringify(current.equipment);
     if (sameDay) {
       const unchanged = JSON.stringify(main) === JSON.stringify(mainChoiceOf(current));
       return main && !unchanged ? planner.changeMain(current, main, now) : current;
@@ -265,10 +299,21 @@ function preview(
     date,
     schedule: draft.schedule,
     meetings: draft.meetings,
+    equipment: draft.equipment,
     mainActivity: main,
     previous: current,
     now,
   });
+}
+
+function sameItems(a: readonly EquipmentId[], b: readonly EquipmentId[]): boolean {
+  return a.length === b.length && a.every((item) => b.includes(item));
+}
+
+/** Whether the day's equipment still allows a main activity. */
+function mainAllowed(activityId: string, equipment: readonly EquipmentId[]): boolean {
+  const activity = CATALOG.mainActivities.find((item) => item.id === activityId);
+  return activity !== undefined && hasEquipment(activity.equipment, equipment);
 }
 
 function partOfDay(now: number): 'morning' | 'afternoon' | 'evening' {

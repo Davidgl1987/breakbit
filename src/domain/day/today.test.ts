@@ -4,7 +4,7 @@ import { makeSettings } from '@/test/builders';
 import { generateDayPlan } from '../planner/generateDayPlan';
 import { atTime } from '../time';
 import type { DayPlan, DayRecord } from '../types';
-import { equipmentInPlan, nextPause, todayState } from './today';
+import { dayEquipment, equipmentInPlan, nextPause, todayState } from './today';
 
 const DATE = '2026-10-05';
 const settings = makeSettings();
@@ -104,5 +104,16 @@ describe('equipmentInPlan', () => {
       mainActivity: { activityId: 'mat_mobility', start: '11:00', durationMin: 15 },
     });
     expect(equipmentInPlan(withMat, CATALOG)).toContain('mat');
+  });
+});
+
+describe("the day's equipment", () => {
+  const user = makeSettings({ equipment: ['resistance_band', 'mat'] });
+
+  it("is the one chosen for the day, or else the user's", () => {
+    expect(dayEquipment({ equipment: ['mat'] }, user)).toEqual(['mat']);
+    expect(dayEquipment({}, user)).toEqual(['resistance_band', 'mat']);
+    expect(dayEquipment(undefined, user)).toEqual(['resistance_band', 'mat']);
+    expect(dayEquipment({ equipment: [] }, user)).toEqual([]);
   });
 });

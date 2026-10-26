@@ -273,7 +273,18 @@ export const en: Messages = {
     streak: { one: 'day streak', other: 'day streak' },
     pauses: { one: 'planned break', other: 'planned breaks' },
     interruption: 'of interruption',
-    noGear: 'No gear needed today.',
+    gear: 'Today’s equipment',
+    gearNone: 'No equipment',
+    gearChange: 'Change today’s equipment',
+    gearUsage: {
+      none: 'Gear-free moves and walking.',
+      uses: { one: 'You’ll use it once today.', other: 'You’ll use it {count} times today.' },
+      left: 'No room today for: {names}.',
+    },
+    gearSheet: {
+      note: 'Tick what you want to use today and your plan will include it. Only today changes: your usual equipment is in Settings.',
+      empty: 'You have no equipment in Settings. You can add it in Settings › Available equipment.',
+    },
     hours: "Today's hours",
     hoursNote: 'This only changes today. Your usual hours are in Settings.',
     main: "Today's activity",
@@ -465,6 +476,8 @@ export const en: Messages = {
       body: 'Take a moment to check your day.',
     },
     main: { title: 'Time for your activity', body: '{name} · {duration}' },
+    mainBreak: { title: 'Your break starts', body: 'Your activity: {name} · {duration}' },
+    break: { title: 'Your break starts', body: 'Until {time}. Get up and clear your head.' },
     dayEnd: {
       title: 'Your workday ends soon',
       body: 'See how it went and close the day.',
@@ -637,7 +650,7 @@ export const en: Messages = {
     notifications: 'Notifications',
     alerts: {
       dayStart: 'Start of the workday',
-      pauses: 'Breaks and main activity',
+      pauses: 'Breaks, rest breaks and main activity',
       dayEnd: 'End of the workday',
       enable: 'Turn on notifications',
       sound: 'Break sound',

@@ -1,5 +1,6 @@
 import type { StoreApi } from 'zustand';
 import { CATALOG } from '@/content/catalog';
+import { dayEquipment } from '@/domain/day/today';
 import type { ContentContext } from '@/domain/planner/pauseContent';
 import type {
   DateKey,
@@ -51,8 +52,13 @@ export function withActivity(plan: DayPlan, updated: ScheduledActivity): DayPlan
   };
 }
 
-export function contentContext(settings: UserSettings): ContentContext {
-  return { catalog: CATALOG, discomfort: settings.discomfort, equipment: settings.equipment };
+/** What a day's pauses are chosen with: the user's priorities and that day's equipment. */
+export function contentContext(settings: UserSettings, plan: DayPlan): ContentContext {
+  return {
+    catalog: CATALOG,
+    discomfort: settings.discomfort,
+    equipment: dayEquipment(plan, settings),
+  };
 }
 
 /** Dogfooding events are best effort: a storage error never blocks the user. */

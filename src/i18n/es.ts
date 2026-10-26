@@ -276,7 +276,18 @@ export const es = {
     streak: { one: 'día de racha', other: 'días de racha' },
     pauses: { one: 'pausa prevista', other: 'pausas previstas' },
     interruption: 'de interrupción',
-    noGear: 'Hoy no hace falta material.',
+    gear: 'Material de hoy',
+    gearNone: 'Sin material',
+    gearChange: 'Cambiar material de hoy',
+    gearUsage: {
+      none: 'Movimientos sin material y caminar.',
+      uses: { one: 'Lo usarás 1 vez hoy.', other: 'Lo usarás {count} veces hoy.' },
+      left: 'Hoy no hay sitio para: {names}.',
+    },
+    gearSheet: {
+      note: 'Marca lo que quieres usar hoy y tu plan lo incluirá. Solo cambia hoy: tu material habitual está en Ajustes.',
+      empty: 'No tienes material en Ajustes. Puedes añadirlo en Ajustes › Equipamiento disponible.',
+    },
     hours: 'Tu horario de hoy',
     hoursNote: 'Solo cambia hoy. Tu horario habitual está en Ajustes.',
     main: 'Actividad de hoy',
@@ -471,6 +482,8 @@ export const es = {
       body: 'Revisa tu día en un momento.',
     },
     main: { title: 'Hora de tu actividad', body: '{name} · {duration}' },
+    mainBreak: { title: 'Empieza tu descanso', body: 'Tu actividad: {name} · {duration}' },
+    break: { title: 'Empieza tu descanso', body: 'Hasta las {time}. Levántate y despéjate.' },
     dayEnd: {
       title: 'Tu jornada termina pronto',
       body: 'Mira cómo ha ido y cierra el día.',
@@ -646,7 +659,7 @@ export const es = {
     notifications: 'Notificaciones',
     alerts: {
       dayStart: 'Inicio de jornada',
-      pauses: 'Pausas y actividad principal',
+      pauses: 'Pausas, descansos y actividad principal',
       dayEnd: 'Fin de jornada',
       enable: 'Activar notificaciones',
       sound: 'Sonido de las pausas',
