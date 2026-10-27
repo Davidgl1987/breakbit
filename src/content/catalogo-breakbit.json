@@ -3292,6 +3292,64 @@
       ]
     },
     {
+      "id": "kettlebell_block_5",
+      "name": {
+        "es": "Bloque con kettlebell",
+        "en": "Kettlebell block"
+      },
+      "steps": [
+        {
+          "exercise": "kettlebell_halo",
+          "seconds": 60
+        },
+        {
+          "exercise": "kettlebell_around_body",
+          "seconds": 60
+        },
+        {
+          "exercise": "goblet_squat_light",
+          "seconds": 60
+        },
+        {
+          "exercise": "kettlebell_deadlift",
+          "seconds": 60
+        },
+        {
+          "exercise": "kettlebell_swing",
+          "seconds": 60
+        }
+      ]
+    },
+    {
+      "id": "dumbbell_block_5",
+      "name": {
+        "es": "Bloque con mancuernas",
+        "en": "Dumbbell block"
+      },
+      "steps": [
+        {
+          "exercise": "farmer_walk",
+          "seconds": 60
+        },
+        {
+          "exercise": "dumbbell_row_light",
+          "seconds": 60
+        },
+        {
+          "exercise": "dumbbell_reverse_fly",
+          "seconds": 60
+        },
+        {
+          "exercise": "dumbbell_y_raise",
+          "seconds": 60
+        },
+        {
+          "exercise": "dumbbell_romanian_deadlift",
+          "seconds": 60
+        }
+      ]
+    },
+    {
       "id": "wrists_reset",
       "name": {
         "es": "Reset de manos y muñecas",
@@ -3644,6 +3702,7 @@
         "break"
       ],
       "whileWorking": false,
+      "routine": "dumbbell_block_5",
       "icon": "dumbbell",
       "areas": [
         "upper_back",
@@ -3692,6 +3751,7 @@
         "break"
       ],
       "whileWorking": false,
+      "routine": "kettlebell_block_5",
       "icon": "kettlebell",
       "areas": [
         "shoulders",
