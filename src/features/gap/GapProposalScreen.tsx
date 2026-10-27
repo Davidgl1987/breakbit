@@ -18,7 +18,7 @@ import {
 import { contentItems } from '@/features/day/contentItems';
 import { contentName } from '@/features/day/contentName';
 import { ExerciseDetails } from '@/features/day/ExerciseDetails';
-import { mainActivityInfo } from '@/features/day/mainActivity';
+import { mainActivityInfo, mainActivityMoves } from '@/features/day/mainActivity';
 import { PauseContentView } from '@/features/day/PauseContentView';
 import { useToday } from '@/features/day/useToday';
 import { formatClock, formatSeconds } from '@/i18n/translate';
@@ -129,6 +129,7 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
     });
 
   const items = contentItems(content.content);
+  const moves = main ? mainActivityMoves(main) : items.map(({ exercise }) => exercise);
   const areas = [...new Set(main ? main.areas : items.flatMap(({ exercise }) => exercise.areas))];
   const equipment = [
     ...new Set(main ? main.equipment : items.flatMap(({ exercise }) => exercise.equipment)),
@@ -171,19 +172,22 @@ function Proposal({ option, plan, date }: { option: GapOption; plan: DayPlan; da
         <span className={styles.kicker}>{t(`gap.preview.kinds.${proposal.kind}`)}</span>
         <h2 id="gap-proposal-title">{name}</h2>
         <strong className={styles.duration}>{duration}</strong>
-        {main && content.content.kind === 'main' ? (
-          <span className={styles.art} aria-hidden="true">
-            <PixelIcon
-              name={mainActivityIcon(content.content.activityId)}
-              size={48}
-              className={styles.activityArt}
-            />
-          </span>
-        ) : (
+        {moves.length > 0 ? (
           // What to do, moving: each move in turn. Tapping it pauses the preview.
           <div className={`${styles.art} ${styles.preview}`}>
-            <MovesPreview exercises={items.map(({ exercise }) => exercise)} />
+            <MovesPreview exercises={moves} />
           </div>
+        ) : (
+          // A main activity without moves (a walk): its icon.
+          <span className={styles.art} aria-hidden="true">
+            {main && (
+              <PixelIcon
+                name={mainActivityIcon(main.id)}
+                size={48}
+                className={styles.activityArt}
+              />
+            )}
+          </span>
         )}
         {!main && <span className={styles.window} aria-hidden="true" />}
       </Card>

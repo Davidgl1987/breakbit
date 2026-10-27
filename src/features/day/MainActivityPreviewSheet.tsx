@@ -9,7 +9,8 @@ import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { equipmentIcon, equipmentName } from './catalogDisplay';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { ExerciseDetails } from './ExerciseDetails';
-import { mainActivityInfo } from './mainActivity';
+import { MovesPreview } from './ActivityPresentation';
+import { mainActivityInfo, mainActivityMoves } from './mainActivity';
 import styles from './day.module.css';
 
 /** Preview the activity, enter its existing session or open the shared editor. */
@@ -25,6 +26,7 @@ export function MainActivityPreviewSheet({
   const { t, locale } = useT();
   const info = mainActivityInfo(activity);
   if (!info) return null;
+  const moves = mainActivityMoves(info);
   return (
     <BottomSheet
       open
@@ -42,6 +44,7 @@ export function MainActivityPreviewSheet({
       }
     >
       <div className={styles.sheetBody}>
+        {moves.length > 0 && <MovesPreview exercises={moves} compact={false} />}
         <p>
           {formatClock(activity.currentScheduledAt)} · {formatDuration(activity.durationSec / 60)}
         </p>

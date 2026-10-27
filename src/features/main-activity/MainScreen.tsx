@@ -16,7 +16,7 @@ import {
 } from '@/features/day/ActivityPresentation';
 import { mainActivityIcon } from '@/features/day/catalogDisplay';
 import { contentItems, type ContentItem } from '@/features/day/contentItems';
-import { mainActivityInfo, mainWhere } from '@/features/day/mainActivity';
+import { mainActivityInfo, mainActivityMoves, mainWhere } from '@/features/day/mainActivity';
 import { MainActivitySheet } from '@/features/day/MainActivitySheet';
 import { ActivityTimer } from '@/features/day/ActivityTimer';
 import { useDayPlanner } from '@/features/day/useDayPlanner';
@@ -120,6 +120,7 @@ function MainIntro({ activity, info }: MainViewProps) {
         metric={formatSeconds(activity.durationSec)}
         hint={when || undefined}
         icon={mainActivityIcon(info.id)}
+        moves={mainActivityMoves(info)}
       />
       <ActivityMetadata areas={info.areas ?? []} equipment={info.equipment} />
       {plan && (
@@ -244,7 +245,11 @@ function MainSession({ activity, info }: MainViewProps) {
         </div>
       }
     >
-      <ActivityGuide exercise={move?.item.exercise} controls={false} />
+      <ActivityGuide
+        exercise={move?.item.exercise}
+        controls={false}
+        icon={mainActivityIcon(info.id)}
+      />
       {accumulated ? (
         <>
           <ActivityTimer

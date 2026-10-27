@@ -6,6 +6,7 @@ import { ToastHost } from '@/app/ToastHost';
 import { CATALOG } from '@/content/catalog';
 import { DEFAULT_SETTINGS } from '@/domain/defaults';
 import { planDay } from '@/domain/day/planDay';
+import { mainActivityIcon } from '@/features/day/catalogDisplay';
 import type { MainActivityChoice } from '@/domain/planner/placeMainActivity';
 import { atTime } from '@/domain/time';
 import type { DateKey, DayPlan, HHmm, ScheduledActivity } from '@/domain/types';
@@ -256,6 +257,73 @@ describe('guided activity', () => {
     await wait(4 * MIN);
     expect(screen.getByText('Vuelta 2 · Movimiento 5 de 5')).toBeInTheDocument();
     expect(screen.queryByText(/^Después:/)).not.toBeInTheDocument();
+  });
+});
+
+describe('the art of each activity', () => {
+  const folders = (region: HTMLElement) => [
+    ...new Set(
+      within(region)
+        .getAllByRole('img', { hidden: true })
+        .map((image) => image.getAttribute('src')!.split('/')[2]),
+    ),
+  ];
+  const generic = () => document.querySelector('img[src="/exercises/avatar.png"]');
+
+  it('previews a kettlebell block with its moves, then guides each one with its own art', async () => {
+    setUp({ activityId: 'kettlebell_block', start: '11:00', durationMin: 5 }, '11:00');
+    const { user } = ui();
+    expect(folders(screen.getByRole('region', { name: 'Guía visual' }))).toEqual([
+      'kettlebell_halo',
+      'kettlebell_around_body',
+      'goblet_squat_light',
+      'kettlebell_deadlift',
+      'kettlebell_swing',
+    ]);
+
+    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    expect(screen.getByText('Movimiento 1 de 5')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Halo con kettlebell' }),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('region', { name: 'Guía visual' })).getByRole('img'),
+    ).toHaveAttribute('src', '/exercises/kettlebell_halo/01.png');
+    expect(generic()).toBeNull();
+  });
+
+  it('guides a dumbbell block too, ending with the Romanian deadlift', async () => {
+    setUp({ activityId: 'dumbbell_block', start: '11:00', durationMin: 5 }, '11:00');
+    ui();
+    expect(folders(screen.getByRole('region', { name: 'Guía visual' }))).toEqual([
+      'farmer_walk',
+      'dumbbell_row_light',
+      'dumbbell_reverse_fly',
+      'dumbbell_y_raise',
+      'dumbbell_romanian_deadlift',
+    ]);
+  });
+
+  it('shows a walk under way with its own icon, not the generic avatar', async () => {
+    setUp(WALK, '13:00');
+    const { user } = ui();
+    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    expect(generic()).toBeNull();
+    expect(
+      document.querySelector(`img[src="/icons/${mainActivityIcon('walk_outside')}.png"]`),
+    ).not.toBeNull();
+  });
+
+  it("previews a guided activity's moves from Today too", async () => {
+    setUp({ activityId: 'kettlebell_block', start: '11:00', durationMin: 5 }, '09:10');
+    const { user } = ui('/');
+    await user.click(
+      within(screen.getByRole('region', { name: 'Actividad de hoy' })).getByRole('button', {
+        name: 'Ver actividad',
+      }),
+    );
+    const sheet = screen.getByRole('dialog', { name: 'Mini bloque con kettlebell' });
+    expect(folders(within(sheet).getByRole('region', { name: 'Guía visual' }))).toHaveLength(5);
   });
 });
 

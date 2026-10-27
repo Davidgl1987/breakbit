@@ -49,6 +49,7 @@ export function ActivityScene({
   phase = 5,
   pose = 'demo',
   icon,
+  moves = [],
   artLabel,
   children,
 }: {
@@ -59,6 +60,8 @@ export function ActivityScene({
   phase?: EvolutionPhase;
   pose?: AvatarPose;
   icon?: IconName;
+  /** A guided activity's moves: shown in turn, moving, instead of its icon. */
+  moves?: readonly Exercise[];
   artLabel?: string;
   children?: ReactNode;
 }) {
@@ -68,13 +71,19 @@ export function ActivityScene({
       <h2>{title}</h2>
       <div className={styles.metric}>{metric}</div>
       {hint && <p className={styles.hint}>{hint}</p>}
-      <span className={styles.art} aria-hidden={artLabel ? undefined : true}>
-        {icon ? (
-          <PixelIcon name={icon} size={48} className={styles.activityArt} />
-        ) : (
-          <Avatar phase={phase} pose={pose} size="lg" framed={false} label={artLabel} />
-        )}
-      </span>
+      {moves.length > 0 ? (
+        <div className={`${styles.art} ${styles.preview}`}>
+          <MovesPreview exercises={moves} />
+        </div>
+      ) : (
+        <span className={styles.art} aria-hidden={artLabel ? undefined : true}>
+          {icon ? (
+            <PixelIcon name={icon} size={48} className={styles.activityArt} />
+          ) : (
+            <Avatar phase={phase} pose={pose} size="lg" framed={false} label={artLabel} />
+          )}
+        </span>
+      )}
       {children}
     </Card>
   );
@@ -83,18 +92,28 @@ export function ActivityScene({
 /**
  * The complete guide area is reserved for art. Time and controls always sit outside.
  * `controls`: the guide's own posture navigation, play/pause and caption (previews keep
- * them; the exercise screen shows only the moving art).
+ * them; the exercise screen shows only the moving art). `icon`: what an activity without
+ * moves (a walk, standing work) shows instead of the generic avatar.
  */
 export function ActivityGuide({
   exercise,
   controls = true,
+  icon,
 }: {
   exercise?: Exercise;
   controls?: boolean;
+  icon?: IconName;
 }) {
   const { t } = useT();
   const guide = exercise && exerciseGuide(exercise.id);
   if (guide) return <ExerciseGuide key={exercise.id} guide={guide} controls={controls} />;
+  if (icon) {
+    return (
+      <div className={styles.guide}>
+        <PixelIcon name={icon} size={48} className={styles.guideIcon} />
+      </div>
+    );
+  }
   return (
     <div className={styles.guide}>
       <img src={EXERCISE_AVATAR} alt={t('pause.demo')} draggable={false} />
@@ -102,12 +121,23 @@ export function ActivityGuide({
   );
 }
 
-/** A small moving preview of what a pause holds: each of its moves in turn, art only. */
-export function MovesPreview({ exercises }: { exercises: readonly Exercise[] }) {
+/**
+ * A moving preview of what a pause or a guided activity holds: each of its moves in turn,
+ * art only. Small inside a card (`compact`), or in the guide's own frame.
+ */
+export function MovesPreview({
+  exercises,
+  compact = true,
+}: {
+  exercises: readonly Exercise[];
+  compact?: boolean;
+}) {
   const { t } = useT();
   const ids = exercises.map((exercise) => exercise.id);
   const guide = movesGuide(ids);
-  if (guide) return <ExerciseGuide key={ids.join()} guide={guide} controls={false} compact />;
+  if (guide) {
+    return <ExerciseGuide key={ids.join()} guide={guide} controls={false} compact={compact} />;
+  }
   return <img src={EXERCISE_AVATAR} alt={t('pause.demo')} draggable={false} />;
 }
 

@@ -1024,3 +1024,22 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
   elección y se propone otra; "Cambiar actividad" solo ofrece las que permite el material del día.
 - **Cambiar el material en Ajustes** con la jornada en marcha borra la elección de hoy: el día
   vuelve a usar el de Ajustes.
+
+## Bloques con kettlebell y mancuernas guiados · 27 de octubre
+
+- **Rutinas nuevas en el catálogo**, de 5 ejercicios de 1 minuto y solo con ejercicios que ya
+  tienen guía visual (sin imágenes nuevas), siguiendo los pasos de cada actividad:
+  `kettlebell_block_5` ("Bloque con kettlebell": halo, pase alrededor del cuerpo, sentadilla goblet
+  ligera, peso muerto y swing) y `dumbbell_block_5` ("Bloque con mancuernas": paseo con
+  mancuernas, remo ligero, apertura inversa, elevación en Y y peso muerto rumano). "Mini bloque con
+  kettlebell" y "Mini bloque con mancuernas" las enlazan en `routine`: se guían movimiento a
+  movimiento como el bloque con banda (y en 10 minutos, dos vueltas). Ya son 11 rutinas; "Tengo un
+  hueco" de 5 o 10+ minutos también puede proponerlas a quien tenga ese material. Un test exige que
+  todo bloque con material sea guiado y que cada movimiento tenga su arte. **Al rehacer el
+  catálogo, mantener estas rutinas y sus enlaces.**
+- **Vista previa de los movimientos** (la misma que "Tengo un hueco"): en la actividad antes de
+  empezar (en lugar de su icono), en el panel "Ver actividad" de Hoy (en grande, al principio) y en
+  la propuesta de 10+ minutos cuando es la actividad principal. Solo en las actividades guiadas.
+- **Actividades sin movimientos** (paseos, reunión caminando, trabajo de pie): mientras están en
+  marcha, su propio icono en el marco de la guía en lugar del avatar genérico.
+

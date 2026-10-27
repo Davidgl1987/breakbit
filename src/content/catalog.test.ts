@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { EXERCISE_GUIDES } from '@/assets/exerciseGuides';
 import { CATALOG } from './catalog';
 import { PAUSE_SIZE } from '@/domain/config';
 import {
@@ -34,6 +35,27 @@ describe('the bundled catalog', () => {
 
   it('is what the app uses, untouched', () => {
     expect(CATALOG).toEqual(raw());
+  });
+
+  it('guides every equipment block move by move, each move with its own art', () => {
+    const blocks = CATALOG.mainActivities.filter(
+      (activity) => activity.equipment.length > 0 && activity.slots.includes('break'),
+    );
+    expect(blocks.map((activity) => activity.id).sort()).toEqual([
+      'band_block',
+      'dumbbell_block',
+      'kettlebell_block',
+      'mat_mobility',
+    ]);
+    for (const block of blocks) {
+      const routine = CATALOG.routines.find((item) => item.id === block.routine);
+      expect(routine, block.id).toBeDefined();
+      for (const step of routine!.steps) {
+        const exercise = CATALOG.exercises.find((item) => item.id === step.exercise)!;
+        expect(exercise.equipment, `${block.id} → ${step.exercise}`).toEqual(block.equipment);
+        expect(EXERCISE_GUIDES[step.exercise], step.exercise).toBeDefined();
+      }
+    }
   });
 });
 
