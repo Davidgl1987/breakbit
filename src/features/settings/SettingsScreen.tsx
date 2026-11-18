@@ -13,6 +13,7 @@ import { useAppStore, type ThemePreference } from '@/state/store';
 import { ScreenHeader } from '@/ui/components/ScreenHeader/ScreenHeader';
 import { SegmentedControl } from '@/ui/components/SegmentedControl/SegmentedControl';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
+import { FeedbackCard } from '@/features/feedback/FeedbackCard';
 import { DataCard } from './DataCard';
 import { InstallCard } from './InstallCard';
 import { NotificationsCard } from './NotificationsCard';
@@ -121,6 +122,7 @@ export function SettingsScreen({
         ))}
       </section>
       <DataCard />
+      <FeedbackCard />
       <Link className={styles.aboutLink} to={settingsPath('about')}>
         {t('settings.about.title')}
       </Link>

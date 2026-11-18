@@ -327,3 +327,22 @@
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
 }
+
+.statsToggle {
+  display: grid;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.statsToggle p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.privacyLink {
+  justify-self: start;
+  color: var(--color-primary-text);
+  font-size: var(--text-sm);
+}

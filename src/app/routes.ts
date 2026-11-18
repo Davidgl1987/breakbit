@@ -6,6 +6,7 @@ export const ROUTES = {
   gap: '/gap',
   dayStart: '/day/start',
   dayEnd: '/day/end',
+  privacy: '/privacy',
   devKit: '/dev/kit',
   devExercises: '/dev/exercises',
 } as const;

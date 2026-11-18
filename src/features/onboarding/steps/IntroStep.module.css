@@ -4,7 +4,13 @@
   flex-direction: column;
   padding: 28px var(--space-2) var(--space-6);
 }
-.header img {
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.header > img {
   height: 34px;
 }
 .identity {
@@ -65,6 +71,105 @@
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--text-sm);
+}
+.more {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.page {
+  display: grid;
+}
+.section,
+.closing {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-8) var(--space-2);
+  border-top: 1px solid var(--color-border);
+  scroll-margin-top: var(--space-4);
+}
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-regular);
+  line-height: 1.6;
+}
+.steps,
+.perks,
+.phases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.steps {
+  display: grid;
+  gap: var(--space-5);
+}
+.step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--space-3);
+}
+.step h3 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+.step p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+.phases {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.phases li {
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+}
+.perks {
+  display: grid;
+  gap: var(--space-3);
+}
+.perks li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-weight: 600;
+}
+.closing {
+  text-align: center;
+  padding-bottom: calc(var(--space-8) + var(--safe-bottom));
+}
+.disclaimer {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+  font-size: var(--text-sm);
+}
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-text-muted);
 }
 @media (max-width: 350px) {
   .screen {

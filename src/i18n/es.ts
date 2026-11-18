@@ -716,8 +716,10 @@ export const es = {
       body: 'Breakbit te ayuda a romper las horas sentado con pausas cortas a lo largo de la jornada y una actividad al día.',
       notMedical:
         'No es una herramienta médica ni sustituye a un profesional. Si tienes dolor o molestias que no se van, consulta con uno.',
-      privacy:
-        'Tus datos se quedan en este dispositivo: no hay cuentas, ni servidor, ni seguimiento.',
+      privacy: 'Tus datos se quedan en este dispositivo: no hay cuentas ni servidor.',
+      privacyLink: 'Política de privacidad',
+      analytics: 'Estadísticas anónimas de uso',
+      analyticsHint: 'Sin cookies ni datos personales. Nos ayudan a saber si Breakbit es útil.',
     },
     sections: {
       schedule: {
@@ -1174,6 +1176,66 @@ export const es = {
       },
       start: 'Ir a Hoy',
     },
+  },
+  landing: {
+    how: 'Cómo funciona',
+    steps: {
+      plan: {
+        title: 'Cuéntale tu jornada',
+        body: 'Tu horario, si tienes alguna molestia y qué material tienes a mano. Te lleva un minuto.',
+      },
+      pauses: {
+        title: 'Pausas de 1 a 3 minutos',
+        body: 'Durante el día te propone ejercicios cortos para hacer junto a tu mesa. ¿Ahora no puedes? La pospones.',
+      },
+      main: {
+        title: 'Un rato para moverte',
+        body: 'Cada día, una actividad algo más larga: un paseo, estiramientos o una rutina con tu material.',
+      },
+      avatar: {
+        title: 'Tu avatar evoluciona contigo',
+        body: 'Cada semana buena tu personaje mejora un poco, de encorvado a optimizado.',
+      },
+    },
+    perksTitle: 'Pensada para no molestar',
+    perks: {
+      free: 'Gratis',
+      noAccount: 'Sin cuenta ni registro',
+      private: 'Tus datos no salen de tu dispositivo',
+      offline: 'Funciona sin conexión',
+      install: 'Instálala en el móvil o el ordenador',
+    },
+    finalTitle: 'Empieza hoy. Te lleva un minuto.',
+    privacy: 'Privacidad',
+    feedback: 'Opiniones',
+  },
+  privacy: {
+    title: 'Privacidad',
+    updated: 'Actualizada el {date}',
+    data: {
+      title: 'Tus datos se quedan en tu dispositivo',
+      body: 'Tu jornada, tus molestias, tu material y tu progreso se guardan solo en este navegador o en la app instalada. No hay cuentas ni un servidor de Breakbit que los reciba. Puedes exportarlos o borrarlos cuando quieras desde Ajustes.',
+    },
+    notifications: {
+      title: 'Avisos',
+      body: 'Los avisos de tus pausas los crea tu propio dispositivo; no pasan por ningún servidor.',
+    },
+    stats: {
+      title: 'Estadísticas anónimas',
+      body: 'Para saber si Breakbit es útil contamos de forma anónima qué pantallas se abren y algunos hitos, como completar una pausa o volver al cabo de una semana. Usamos GoatCounter, sin cookies ni identificadores: no se guardan tu IP, tu horario ni nada de lo que eliges en la app.',
+      optOut: 'Puedes desactivarlas en Ajustes › Acerca de Breakbit.',
+    },
+    health: {
+      title: 'No es una herramienta médica',
+      body: 'Breakbit no sustituye a un profesional. Si tienes dolor o molestias que no se van, consulta con uno.',
+    },
+    contact: 'Para cualquier duda sobre tus datos, escribe a',
+    back: 'Volver',
+  },
+  feedback: {
+    title: '¿Qué te parece Breakbit?',
+    body: 'Acaba de salir y tu opinión decide lo que viene: qué te sobra, qué te falta o qué no funciona.',
+    action: 'Enviar mi opinión',
   },
   dev: {
     open: 'Abrir herramientas de desarrollo',

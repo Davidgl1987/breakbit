@@ -1,0 +1,18 @@
+.card {
+  display: grid;
+  gap: var(--space-3);
+}
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+.body {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}

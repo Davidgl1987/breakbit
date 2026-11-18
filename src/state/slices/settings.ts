@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 import { validateSchedule } from '@/domain/calendar/validation';
 import type { DaySchedule } from '@/domain/types';
+import { trackEvent } from '@/services/analytics';
 import { clock } from '@/services/clock';
 import type { AppState, SettingsActions } from '../types';
 
@@ -13,6 +14,7 @@ export function settingsActions(set: StoreApi<AppState>['setState']): SettingsAc
     completeOnboarding: (settings) => {
       assertValidSchedule(settings.schedule);
       set({ settings, onboardedAt: clock.now() });
+      trackEvent('onboarding-done');
     },
   };
 }

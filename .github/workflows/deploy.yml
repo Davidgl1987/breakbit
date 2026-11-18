@@ -44,6 +44,15 @@ jobs:
         run: pnpm build
         env:
           BASE_PATH: /breakbit/
+          # Public address for link previews; set the SITE_URL repository variable when the
+          # app moves to its own domain.
+          SITE_URL: ${{ vars.SITE_URL || 'https://davidgl1987.github.io/breakbit/' }}
+          # Optional (Settings → Secrets and variables → Actions → Variables); unset hides each.
+          # GoatCounter site code for anonymous usage counts (services/analytics.ts).
+          VITE_GOATCOUNTER: ${{ vars.GOATCOUNTER_CODE }}
+          # Where "Send feedback" leads (a form) and the contact address on /privacy.
+          VITE_FEEDBACK_URL: ${{ vars.FEEDBACK_URL }}
+          VITE_CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
 
       # GitHub Pages answers unknown paths with 404.html: the app itself, so deep links
       # (/breakbit/progress, a notification's /breakbit/pause/…) open the right screen.

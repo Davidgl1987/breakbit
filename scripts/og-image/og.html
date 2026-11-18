@@ -1,0 +1,96 @@
+<!doctype html>
+<!--
+  The link preview (Open Graph) image, 1200×630. Rendered to public/og-image.png by
+  `pnpm og-image` (scripts/og-image/render.ts); paths are relative to the project root.
+-->
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @font-face {
+        font-family: 'Press Start 2P';
+        src: url('../../src/ui/styles/font-assets/PressStart2P-Regular.ttf') format('truetype');
+      }
+      @font-face {
+        font-family: 'Chakra Petch';
+        src: url('../../src/ui/styles/font-assets/ChakraPetch-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+      }
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      body {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 88px;
+        background-color: #0d211e;
+        background-image:
+          linear-gradient(45deg, #10261f 25%, transparent 25%),
+          linear-gradient(-45deg, #10261f 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #10261f 75%),
+          linear-gradient(-45deg, transparent 75%, #10261f 75%);
+        background-size: 24px 24px;
+        color: #eaf4ee;
+        font-family: 'Chakra Petch', sans-serif;
+      }
+      .text {
+        flex: 1;
+        display: grid;
+        gap: 40px;
+      }
+      .wordmark {
+        height: 64px;
+        width: auto;
+        image-rendering: pixelated;
+      }
+      h1 {
+        font-family: 'Press Start 2P', monospace;
+        font-weight: 400;
+        font-size: 46px;
+        line-height: 1.6;
+      }
+      h1 span {
+        display: block;
+      }
+      .accent {
+        color: #4cc985;
+      }
+      p {
+        font-size: 30px;
+        font-weight: 600;
+        color: #a6bcb2;
+        max-width: 560px;
+        line-height: 1.35;
+      }
+      .avatar {
+        width: 384px;
+        height: 384px;
+        flex: none;
+        image-rendering: pixelated;
+        background: #143029;
+        border: 4px solid #2f5d51;
+        border-radius: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="text">
+      <img class="wordmark" src="../../public/brand/wordmark-dark.png" alt="" />
+      <h1>
+        <span>Pausa.</span>
+        <span class="accent">Muévete.</span>
+        <span>Sigue.</span>
+      </h1>
+      <p>Pausas de 1 a 3 minutos para moverte durante tu jornada. Gratis y sin cuenta.</p>
+    </div>
+    <img class="avatar" src="../../public/avatar/3-celebrate.png" alt="" />
+  </body>
+</html>

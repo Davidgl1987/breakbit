@@ -1,6 +1,7 @@
 import { clear, createStore, setMany, set, values } from 'idb-keyval';
 import { toDateKey } from '@/domain/time';
 import type { AppEvent, EventType, Instant } from '@/domain/types';
+import { trackAppEvent } from './analytics';
 import { clock } from './clock';
 
 /**
@@ -27,6 +28,7 @@ export async function logEvent(type: EventType, details: EventDetails = {}): Pro
     ...(details.data !== undefined && { data: details.data }),
   };
   await set(event.id, event, eventStore);
+  trackAppEvent(type);
   return event;
 }
 
