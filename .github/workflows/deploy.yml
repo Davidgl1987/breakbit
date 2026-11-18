@@ -1,4 +1,4 @@
-# Builds Breakbit and publishes it on GitHub Pages (https://davidgl1987.github.io/breakbit/)
+# Builds Breakbit and publishes it on GitHub Pages at its own domain (https://breakbit.app/)
 # on every push to main. Settings → Pages → Source must be "GitHub Actions".
 name: Deploy to GitHub Pages
 
@@ -39,14 +39,14 @@ jobs:
           pnpm lint
           pnpm test
 
-      # The site lives under /breakbit/; the build validates the content catalog too.
+      # The site lives at the root of its domain (Settings → Pages → Custom domain:
+      # breakbit.app); the build validates the content catalog too.
       - name: Build
         run: pnpm build
         env:
-          BASE_PATH: /breakbit/
-          # Public address for link previews; set the SITE_URL repository variable when the
-          # app moves to its own domain.
-          SITE_URL: ${{ vars.SITE_URL || 'https://davidgl1987.github.io/breakbit/' }}
+          BASE_PATH: /
+          # Public address for link previews (a SITE_URL repository variable overrides it).
+          SITE_URL: ${{ vars.SITE_URL || 'https://breakbit.app/' }}
           # Optional (Settings → Secrets and variables → Actions → Variables); unset hides each.
           # GoatCounter site code for anonymous usage counts (services/analytics.ts).
           VITE_GOATCOUNTER: ${{ vars.GOATCOUNTER_CODE }}
@@ -55,7 +55,7 @@ jobs:
           VITE_CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
 
       # GitHub Pages answers unknown paths with 404.html: the app itself, so deep links
-      # (/breakbit/progress, a notification's /breakbit/pause/…) open the right screen.
+      # (/progress, a notification's /pause/…) open the right screen.
       - run: cp dist/index.html dist/404.html
 
       - uses: actions/upload-pages-artifact@v4
