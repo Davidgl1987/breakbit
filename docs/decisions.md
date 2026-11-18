@@ -809,16 +809,22 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 
 ## Publicación en GitHub Pages
 
-- **URL**: https://davidgl1987.github.io/breakbit/ (repo `Davidgl1987/breakbit`). Cada push a `main`
-  ejecuta `.github/workflows/deploy.yml`: lint, tests, build con `BASE_PATH=/breakbit/` y despliegue
-  con `actions/deploy-pages`. En el repo, Settings → Pages → Source debe ser "GitHub Actions".
-- **Sub-ruta**: la app funciona en `/` (desarrollo, preview, E2E) y bajo `/breakbit/`. Vite toma la
+- **URL**: https://breakbit.app/ (repo `Davidgl1987/breakbit`). Cada push a `main` ejecuta
+  `.github/workflows/deploy.yml`: lint, tests, E2E, build con `BASE_PATH=/` y despliegue con
+  `actions/deploy-pages`. En el repo, Settings → Pages → Source debe ser "GitHub Actions" y Custom
+  domain `breakbit.app`. El dominio se compró en Vercel, que solo hace de DNS (registros A/AAAA de
+  GitHub Pages); se descartó desplegar en Vercel para no publicar sin pasar los tests.
+- **Dominio propio (2026-11)**: antes vivía en https://davidgl1987.github.io/breakbit/, que ahora
+  redirige al dominio. Los datos de cada persona son por origen: lo guardado en la URL antigua no
+  pasa solo al dominio nuevo (exportar e importar desde Ajustes).
+- **Sub-ruta**: la app funciona en `/` (desarrollo, preview, E2E, producción) y bajo una sub-ruta
+  si hiciera falta (como el antiguo `/breakbit/`). Vite toma la
   base de `BASE_PATH`; el router usa `BASE_URL` como `basename` (con la barra final, Hoy queda en
   `/breakbit/`, dentro del alcance del service worker); el manifest usa rutas relativas; el service
   worker resuelve la carcasa y los enlaces de las notificaciones contra su `scope`, y la lista de
   precarga lleva la base.
 - **Enlaces directos**: GitHub Pages no tiene fallback de SPA; el workflow copia `index.html` como
-  `404.html`, así que `/breakbit/progress` o el enlace de una notificación abren la pantalla correcta
+  `404.html`, así que `/progress` o el enlace de una notificación abren la pantalla correcta
   (con estado 404, que el navegador muestra igual).
 - El plugin de precarga no actúa si el build ha fallado, para que se vea el error real.
 
@@ -878,7 +884,7 @@ Todo en `src/domain/planner/`, puro y determinista (semilla `fecha#reroll`).
 
 - **`/dev/exercises`** (fuera de las guardas de onboarding y a pantalla completa, no en la columna de
   la app): revisar el catálogo de ejercicios probándolos de verdad. También en producción, pero
-  sin enlace: se abre conociendo la URL (en GitHub Pages, `/breakbit/dev/exercises`), y su código
+  sin enlace: se abre conociendo la URL (https://breakbit.app/dev/exercises), y su código
   solo se descarga al abrirla. En desarrollo, enlazado desde el DevPanel. `/dev/kit` sigue siendo
   solo de desarrollo.
 - **Lee el catálogo real** (`CATALOG.exercises`): no hay un segundo catálogo. Las decisiones no
