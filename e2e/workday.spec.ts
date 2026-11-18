@@ -5,12 +5,12 @@ test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: MONDAY_MORNING });
 });
 
-test('a workday: start it, do a pause, use a gap and close the day', async ({ page }) => {
+test('a workday: it starts on its own, do a pause, use a gap and see how it went', async ({
+  page,
+}) => {
   await onboard(page);
 
-  // Start the day with the proposed plan.
-  await page.getByRole('link', { name: 'Preparar jornada' }).click();
-  await page.getByRole('button', { name: 'Empezar jornada' }).click();
+  // The day starts on its own with the proposed plan.
   await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
 
   // Go to the first pause's time: it shows up on Today.
@@ -36,9 +36,9 @@ test('a workday: start it, do a pause, use a gap and close the day', async ({ pa
   await expect(page.getByRole('heading', { level: 1, name: '¡Pausa hecha!' })).toBeVisible();
   await page.getByRole('button', { name: 'Volver a lo mío' }).click();
 
-  // The end of the day: close it from Today.
+  // The end of the day: closing it is optional; Today offers to see how it went.
   await travelTo(page, monday('17:05'));
-  await page.getByRole('link', { name: 'Cerrar jornada' }).click();
+  await page.getByRole('link', { name: 'Ver cómo ha ido' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Así ha ido tu día' })).toBeVisible();
   await page.getByRole('radio', { name: 'Bien', exact: true }).click();
   await page.getByRole('button', { name: 'Cerrar jornada' }).click();
@@ -47,8 +47,6 @@ test('a workday: start it, do a pause, use a gap and close the day', async ({ pa
 
 test('the data survives a reload', async ({ page }) => {
   await onboard(page);
-  await page.getByRole('link', { name: 'Preparar jornada' }).click();
-  await page.getByRole('button', { name: 'Empezar jornada' }).click();
   await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();

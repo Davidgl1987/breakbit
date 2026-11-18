@@ -17,6 +17,8 @@ export function runEngine(now: Instant, scheduler: NotificationScheduler): void 
   useAppStore.getState().reconcile(now);
   // Yesterday (or longer ago) left open, or workdays nobody started: settled now.
   useAppStore.getState().closePastDays(now);
+  // Today starts on its own with the proposed plan; the user adjusts it from Today.
+  useAppStore.getState().autoStartDay(now);
   // …and, once a week is over, how it went: the avatar evolves (or not).
   useAppStore.getState().evaluateWeeks(now);
   const state = useAppStore.getState();

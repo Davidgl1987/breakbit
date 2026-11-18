@@ -44,11 +44,33 @@ describe('runEngine', () => {
     expect(document.title).toBe('Breakbit');
   });
 
-  it('announces the start of a workday that has no plan yet', () => {
+  it('starts a workday on its own with the proposed plan, and announces it', () => {
     const sync = vi.fn();
+    clock.travelTo(atTime(DATE, '08:00'));
     runEngine(atTime(DATE, '08:00'), { sync });
-    const agenda = sync.mock.calls[0]![0] as PlannedNotification[];
-    expect(agenda.map((item) => item.kind)).toEqual(['day_start']);
+    const record = store().days[DATE];
+    expect(record?.status).toBe('active');
+    expect(record?.plan?.schedule).toEqual(DEFAULT_SETTINGS.schedule);
+    expect(record?.plan?.meetings).toEqual([]);
+    expect(record?.plan?.activities.some((item) => item.kind === 'micro')).toBe(true);
+    const agenda = sync.mock.lastCall![0] as PlannedNotification[];
+    expect(agenda[0]?.kind).toBe('day_start');
+    expect(agenda.some((item) => item.kind === 'pause')).toBe(true);
+  });
+
+  it("doesn't start a day off, a rest day or one whose hours are over", () => {
+    const sync = vi.fn();
+    store().markDayOff(DATE);
+    runEngine(atTime(DATE, '08:00'), { sync });
+    expect(store().days[DATE]).toBeUndefined();
+
+    // 2026-10-10 is a Saturday.
+    runEngine(atTime('2026-10-10', '10:00'), { sync });
+    expect(store().days['2026-10-10']).toBeUndefined();
+
+    clock.travelTo(atTime('2026-10-06', DEFAULT_SETTINGS.schedule.workEnd));
+    runEngine(atTime('2026-10-06', DEFAULT_SETTINGS.schedule.workEnd), { sync });
+    expect(store().days['2026-10-06']).toBeUndefined();
   });
 });
 
@@ -150,11 +172,11 @@ describe('notificationContent', () => {
     expect(notice(later)?.title).toBe('Hora de tu actividad');
   });
 
-  it('opens the start of the day', () => {
+  it('opens Today, with the plan ready, at the start of the day', () => {
     const content = notificationContent(
       { id: `day-start:${DATE}`, kind: 'day_start', at: 0, date: DATE, tag: 'day-start' },
       store(),
     );
-    expect(content).toMatchObject({ title: 'Empieza tu jornada', url: '/day/start?src=notif' });
+    expect(content).toMatchObject({ title: 'Empieza tu jornada', url: '/?src=notif' });
   });
 });

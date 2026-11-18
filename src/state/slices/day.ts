@@ -3,9 +3,10 @@ import { CATALOG } from '@/content/catalog';
 import * as overrides from '@/domain/calendar/overrides';
 import { isWorkday, resolveDaySchedule, sameSchedule } from '@/domain/calendar/schedule';
 import { closeRecord, pastDaysToSettle, returnBonusFor } from '@/domain/day/closeDay';
+import { planDay, recentExerciseIds } from '@/domain/day/planDay';
 import { recoverablePause, recoverPause } from '@/domain/day/recovery';
 import { withAwards } from '@/domain/progress/awards';
-import { toDateKey } from '@/domain/time';
+import { atTime, toDateKey } from '@/domain/time';
 import type {
   DateKey,
   DayOverrides,
@@ -52,6 +53,28 @@ export function dayActions(
 
   return {
     startDay: savePlan,
+    autoStartDay: (now) => {
+      const state = get();
+      if (state.onboardedAt === undefined) return false;
+      const date = toDateKey(now);
+      if (state.days[date] || state.dayOverrides[date]?.working === false) return false;
+      const schedule = resolveDaySchedule(date, state.settings, state.dayOverrides);
+      // Opened after the hours are over: nothing left to plan (Today offers more hours).
+      if (!schedule || now >= atTime(date, schedule.workEnd)) return false;
+      savePlan(
+        planDay({
+          date,
+          schedule,
+          meetings: [],
+          settings: state.settings,
+          catalog: CATALOG,
+          rerollCount: 0,
+          recentExerciseIds: recentExerciseIds(state.days, date, CATALOG),
+          now,
+        }),
+      );
+      return true;
+    },
     updateDayPlan: savePlan,
     undoDayOff: (date) => {
       set((state) => {
