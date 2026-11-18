@@ -66,17 +66,17 @@ beforeEach(() => {
 afterEach(() => clock.setOffset(0));
 
 describe('end of the day on Today', () => {
-  it('keeps closing available and highlights it near the end', async () => {
-    setUp({}, '16:40');
+  it('lets the user finish early, and near the end says when it ends', async () => {
+    setUp({ done: [ids.p0] }, '16:40');
     ui('/');
-    expect(screen.getByRole('link', { name: 'Cerrar jornada' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /He terminado por hoy/ })).toHaveAttribute(
       'href',
       ROUTES.dayEnd,
     );
     expect(screen.queryByText('Tu jornada termina a las 17:00')).not.toBeInTheDocument();
     await act(() => clock.travelTo(at('16:51')));
     expect(screen.getByText('Tu jornada termina a las 17:00')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Cerrar jornada' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Ver cómo ha ido/ })).toHaveAttribute(
       'href',
       ROUTES.dayEnd,
     );

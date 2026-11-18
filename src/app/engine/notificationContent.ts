@@ -36,7 +36,8 @@ export function notificationContent(
     return {
       title: t('notifications.dayStart.title'),
       body: t('notifications.dayStart.body'),
-      url: `${ROUTES.dayStart}?src=notif`,
+      // Today shows the plan, ready (it starts on its own) and easy to adjust from there.
+      url: `${ROUTES.today}?src=notif`,
       icon: APP_ICON,
     };
   }

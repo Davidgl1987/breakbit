@@ -13,6 +13,7 @@ import { useToday } from '@/features/day/useToday';
 import { MainDoneScreen } from '@/features/main-activity/MainDoneScreen';
 import { MainScreen } from '@/features/main-activity/MainScreen';
 import { OnboardingFlow } from '@/features/onboarding/OnboardingFlow';
+import { PrivacyScreen } from '@/features/privacy/PrivacyScreen';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { SettingsSectionScreen } from '@/features/settings/SettingsSectionScreen';
@@ -83,6 +84,11 @@ export function AppRoutes() {
           <Route element={<FullscreenLayout />}>
             <Route path="onboarding/:step" element={<OnboardingFlow />} />
           </Route>
+        </Route>
+
+        {/* Public: linked from the landing before onboarding, and from Settings. */}
+        <Route element={<FullscreenLayout />}>
+          <Route path="privacy" element={<PrivacyScreen />} />
         </Route>
 
         {DevKitScreen && (

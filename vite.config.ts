@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 import { catalogCheck } from './build/catalogCheck.ts';
+import { siteUrl } from './build/siteUrl.ts';
 import { swPrecache } from './build/swPrecache.ts';
 
 const PURE_TESTS = ['src/domain/**/*.test.ts', 'src/content/**/*.test.ts', 'build/**/*.test.ts'];
@@ -9,7 +10,7 @@ const PURE_TESTS = ['src/domain/**/*.test.ts', 'src/content/**/*.test.ts', 'buil
 export default defineConfig({
   // GitHub Pages serves the app under /breakbit/ (BASE_PATH in the deploy workflow).
   base: process.env.BASE_PATH ?? '/',
-  plugins: [catalogCheck(), react(), swPrecache()],
+  plugins: [catalogCheck(), react(), siteUrl(), swPrecache()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

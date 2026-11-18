@@ -32,16 +32,29 @@ beforeEach(() => store().completeOnboarding(DEFAULT_SETTINGS));
 afterEach(() => clock.setOffset(0));
 
 describe('Today', () => {
-  it('only offers closing the day while there is one under way', () => {
-    travel(MONDAY, '08:40');
-    const { unmount } = renderWithRouter(<AppRoutes />);
-    expect(screen.queryByRole('link', { name: /Cerrar jornada/ })).not.toBeInTheDocument();
-    unmount();
-
+  it('never asks to close the day: finishing early is an option once something is done', () => {
     startMonday();
     travel(MONDAY, '10:00');
+    const { unmount } = renderWithRouter(<AppRoutes />);
+    expect(screen.queryByRole('link', { name: /Cerrar jornada/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /He terminado por hoy/ })).not.toBeInTheDocument();
+    unmount();
+
+    const first = nextPause(store().days[MONDAY]!.plan!, clock.now())!;
+    store().startPause(MONDAY, first.id);
     renderWithRouter(<AppRoutes />);
-    expect(screen.getByRole('link', { name: /Cerrar jornada/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /He terminado por hoy/ })).toHaveAttribute(
+      'href',
+      '/day/end',
+    );
+  });
+
+  it('once the hours are over, offers to see how the day went', () => {
+    startMonday();
+    travel(MONDAY, '17:05');
+    renderWithRouter(<AppRoutes />);
+    expect(screen.getByRole('heading', { name: 'Hora de desconectar' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ver cómo ha ido' })).toHaveAttribute(
       'href',
       '/day/end',
     );
@@ -105,7 +118,7 @@ describe('Today', () => {
     expect(screen.queryByRole('heading', { name: 'Próxima pausa' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Cerrar jornada/ })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('link', { name: 'Ajustar horario' }));
+    await user.click(screen.getByRole('link', { name: 'Revisar mi plan' }));
     expect(screen.getByRole('heading', { name: 'Ajusta tu día' })).toBeInTheDocument();
     fireEvent.change(
       within(screen.getByRole('group', { name: 'Horario' })).getByLabelText('Inicio'),
@@ -231,12 +244,23 @@ describe('Today', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('no longer offers "Hoy no trabajo" once the day has started', () => {
+  it('offers "Hoy no trabajo" on a day that started on its own, until something is done', async () => {
     startMonday();
     travel(MONDAY, '09:10');
-    renderWithRouter(<AppRoutes />);
+    const { user, unmount } = renderWithRouter(<AppRoutes />);
     expect(screen.getByRole('heading', { name: 'Próxima pausa' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Hoy no trabajo' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Hoy no trabajo/ }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: /no trabajo/i }),
+    );
+    expect(store().days[MONDAY]!.status).toBe('day_off');
+    unmount();
+
+    store().undoDayOff(MONDAY);
+    const first = nextPause(store().days[MONDAY]!.plan!, clock.now())!;
+    store().startPause(MONDAY, first.id);
+    renderWithRouter(<AppRoutes />);
+    expect(screen.queryByRole('button', { name: /Hoy no trabajo/ })).not.toBeInTheDocument();
   });
 
   it('rests on days off work, showing the next workday', () => {

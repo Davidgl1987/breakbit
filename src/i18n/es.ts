@@ -159,7 +159,8 @@ export const es = {
     prepared: {
       kicker: 'Jornada preparada',
       title: 'Todo listo para hoy',
-      body: 'Tu horario empieza a las {time}. Si empiezas antes, puedes cambiar la hora de inicio.',
+      review: 'Revisar mi plan',
+      body: 'Tu plan está listo y empieza a las {time}. Si hoy tienes reuniones o otro horario, ajústalo.',
     },
     late: { kicker: 'Horario terminado', title: '¿Sigues trabajando?' },
     closed: {
@@ -256,10 +257,12 @@ export const es = {
       workToday: 'Hoy sí trabajo',
       undoDayOff: 'Deshacer: hoy sí trabajo',
       over: 'Jornada terminada',
-      overBody: 'Ya puedes desconectar. Mira cómo ha ido y cierra el día.',
+      overBody: 'Ya puedes desconectar. Si quieres, mira cómo ha ido y deja listo mañana.',
       endingSoon: 'Tu jornada termina a las {time}',
-      endingSoonBody: 'Mira cómo ha ido y cierra el día.',
+      endingSoonBody: 'Al acabar te avisamos para ver cómo ha ido. No hace falta cerrar nada.',
       closeDay: 'Cerrar jornada',
+      seeSummary: 'Ver cómo ha ido',
+      finishEarly: 'He terminado por hoy',
       closed: 'Día cerrado',
       closedBody: '{verdict} · {pauses} · {xp} XP',
       closedData: '{pauses} · {xp} XP',
@@ -479,14 +482,14 @@ export const es = {
     },
     dayStart: {
       title: 'Empieza tu jornada',
-      body: 'Revisa tu día en un momento.',
+      body: 'Tu plan de hoy está listo. Si tienes reuniones o cambia tu horario, ajústalo.',
     },
     main: { title: 'Hora de tu actividad', body: '{name} · {duration}' },
     mainBreak: { title: 'Empieza tu descanso', body: 'Tu actividad: {name} · {duration}' },
     break: { title: 'Empieza tu descanso', body: 'Hasta las {time}. Levántate y despéjate.' },
     dayEnd: {
-      title: 'Tu jornada termina pronto',
-      body: 'Mira cómo ha ido y cierra el día.',
+      title: 'Jornada terminada',
+      body: 'Mira cómo ha ido tu día y deja listo el siguiente.',
     },
     mainDone: { title: '¡Actividad hecha!', body: '{name} · +{xp} XP' },
     tabTitle: 'Pausa ahora',
@@ -716,8 +719,10 @@ export const es = {
       body: 'Breakbit te ayuda a romper las horas sentado con pausas cortas a lo largo de la jornada y una actividad al día.',
       notMedical:
         'No es una herramienta médica ni sustituye a un profesional. Si tienes dolor o molestias que no se van, consulta con uno.',
-      privacy:
-        'Tus datos se quedan en este dispositivo: no hay cuentas, ni servidor, ni seguimiento.',
+      privacy: 'Tus datos se quedan en este dispositivo: no hay cuentas ni servidor.',
+      privacyLink: 'Política de privacidad',
+      analytics: 'Estadísticas anónimas de uso',
+      analyticsHint: 'Sin cookies ni datos personales. Nos ayudan a saber si Breakbit es útil.',
     },
     sections: {
       schedule: {
@@ -1174,6 +1179,66 @@ export const es = {
       },
       start: 'Ir a Hoy',
     },
+  },
+  landing: {
+    how: 'Cómo funciona',
+    steps: {
+      plan: {
+        title: 'Cuéntale tu jornada',
+        body: 'Tu horario, si tienes alguna molestia y qué material tienes a mano. Te lleva un minuto.',
+      },
+      pauses: {
+        title: 'Pausas de 1 a 3 minutos',
+        body: 'Durante el día te propone ejercicios cortos para hacer junto a tu mesa. ¿Ahora no puedes? La pospones.',
+      },
+      main: {
+        title: 'Un rato para moverte',
+        body: 'Cada día, una actividad algo más larga: un paseo, estiramientos o una rutina con tu material.',
+      },
+      avatar: {
+        title: 'Tu avatar evoluciona contigo',
+        body: 'Cada semana buena tu personaje mejora un poco, de encorvado a optimizado.',
+      },
+    },
+    perksTitle: 'Pensada para no molestar',
+    perks: {
+      free: 'Gratis',
+      noAccount: 'Sin cuenta ni registro',
+      private: 'Tus datos no salen de tu dispositivo',
+      offline: 'Funciona sin conexión',
+      install: 'Instálala en el móvil o el ordenador',
+    },
+    finalTitle: 'Empieza hoy. Te lleva un minuto.',
+    privacy: 'Privacidad',
+    feedback: 'Opiniones',
+  },
+  privacy: {
+    title: 'Privacidad',
+    updated: 'Actualizada el {date}',
+    data: {
+      title: 'Tus datos se quedan en tu dispositivo',
+      body: 'Tu jornada, tus molestias, tu material y tu progreso se guardan solo en este navegador o en la app instalada. No hay cuentas ni un servidor de Breakbit que los reciba. Puedes exportarlos o borrarlos cuando quieras desde Ajustes.',
+    },
+    notifications: {
+      title: 'Avisos',
+      body: 'Los avisos de tus pausas los crea tu propio dispositivo; no pasan por ningún servidor.',
+    },
+    stats: {
+      title: 'Estadísticas anónimas',
+      body: 'Para saber si Breakbit es útil contamos de forma anónima qué pantallas se abren y algunos hitos, como completar una pausa o volver al cabo de una semana. Usamos GoatCounter, sin cookies ni identificadores: no se guardan tu IP, tu horario ni nada de lo que eliges en la app.',
+      optOut: 'Puedes desactivarlas en Ajustes › Acerca de Breakbit.',
+    },
+    health: {
+      title: 'No es una herramienta médica',
+      body: 'Breakbit no sustituye a un profesional. Si tienes dolor o molestias que no se van, consulta con uno.',
+    },
+    contact: 'Para cualquier duda sobre tus datos, escribe a',
+    back: 'Volver',
+  },
+  feedback: {
+    title: '¿Qué te parece Breakbit?',
+    body: 'Acaba de salir y tu opinión decide lo que viene: qué te sobra, qué te falta o qué no funciona.',
+    action: 'Enviar mi opinión',
   },
   dev: {
     open: 'Abrir herramientas de desarrollo',

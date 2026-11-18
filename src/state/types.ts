@@ -66,6 +66,12 @@ export interface CalendarActions {
 export interface DayActions {
   /** "Empezar jornada": saves today's plan; its hours become that day's calendar entry. */
   startDay: (plan: DayPlan) => void;
+  /**
+   * Starts today on its own with the proposed plan (usual hours, no meetings, the user's
+   * equipment) when it is a workday not started yet and its hours aren't over. The user
+   * adjusts it from Today. Returns whether it started the day.
+   */
+  autoStartDay: (now: Instant) => boolean;
   /** Saves a re-planned day (new hours, meetings or main activity). */
   updateDayPlan: (plan: DayPlan) => void;
   /** "Hoy sí trabajo" after "Hoy no trabajo": a day under way goes on with its plan. */

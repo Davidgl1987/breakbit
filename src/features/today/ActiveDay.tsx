@@ -8,6 +8,7 @@ import { dayProgress } from '@/domain/day/progress';
 import { dayEquipment, mainActivityOf, nextPause, workEnd } from '@/domain/day/today';
 import { atTime } from '@/domain/time';
 import type { DayPlan, Instant, Meeting } from '@/domain/types';
+import { DayOffSheet } from '@/features/day/DayOffSheet';
 import { DaySceneCard } from '@/features/day/DaySceneCard';
 import { MainActivityPreviewSheet } from '@/features/day/MainActivityPreviewSheet';
 import { MainActivitySheet } from '@/features/day/MainActivitySheet';
@@ -21,6 +22,7 @@ import { Card } from '@/ui/components/Card/Card';
 import { buttonClassName } from '@/ui/components/Button/buttonStyles';
 import { PixelIcon } from '@/ui/icons/PixelIcon';
 import { LineIcon } from '@/ui/icons/LineIcon';
+import { runScreenTransition } from '@/ui/motion/viewTransition';
 import { DayProgressCard } from './DayProgressCard';
 import { MeetingsSheet } from './MeetingsSheet';
 import { DayTimelineCard } from './DayTimelineCard';
@@ -29,18 +31,22 @@ import { NextPauseCard } from './NextPauseCard';
 import styles from './TodayScreen.module.css';
 
 /** The pause's steps, today's meetings, or a meeting being added or changed. */
-type Sheet = 'pause' | 'activity' | 'main' | 'meetings' | { meeting: string | 'new' } | null;
+type Sheet =
+  'pause' | 'activity' | 'main' | 'meetings' | 'dayOff' | { meeting: string | 'new' } | null;
 
 /**
  * Today under way: time left, next pause, the main activity, gear, progress and timeline.
- * "Reuniones" opens today's meetings (the time left sits next to the greeting).
- * "Hoy no trabajo" is offered only before the day starts.
+ * The day starts on its own with the proposed plan, adjusted from here ("Ajustar mi día",
+ * meetings, the main activity). "Hoy no trabajo" is offered while nothing has been done.
+ * Closing the day is optional: once it is over, "Ver cómo ha ido" opens the summary, and
+ * it closes on its own the next day.
  */
 export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; now: Instant }) {
   const { t } = useT();
   const [sheet, setSheet] = useState<Sheet>(null);
   const planner = useDayPlanner();
   const updateDayPlan = useAppStore((state) => state.updateDayPlan);
+  const markDayOff = useAppStore((state) => state.markDayOff);
   const settings = useAppStore((state) => state.settings);
 
   // New meetings re-plan the rest of the day around what already happened.
@@ -66,10 +72,11 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
   const main = mainActivityOf(plan);
   const progress = dayProgress(plan, CATALOG);
   const minutesLeft = (workEnd(plan) - now) / 60_000;
-  const beforeStart =
-    now < atTime(plan.date, plan.schedule.workStart) &&
-    !plan.activities.some((item) => item.startedAt !== undefined || item.status === 'completed');
-  // From 10 min before the end, the way to close the day.
+  const untouched = !plan.activities.some(
+    (item) => item.startedAt !== undefined || item.status === 'completed',
+  );
+  const beforeStart = now < atTime(plan.date, plan.schedule.workStart) && untouched;
+  // From 10 min before the end, a word that it ends soon.
   const endingSoon = minutesLeft <= DAY_END_LEAD_MIN;
 
   return (
@@ -80,8 +87,11 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
           kicker={t('cycle.prepared.kicker')}
           title={t('cycle.prepared.title')}
           footer={
-            <Link to={ROUTES.dayStart} className={buttonClassName({ fullWidth: true, size: 'lg' })}>
-              {t('today.states.adjustHours')}
+            <Link
+              to={ROUTES.dayStart}
+              className={buttonClassName({ variant: 'secondary', fullWidth: true, size: 'lg' })}
+            >
+              {t('cycle.prepared.review')}
             </Link>
           }
         >
@@ -92,8 +102,8 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
           kicker={t('today.states.over')}
           title={t('cycle.over.title')}
           footer={
-            <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
-              {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
+            <Link to={ROUTES.dayEnd} className={buttonClassName({ fullWidth: true, size: 'lg' })}>
+              {t('today.states.seeSummary')}
             </Link>
           }
         >
@@ -112,8 +122,8 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
               {over ? t('today.states.overBody') : t('today.states.endingSoonBody')}
             </p>
           </div>
-          <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
-            {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
+          <Link to={ROUTES.dayEnd} className={styles.actionLink}>
+            {t('today.states.seeSummary')} <LineIcon name="chevron-right" size={18} />
           </Link>
         </Card>
       ) : null}
@@ -169,10 +179,26 @@ export function ActiveDay({ plan, over, now }: { plan: DayPlan; over: boolean; n
       ) : (
         <DayTimelineCard plan={plan} now={now} nextId={next?.id} />
       )}
-      {!over && !endingSoon && !beforeStart && (
+      {!over && untouched && (
+        <button className={styles.dangerLink} onClick={() => setSheet('dayOff')}>
+          {t('today.dayOff')} <LineIcon name="chevron-right" size={18} />
+        </button>
+      )}
+      {!over && !endingSoon && !untouched && (
         <Link to={ROUTES.dayEnd} className={styles.dangerLink}>
-          {t('today.states.closeDay')} <LineIcon name="chevron-right" size={18} />
+          {t('today.states.finishEarly')} <LineIcon name="chevron-right" size={18} />
         </Link>
+      )}
+      {sheet === 'dayOff' && (
+        <DayOffSheet
+          onClose={() => setSheet(null)}
+          onConfirm={() =>
+            runScreenTransition(() => {
+              markDayOff(plan.date);
+              setSheet(null);
+            })
+          }
+        />
       )}
       {sheet === 'activity' && main && (
         <MainActivityPreviewSheet

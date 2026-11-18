@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter } from 'react-router';
 import { AppRoutes } from './AppRoutes';
 import { Engine } from './engine/Engine';
+import { AnalyticsTracker } from './providers/AnalyticsTracker';
 import { HydrationGate } from './providers/HydrationGate';
 import { ToastHost } from './ToastHost';
 import { ThemeController } from './providers/ThemeController';
@@ -20,6 +21,7 @@ export function App() {
       <ThemeController />
       <HydrationGate>
         <Engine />
+        <AnalyticsTracker />
         <AppRoutes />
         <ToastHost />
         {DevPanel && (

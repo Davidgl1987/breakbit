@@ -42,13 +42,14 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await scan('onboarding/summary');
     await page.getByRole('button', { name: 'Ir a Hoy' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Tu plan de hoy' })).toBeVisible();
-    await scan('today (before the day)');
-
-    await page.getByRole('link', { name: 'Preparar jornada' }).click();
-    await scan('day start');
-    await page.getByRole('button', { name: 'Empezar jornada' }).click();
+    // The day starts on its own with the proposed plan.
     await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
     await scan('today (prepared)');
+
+    await page.getByRole('link', { name: 'Revisar mi plan' }).click();
+    await scan('day start');
+    await page.getByRole('button', { name: 'Guardar cambios' }).click();
+    await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
     await travelTo(page, monday('09:00'));
     await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
     await scan('today (active)');
@@ -116,6 +117,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await scan('today (day off)');
     await page.getByRole('button', { name: 'Deshacer: hoy sí trabajo', exact: true }).click();
     await travelTo(page, new Date('2026-10-12T18:00:00+02:00'));
+    await expect(page.getByRole('heading', { name: 'Hora de desconectar' })).toBeVisible();
+    await scan('today (over)');
+    // First opened after the hours: the day doesn't start on its own.
+    await travelTo(page, new Date('2026-10-13T18:00:00+02:00'));
     await expect(page.getByRole('heading', { name: '¿Sigues trabajando?' })).toBeVisible();
     await scan('today (late start)');
 
@@ -128,8 +133,6 @@ test('the keyboard reaches every control on Today and Settings, with a visible f
 }) => {
   await page.clock.install({ time: MONDAY_MORNING });
   await onboard(page);
-  await page.getByRole('link', { name: 'Preparar jornada' }).click();
-  await page.getByRole('button', { name: 'Empezar jornada' }).click();
   await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
 
   for (const [path, title] of [

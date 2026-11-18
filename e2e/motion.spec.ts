@@ -19,8 +19,7 @@ async function recordTransitions(page: Page) {
 test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: MONDAY_MORNING });
   await onboard(page);
-  await page.getByRole('link', { name: 'Preparar jornada' }).click();
-  await page.getByRole('button', { name: 'Empezar jornada' }).click();
+  await expect(page.getByRole('heading', { name: 'Todo listo para hoy' })).toBeVisible();
   await travelTo(page, monday('09:00'));
   await expect(page.getByRole('heading', { name: 'Próxima pausa' })).toBeVisible();
 });

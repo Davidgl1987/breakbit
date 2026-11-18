@@ -1,4 +1,4 @@
-import { DAY_END_LATE_MIN, DAY_END_LEAD_MIN, PAUSE_WINDOW } from '../config';
+import { DAY_END_LATE_MIN, PAUSE_WINDOW } from '../config';
 import { isOpen, windowEnd } from '../pause/window';
 import { atTime } from '../time';
 import type {
@@ -47,7 +47,8 @@ export interface ScheduleInput {
 
 /**
  * Today's reminders, past and future, following the user's preferences:
- * - the start of the workday, while the day hasn't been started (late, until it ends);
+ * - the start of the workday, with today's plan ready (it starts on its own) or still to make,
+ *   while nothing of it has been done (late, until its first pause comes, or else its end);
  * - each open microbreak when its (possibly postponed) time comes;
  * - a reminder every 10 min while it gets no answer ("Vamos", postpone or discard) and its
  *   window is open. Just opening the screen is not an answer;
@@ -56,8 +57,9 @@ export interface ScheduleInput {
  * - each of the day's breaks as it starts (late, until it ends), unless the main activity
  *   is in it (its own notice says so) or a meeting takes part of it. The main activity and
  *   the breaks follow the pauses preference;
- * - the end of the workday, 10 min before it, while the day is under way (late, up to two
- *   hours after it ends).
+ * - the end of the workday, as it ends, while the day is under way: how it went and the next
+ *   workday (late, up to two hours after it ends). Closing the day is optional; it closes
+ *   on its own the next day.
  */
 export function buildNotificationSchedule({
   date,
@@ -69,14 +71,15 @@ export function buildNotificationSchedule({
   if (!prefs.enabled || dayOff) return [];
   const planned: PlannedNotification[] = [];
 
-  if (prefs.dayStart && schedule && !record) {
+  const hours = record?.status === 'active' ? record.plan?.schedule : schedule;
+  if (prefs.dayStart && hours && (!record || (record.status === 'active' && untouched(record)))) {
     planned.push({
       id: `day-start:${date}`,
       kind: 'day_start',
-      at: atTime(date, schedule.workStart),
+      at: atTime(date, hours.workStart),
       date,
       tag: 'day-start',
-      until: atTime(date, schedule.workEnd),
+      until: Math.min(atTime(date, hours.workEnd), firstPauseAt(record) ?? Infinity),
     });
   }
 
@@ -145,7 +148,7 @@ export function buildNotificationSchedule({
     planned.push({
       id: `day-end:${date}`,
       kind: 'day_end',
-      at: end - DAY_END_LEAD_MIN * MINUTE,
+      at: end,
       date,
       tag: 'day-end',
       until: end + DAY_END_LATE_MIN * MINUTE,
@@ -174,4 +177,17 @@ function breakIsFree(plan: DayPlan, block: TimeBlock): boolean {
   return !plan.meetings.some((meeting) =>
     overlaps(atTime(plan.date, meeting.start), atTime(plan.date, meeting.end)),
   );
+}
+
+/** Nothing of the day has been done or started yet. */
+function untouched(record: DayRecord): boolean {
+  return !(record.plan?.activities ?? []).some(
+    (item) => item.startedAt !== undefined || item.status === 'completed',
+  );
+}
+
+/** When the day's first pause comes, if it has one. */
+function firstPauseAt(record: DayRecord | undefined): Instant | undefined {
+  const pauses = (record?.plan?.activities ?? []).filter((item) => item.kind === 'micro');
+  return pauses.length > 0 ? Math.min(...pauses.map((item) => item.currentScheduledAt)) : undefined;
 }

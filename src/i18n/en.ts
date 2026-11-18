@@ -156,7 +156,8 @@ export const en: Messages = {
     prepared: {
       kicker: 'Workday prepared',
       title: 'All set for today',
-      body: 'Your scheduled hours start at {time}. If you start earlier, you can change the start time.',
+      review: 'Review my plan',
+      body: 'Your plan is ready and starts at {time}. If you have meetings or different hours today, adjust it.',
     },
     late: { kicker: 'Scheduled hours ended', title: 'Still working?' },
     closed: {
@@ -253,10 +254,12 @@ export const en: Messages = {
       workToday: "I'm working today",
       undoDayOff: "Undo: I'm working today",
       over: 'Workday over',
-      overBody: 'Time to switch off. See how it went and close the day.',
+      overBody: 'Time to switch off. If you like, see how it went and get tomorrow ready.',
       endingSoon: 'Your workday ends at {time}',
-      endingSoonBody: 'See how it went and close the day.',
+      endingSoonBody: "When it ends we'll let you know how it went. No need to close anything.",
       closeDay: 'Close the day',
+      seeSummary: 'See how it went',
+      finishEarly: "I'm done for today",
       closed: 'Day closed',
       closedBody: '{verdict} · {pauses} · {xp} XP',
       closedData: '{pauses} · {xp} XP',
@@ -473,14 +476,14 @@ export const en: Messages = {
     },
     dayStart: {
       title: 'Start your workday',
-      body: 'Take a moment to check your day.',
+      body: "Today's plan is ready. If you have meetings or different hours, adjust it.",
     },
     main: { title: 'Time for your activity', body: '{name} · {duration}' },
     mainBreak: { title: 'Your break starts', body: 'Your activity: {name} · {duration}' },
     break: { title: 'Your break starts', body: 'Until {time}. Get up and clear your head.' },
     dayEnd: {
-      title: 'Your workday ends soon',
-      body: 'See how it went and close the day.',
+      title: 'Workday over',
+      body: 'See how your day went and get the next one ready.',
     },
     mainDone: { title: 'Activity done!', body: '{name} · +{xp} XP' },
     tabTitle: 'Break now',
@@ -708,7 +711,10 @@ export const en: Messages = {
       body: 'Breakbit helps you break up the hours sitting down with short breaks through the workday and one activity a day.',
       notMedical:
         "It isn't a medical tool and doesn't replace a professional. If you have pain or discomfort that doesn't go away, see one.",
-      privacy: 'Your data stays on this device: no accounts, no server, no tracking.',
+      privacy: 'Your data stays on this device: no accounts, no server.',
+      privacyLink: 'Privacy policy',
+      analytics: 'Anonymous usage statistics',
+      analyticsHint: 'No cookies, no personal data. They help us know whether Breakbit is useful.',
     },
     sections: {
       schedule: {
@@ -1162,6 +1168,66 @@ export const en: Messages = {
       },
       start: 'Go to Today',
     },
+  },
+  landing: {
+    how: 'How it works',
+    steps: {
+      plan: {
+        title: 'Tell it about your workday',
+        body: 'Your hours, any discomfort and the equipment you have at hand. It takes a minute.',
+      },
+      pauses: {
+        title: '1 to 3 minute breaks',
+        body: 'Through the day it suggests short exercises to do next to your desk. Not now? Postpone it.',
+      },
+      main: {
+        title: 'Some time to move',
+        body: 'Every day, one slightly longer activity: a walk, stretches or a routine with your equipment.',
+      },
+      avatar: {
+        title: 'Your avatar grows with you',
+        body: 'Every good week your character gets a little better, from slouched to optimized.',
+      },
+    },
+    perksTitle: 'Made not to get in the way',
+    perks: {
+      free: 'Free',
+      noAccount: 'No account, no sign-up',
+      private: 'Your data never leaves your device',
+      offline: 'Works offline',
+      install: 'Install it on your phone or computer',
+    },
+    finalTitle: 'Start today. It takes a minute.',
+    privacy: 'Privacy',
+    feedback: 'Feedback',
+  },
+  privacy: {
+    title: 'Privacy',
+    updated: 'Updated {date}',
+    data: {
+      title: 'Your data stays on your device',
+      body: 'Your workday, discomfort, equipment and progress are kept only in this browser or in the installed app. There are no accounts and no Breakbit server that receives them. You can export or delete them at any time from Settings.',
+    },
+    notifications: {
+      title: 'Reminders',
+      body: 'Break reminders are created by your own device; they never go through a server.',
+    },
+    stats: {
+      title: 'Anonymous statistics',
+      body: 'To know whether Breakbit is useful we anonymously count which screens are opened and a few milestones, such as finishing a break or coming back a week later. We use GoatCounter, with no cookies and no identifiers: your IP, your schedule and your choices in the app are not stored.',
+      optOut: 'You can turn them off in Settings › About Breakbit.',
+    },
+    health: {
+      title: "It isn't a medical tool",
+      body: "Breakbit doesn't replace a professional. If you have pain or discomfort that doesn't go away, see one.",
+    },
+    contact: 'For any question about your data, write to',
+    back: 'Back',
+  },
+  feedback: {
+    title: 'What do you think of Breakbit?',
+    body: "It has just come out and your opinion decides what comes next: what's too much, what's missing or what doesn't work.",
+    action: 'Send feedback',
   },
   dev: {
     open: 'Open developer tools',

@@ -103,6 +103,25 @@ describe('buildNotificationSchedule', () => {
     expect(schedule({ record: undefined, schedule: null })).toEqual([]);
   });
 
+  it('announces the start of a day that started on its own, until something is done', () => {
+    const starts = (input: Partial<ScheduleInput> = {}) =>
+      schedule(input).filter((item) => item.kind === 'day_start');
+    expect(starts()).toEqual([
+      {
+        id: `day-start:${DATE}`,
+        kind: 'day_start',
+        at: atTime(DATE, plan.schedule.workStart),
+        date: DATE,
+        tag: 'day-start',
+        // Opening the app late: once the first pause comes, its own notice is enough.
+        until: first.currentScheduledAt,
+      },
+    ]);
+    const notified = { ...first, status: 'notification_sent' as const };
+    expect(starts({ record: withFirst(() => start(notified, first.scheduledAt)) })).toEqual([]);
+    expect(starts({ record: { ...record(), status: 'closed' } })).toEqual([]);
+  });
+
   it('follows the preferences and days off', () => {
     expect(schedule({ dayOff: true })).toEqual([]);
     expect(schedule({ prefs: { ...settings.notifications, enabled: false } })).toEqual([]);
@@ -110,10 +129,13 @@ describe('buildNotificationSchedule', () => {
       schedule({ prefs: { ...settings.notifications, microbreaks: false } }).map(
         (item) => item.kind,
       ),
-    ).toEqual(['day_end']);
+    ).toEqual(['day_start', 'day_end']);
     expect(
       schedule({ record: undefined, prefs: { ...settings.notifications, dayStart: false } }),
     ).toEqual([]);
+    expect(
+      schedule({ prefs: { ...settings.notifications, dayStart: false } }).map((item) => item.kind),
+    ).not.toContain('day_start');
   });
 });
 
@@ -226,13 +248,13 @@ describe('breaks', () => {
 });
 
 describe('end of the workday', () => {
-  it('reminds 10 minutes before it ends, while the day is under way', () => {
+  it('tells as it ends how the day went, while the day is under way', () => {
     const end = schedule().filter((item) => item.kind === 'day_end');
     expect(end).toEqual([
       {
         id: `day-end:${DATE}`,
         kind: 'day_end',
-        at: atTime(DATE, settings.schedule.workEnd) - 10 * MIN,
+        at: atTime(DATE, settings.schedule.workEnd),
         date: DATE,
         tag: 'day-end',
         until: atTime(DATE, settings.schedule.workEnd) + 120 * MIN,

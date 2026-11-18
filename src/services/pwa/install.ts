@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { requestPersistentStorage } from '../storagePersistence';
+import { trackEvent } from '../analytics';
 
 /** Chromium's install prompt (not in the DOM types yet). */
 interface BeforeInstallPromptEvent extends Event {
@@ -28,6 +29,7 @@ export function initInstallPrompt(): void {
     deferred = null;
     installedNow = true;
     notify();
+    trackEvent('installed');
     void requestPersistentStorage();
   });
 }

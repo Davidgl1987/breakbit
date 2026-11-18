@@ -347,7 +347,11 @@ describe('Settings data', () => {
     await user.click(screen.getByRole('link', { name: 'Acerca de Breakbit' }));
     expect(screen.getByText('Versión 0.1.0')).toBeInTheDocument();
     expect(screen.getByText(/No es una herramienta médica/)).toBeInTheDocument();
-    expect(screen.getByText(/no hay cuentas, ni servidor/)).toBeInTheDocument();
+    expect(screen.getByText(/no hay cuentas ni servidor/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Política de privacidad' })).toHaveAttribute(
+      'href',
+      '/privacy',
+    );
   });
 
   it('rejects newer backups with a persistent explanation and preserves current data', async () => {
