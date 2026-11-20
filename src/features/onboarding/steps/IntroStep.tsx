@@ -41,7 +41,7 @@ export function IntroStep() {
   const { t, locale } = useT();
   const setLocale = useAppStore((state) => state.setLocale);
   const navigate = useNavigate();
-  const feedback = feedbackHref('Breakbit');
+  const feedback = feedbackHref('Breakbit', locale);
   const start = (from: string) => {
     trackEvent(`landing-start-${from}`);
     navigate(onboardingPath('welcome'));

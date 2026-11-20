@@ -52,6 +52,8 @@ jobs:
           VITE_GOATCOUNTER: ${{ vars.GOATCOUNTER_CODE }}
           # Where "Send feedback" leads (a form) and the contact address on /privacy.
           VITE_FEEDBACK_URL: ${{ vars.FEEDBACK_URL }}
+          # The same form in English, for the app in English (FEEDBACK_URL otherwise).
+          VITE_FEEDBACK_URL_EN: ${{ vars.FEEDBACK_URL_EN }}
           VITE_CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
 
       # GitHub Pages answers unknown paths with 404.html: the app itself, so deep links
