@@ -8,8 +8,8 @@ import styles from './FeedbackCard.module.css';
 
 /** Asks for an opinion; hidden until the build has somewhere to send it (app/site). */
 export function FeedbackCard() {
-  const { t } = useT();
-  const href = feedbackHref('Breakbit');
+  const { t, locale } = useT();
+  const href = feedbackHref('Breakbit', locale);
   if (!href) return null;
   return (
     <Card variant="tinted" className={styles.card}>

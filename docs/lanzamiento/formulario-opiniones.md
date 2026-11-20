@@ -66,3 +66,59 @@ seguir con tu pausa 😉
   algo que merece la pena seguir.
 - **9:** si tiene sentido cobrar por packs de material, antes de construirlos.
 - **10:** una lista de gente a la que avisar cuando salgan Android y las cuentas.
+
+---
+
+## In English (Tally)
+
+The same form, for the app in English. Its URL goes to the `FEEDBACK_URL_EN` variable; without
+it, the app in English links to the Spanish form.
+
+**Title:** What do you think of Breakbit?
+
+**Intro text:** Thanks for trying it. It takes 2 minutes and helps us decide what to improve.
+It's anonymous unless you leave your email at the end.
+
+1. **How many days have you used Breakbit?** [Multiple choice]
+   - I've only opened it
+   - 1 or 2 days
+   - 3 to 5 days
+   - More than a week
+
+2. **Where do you use it?** [Checkboxes]
+   - On a computer
+   - On my phone
+   - Installed as an app
+   - In the browser
+
+3. **When a break came up, did you take it?** [Multiple choice]
+   - Almost always
+   - Sometimes
+   - Almost never
+   - The reminders didn't reach me
+
+4. **How were the exercises?** [Linear scale, 1 to 5]
+   - 1 = Not useful at all · 5 = Very useful
+
+5. **How would you feel if Breakbit disappeared tomorrow?** [Multiple choice]
+   - Very disappointed
+   - Somewhat disappointed
+   - I wouldn't mind
+
+6. **What did you like most?** [Long answer] _optional_
+
+7. **What would you change, or what felt unnecessary?** [Long answer] _optional_
+
+8. **Did anything not work well?** A reminder that didn't arrive, a confusing exercise, something
+   that looked odd… [Long answer] _optional_
+
+9. **Would you be interested in extra routines with equipment (bands, dumbbells, kettlebell…)?**
+   [Multiple choice]
+   - Yes, and I'd pay a little for them
+   - Yes, but only if they're free
+   - Not interested
+
+10. **Want to hear about what's new?** Leave your email (only for that). [Email] _optional_
+
+**Thank-you page:** Thank you! We read everything. You can close this window and get on with your
+break 😉
