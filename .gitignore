@@ -10,3 +10,5 @@ coverage
 # Playwright
 test-results
 playwright-report
+# Launch screenshots (pnpm screenshots)
+docs/lanzamiento/capturas
